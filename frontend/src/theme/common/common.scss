@@ -1,0 +1,340 @@
+@use "../common/variable.scss" as *;
+
+.el-input {
+  &__inner {
+    color: var(--var-default-font-color) !important;
+  }
+  &__wrapper {
+    background-color: var(--var-page-background-color) !important;
+  }
+  &.is-round {
+    .el-input__wrapper {
+      border-radius: 20px !important;
+    }
+  }
+}
+
+.el-textarea {
+  &__inner {
+    color: var(--var-default-font-color) !important;
+    background-color: var(--var-page-background-color) !important;
+  }
+}
+
+.el-select {
+  &__wrapper {
+    background-color: var(--var-page-background-color) !important;
+  }
+  &__popper {
+    &.el-popper {
+      background-color: var(--var-page-background-color) !important;
+    }
+  }
+  &-dropdown {
+    &__item {
+      height: 48px !important;
+      line-height: 48px !important;
+      color: var(--var-default-font-color) !important;
+      &.is-hovering, &:hover {
+        background-color: var(--var-menu-actived-color) !important;
+      }
+    }
+  }
+}
+
+.el-popover {
+  &.el-popper {
+    color: var(--var-default-font-color) !important;
+    background-color: var(--var-card-background-color) !important;
+  }
+}
+
+.el-popper {
+  &.is-light {
+    border: 1px solid var(--var-menu-border-color) !important;
+    background-color: var(--var-card-background-color) !important;
+    .el-popper__arrow::before {
+      border: 1px solid var(--var-menu-border-color) !important;
+      background-color: var(--var-card-background-color) !important;
+    }
+  }
+}
+
+.el-popconfirm {
+  &__main {
+    i {
+      font-size: 18px;
+    }
+  }
+}
+
+.el-avatar {
+  flex-shrink: 0;
+}
+
+.el-dropdown {
+  &-menu {
+    background-color: var(--var-card-background-color) !important;
+    &__item {
+      color: var(--var-default-font-color) !important;
+    }
+    &__item:not(.is-disabled):focus {
+      background-color: var(--var-menu-actived-color) !important;
+    }
+  }
+}
+
+.el-progress {
+  &__text {
+    color: var(--var-default-font-color) !important;
+  }
+}
+
+.el-dialog {
+  padding: 0 !important;
+  border-radius: 18px !important;
+  background-color: var(--var-card-background-color);
+  &__title {
+    display: block;
+    padding: 12px 0 0 18px;
+    color: var(--var-default-font-color);
+  }
+  &__header {
+    border-bottom: 1px solid var(--var-menu-border-color);
+  }
+  &__body {
+    padding: 22px 32px 22px 32px;
+    color: var(--var-default-font-color);
+  }
+  &__footer {
+    padding: 14px 20px 14px 0;
+    border-top: 1px solid var(--var-menu-border-color);
+  }
+}
+
+.el-overlay {
+  &-dialog {
+    overflow: unset !important;
+  }
+}
+
+.el-tree {
+  overflow: auto;
+  color: var(--var-default-font-color) !important;
+  background: none !important;
+  &-node {
+    > .el-tree-node__content {
+      height: 44px !important;
+      cursor: default;
+      &:hover {
+        background-color: var(--var-module-hover-color) !important;
+      }
+    }
+    &:focus {
+      > .el-tree-node__content {
+        background-color: var(--var-module-hover-color) !important;
+      }
+    }
+  }
+  &--highlight-current {
+    .el-tree-node.is-current > .el-tree-node__content {
+      color: var(--var-theme-primary-4) !important;
+      background-color: var(--var-theme-primary-1) !important;
+    }
+  }
+}
+
+.el-drawer {
+  &__body {
+    padding: 0;
+  }
+}
+
+.el-icon {
+  position: unset;
+}
+
+.el-tabs {
+  &__header {
+    margin: 0 !important;
+    background-color: var(--var-page-background-color);
+  }
+  &__item {
+    height: 48px !important;
+    padding: 0 14px !important;
+    color: var(--var-default-font-color) !important;
+    &.is-active {
+      color: var(--var-theme-primary-4) !important;
+    }
+    &:hover {
+      color: var(--var-theme-primary-4) !important;
+    }
+  }
+  &__active-bar {
+    background-color: var(--var-theme-primary-4) !important;
+  }
+  &__nav-wrap::after {
+    height: 1px !important;
+    background-color: var(--var-menu-border-color) !important;
+  }
+}
+
+.el-loading {
+  &-mask {
+    background-color: var(--var-loading-background-color) !important;
+  }
+  &-spinner .path {
+    stroke: var(--var-theme-primary-4) !important;
+  }
+}
+
+.el-breadcrumb {
+  &__inner {
+    display: inline-flex;
+    align-items: center;
+    &.is-link {
+      font-weight: normal;
+      color: var(--var-theme-primary-4);
+    }
+  }
+}
+
+.el-message-box {
+  border-radius: 12px !important;
+  border: 1px solid var(--var-menu-border-color) !important;
+  background-color: var(--var-card-background-color) !important;
+  &__title {
+    color: var(--var-default-font-color) !important;
+  }
+  &__content {
+    color: var(--var-default-font-color) !important;
+  }
+}
+
+.el-notification {
+  background-color: var(--var-page-background-color) !important;
+  &__title {
+    color: var(--var-default-font-color) !important;
+  }
+}
+
+.table {
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  border-radius: $var-card-border-raduis;
+  background-color: var(--var-card-background-color);
+  .el-table {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    color: var(--var-default-font-color);
+    background-color: var(--var-card-background-color);
+    tr {
+      background-color: var(--var-card-background-color);
+      &:hover>td.el-table__cell {
+        background-color: var(--var-module-hover-color) !important;
+      }
+    }
+    th, td {
+      background-color: var(--var-card-background-color) !important;
+      &.el-table__cell {
+        padding: 0;
+        border-bottom-color: var(--var-menu-border-color);
+      }
+      &.el-table-fixed-column--right {
+        background-color: var(--var-card-background-color);
+      }
+    }
+    .cell {
+      padding: 0 10px !important;
+    }
+    thead {
+      th {
+        font-weight: normal;
+        padding: 10px 0 !important;
+      }
+    }
+    &__empty-block {
+      display: none;
+    }
+    &__inner-wrapper::before {
+      background-color: var(--var-menu-border-color);
+    }
+    &--striped {
+      .el-table__body tr.el-table__row--striped td.el-table__cell {
+        background-color: var(--var-module-hover-color);
+      }
+    }
+    .index {
+      color: $var-color-text-primary;
+    }
+  }
+  table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: var(--var-card-background-color);
+    thead {
+      z-index: 10;
+      position: relative;
+      th {
+        height: 48px;
+        text-align: left;
+        font-weight: 400;
+        top: 0;
+        position: sticky;
+        padding: 0 28px;
+        border-bottom: 1px solid var(--var-menu-border-color);
+        background-color: var(--var-card-background-color);
+      }
+    }
+    tbody {
+      tr {
+        &:hover {
+          background: var(--var-menu-actived-color);
+        }
+      }
+      td {
+        height: 62px;
+        padding: 0 22px;
+        border-bottom: 1px solid var(--var-menu-border-color);
+      }
+    }
+  }
+}
+
+input {
+  background-color: var(--var-page-background-color);
+}
+
+.pagination {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  border-radius: $var-card-border-raduis;
+  background-color: var(--var-card-background-color);
+  .el-pager {
+    li {
+      color: var(--var-default-font-color);
+      background-color: var(--var-card-background-color);
+      &:hover {
+        color: var(--var-theme-primary-4);
+      }
+      &.is-active {
+        color: var(--var-theme-primary-4);
+      }
+    }
+  }
+  .el-pagination {
+    margin-left: auto;
+    button {
+      background-color: var(--var-card-background-color) !important;
+    }
+  }
+}

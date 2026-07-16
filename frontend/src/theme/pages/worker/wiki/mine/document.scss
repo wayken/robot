@@ -1,0 +1,10 @@
+.document {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--var-card-background-color);
+  .source {
+    flex: 1;
+    overflow: auto;
+  }
+}

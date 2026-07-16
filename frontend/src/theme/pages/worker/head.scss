@@ -1,0 +1,69 @@
+@use "../../common/variable.scss" as *;
+
+.a-head {
+  height: 48px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--var-menu-border-color);
+  background-color: var(--var-card-background-color);
+  .head--left {
+    .drawer {
+      cursor: pointer;
+      margin-right: 12px;
+      position: relative;
+      &:after {
+        content: "";
+        width: 1px;
+        height: 20px;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--var-theme-primary-4);
+      }
+      > svg {
+        color: #888;
+        margin-right: 12px;
+      }
+      &:hover {
+        svg {
+          color: var(--var-theme-primary-4);
+        }
+      }
+    }
+    .image {
+      img {
+        width: 34px;
+        height: 34px;
+        display: block;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+    }
+    .name {
+      margin-left: 8px;
+    }
+  }
+  .menu {
+    > div {
+      margin: 0 4px;
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 18px;
+      > svg {
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
+      }
+      .text {
+        font-size: 14px;
+      }
+      &.is-actived {
+        color: var(--var-theme-primary-4);
+        background-color: var(--var-module-background-color);
+      }
+      &:hover {
+        background-color: var(--var-module-background-color);
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+.a-provider-window-model {
+  background-color: var(--var-card-background-color);
+  .icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    margin-right: 8px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

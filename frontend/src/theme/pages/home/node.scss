@@ -1,0 +1,296 @@
+@use "../../common/variable.scss" as *;
+
+.a-node {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  .head {
+    height: 42px;
+    padding: 0 22px;
+    background-color: var(--var-card-background-color);
+    &--right {
+      .a-button {
+        margin-left: 12px;
+      }
+    }
+    .view {
+      padding: 4px;
+      font-size: 16px;
+      border-radius: 6px;
+      margin-right: 12px;
+      background-color: var(--var-module-background-color);
+      .icon {
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        color: #909399;
+        border-radius: 4px;
+        &:hover {
+          color: var(--var-theme-primary-4);
+        }
+        &.is-actived {
+          color: #fff;
+          background: var(--var-theme-primary-4);
+        }
+      }
+    }
+  }
+  .status {
+    margin: 8px 8px;
+    padding: 12px 24px;
+    border-radius: 3px;
+    background-color: var(--var-card-background-color);
+    .board {
+      flex: 1;
+      text-align: center;
+      .value {
+        font-size: 22px;
+        line-height: 1.2;
+        font-weight: 600;
+        color: var(--el-text-color-primary);
+      }
+      .label {
+        font-size: 13px;
+        margin-top: 8px;
+        color: var(--var-default-font-color);
+      }
+      &.is-total .value {
+        color: var(--var-theme-primary-4);
+      }
+      &.is-online .value {
+        color: #67c23a;
+      }
+      &.is-offline .value {
+        color: #a8abb2;
+      }
+      &.is-error .value {
+        color: #f56c6c;
+      }
+    }
+    .divider {
+      width: 1px;
+      height: 36px;
+      background: var(--var-menu-border-color);
+    }
+  }
+  .content {
+    flex: 1;
+    padding: 0 8px;
+    overflow: auto;
+    position: relative;
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      &.is-dot-online {
+        background-color: #67c23a;
+        animation: node-pulse-online 2s infinite;
+        box-shadow: 0 0 0 2px rgba(103, 194, 58, 0.25);
+      }
+      &.is-dot-offline {
+        background-color: #a8abb2;
+      }
+      &.is-dot-failure {
+        background-color: #f56c6c;
+        box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.25);
+      }
+    }
+  }
+  .card {
+    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    .node {
+      padding: 16px;
+      cursor: pointer;
+      border-radius: 3px;
+      border: 1px solid var(--var-menu-border-color);
+      border-left: 3px solid transparent;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      background-color: var(--var-card-background-color);
+      &:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+    }
+    .identity {
+      flex: 1;
+      gap: 8px;
+      .name {
+        font-size: 15px;
+      }
+    }
+    .address {
+      margin: 12px 0 12px 0;
+      .icon {
+        font-size: 16px;
+        margin-right: 6px;
+      }
+      .name {
+        color: var(--var-theme-primary-4);
+      }
+    }
+    .metadata {
+      .el-icon {
+        font-size: 16px;
+        margin-right: 4px;
+      }
+      .label {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 3px;
+      }
+      .uptime {
+        color: #909399;
+        margin-left: 12px;
+      }
+    }
+    .metrics {
+      margin: 12px 0;
+      .metric {
+        gap: 8px;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+      .label {
+        width: 30px;
+        color: #909399;
+      }
+      .progress {
+        flex: 1;
+      }
+      .value {
+        width: 36px;
+        color: #909399;
+        text-align: right;
+      }
+    }
+    .system {
+      margin-top: 14px;
+      padding: 14px 0 0 0;
+      border-top: 1px solid var(--var-menu-border-color);
+      .info {
+        gap: 8px;
+        font-size: 13px;
+        color: #909399;
+      }
+    }
+    .is-status-0 {
+      border-left-color: #a8abb2;
+      .metadata .label {
+        color: #909399;
+        background-color: #f4f4f5;
+      }
+    }
+    .is-status-1 {
+      border-left-color: #67c23a;
+      .metadata .label {
+        color: #67c23a;
+        background-color: #f0f9eb;
+      }
+    }
+    .is-status-2 {
+      border-left-color: #f56c6c;
+      .metadata .label {
+        color: #f56c6c;
+        background-color: #fef0f0;
+      }
+    }
+  }
+  .table {
+    td {
+      height: 82px;
+    }
+    .infomation {
+      display: flex;
+      gap: 12px 32px;
+      flex-wrap: wrap;
+      padding: 12px 24px;
+      .field {
+        gap: 6px;
+        .label {
+          gap: 4px;
+          display: flex;
+          font-size: 13px;
+          color: #909399;
+          align-items: center;
+        }
+        .icon {
+          font-size: 18px;
+          margin-right: 2px;
+        }
+        .value {
+          font-size: 13px;
+          color: #909399;
+        }
+      }
+    }
+    .identity {
+      .name {
+        margin-left: 8px;
+      }
+    }
+    .address {
+      .mono {
+        color: var(--var-theme-primary-4);
+      }
+    }
+    .metadata {
+      .el-icon {
+        font-size: 15px;
+        margin-right: 4px;
+      }
+      .label {
+        font-size: 12px;
+        padding: 2px 12px;
+        border-radius: 3px;
+      }
+    }
+    .os {
+      .icon {
+        margin-right: 8px;
+      }
+    }
+    .metric {
+      .value {
+        width: 32px;
+        font-size: 12px;
+        text-align: right;
+        color: #909399;
+      }
+    }
+    .is-status-0 {
+      border-left-color: #a8abb2;
+      &.metadata .label {
+        color: #909399;
+        background-color: #f4f4f5;
+      }
+    }
+    .is-status-1 {
+      border-left-color: #67c23a;
+      &.metadata .label {
+        color: #67c23a;
+        background-color: #f0f9eb;
+      }
+    }
+    .is-status-2 {
+      border-left-color: #f56c6c;
+      &.metadata .label {
+        color: #f56c6c;
+        background-color: #fef0f0;
+      }
+    }
+  }
+}
+
+@keyframes node-pulse-online {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(103, 194, 58, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(103, 194, 58, 0.1);
+  }
+}
+
+@import './node/window.scss';

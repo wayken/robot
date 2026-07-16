@@ -1,0 +1,35 @@
+.x-completion {
+  &-shadow {
+    opacity: 0.4;
+    user-select: none;
+    pointer-events: none;
+    white-space: pre-wrap;
+  }
+  &-loading {
+    margin-left: 2px;
+    user-select: none;
+    align-items: center;
+    display: inline-flex;
+    pointer-events: none;
+    vertical-align: middle;
+    .dot {
+      width: 4px;
+      height: 4px;
+      opacity: 0.6;
+      margin: 0 1.5px;
+      border-radius: 50%;
+      background-color: var(--var-theme-primary-4);
+      animation: x-completion-dot-bounce 0.6s ease-in-out infinite alternate;
+    }
+  }
+  @keyframes x-completion-dot-bounce {
+    0% {
+      transform: translateY(0);
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+}

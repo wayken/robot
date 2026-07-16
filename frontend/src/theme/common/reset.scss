@@ -1,0 +1,81 @@
+@use "variable.scss" as *;
+
+body, html {
+  font-family: 'Inter', 'Avenir Next', 'SF Pro Display', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  height: 100%;
+  width: 100%;
+  font-size: $var-font-size-base;
+  font-weight: 400;
+  color: #333;
+}
+
+body, div, span, p, ul, ol, li, td, th, button, form, input, textarea {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: inherit;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+h1 {
+  font-size: #{$var-font-size-base + 6px};
+}
+
+h2 {
+  font-size: #{$var-font-size-base + 4px};
+}
+
+h3 {
+  font-size: #{$var-font-size-base + 2px};
+}
+
+h4, h5, h6, p {
+  font-size: inherit;
+}
+
+p {
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+sup, sub {
+  font-size: #{$var-font-size-base - 1px};
+}
+
+small {
+  font-size: #{$var-font-size-base - 2px};
+}
+
+hr {
+  border: 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-top: 1px solid #eeeeee;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}

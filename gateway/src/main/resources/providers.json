@@ -1,0 +1,405 @@
+[
+  {
+    "id": 1,
+    "name": "silicon",
+    "type": "openai",
+    "is_system": 1,
+    "url": "https://api.siliconflow.cn/v1/chat/completions",
+    "models": [
+      {
+        "name": "Deepseek-AI",
+        "model": [
+          {
+            "type": "deepseek",
+            "name": "deepseek-ai/DeepSeek-R1",
+            "properties": [1, 2, 3, 4]
+          },
+          {
+            "type": "deepseek",
+            "name": "deepseek-ai/DeepSeek-V3",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "Qwen",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "Qwen/Qwen2.5-7B-Instruct",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "Qwen",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "Qwen/Qwen3.5-397B-A17B",
+            "properties": [3]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "openai",
+    "type": "openai",
+    "is_system": 1,
+    "url": "https://api.openai.com/v1/chat/completions",
+    "models": [
+      {
+        "name": "GPT 4o",
+        "model": [
+          {
+            "type": "openai",
+            "name": "GPT-4o",
+            "properties": [3]
+          },
+          {
+            "type": "openai",
+            "name": "GPT-4o-mini",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "o1",
+        "model": [
+          {
+            "type": "openai",
+            "name": "o1-mini",
+            "properties": [3]
+          },
+          {
+            "type": "openai",
+            "name": "o1-preview",
+            "properties": [3]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "astraflow",
+    "type": "openai",
+    "is_system": 1,
+    "url": "https://api.modelverse.cn/v1/chat/completions",
+    "models": [
+      {
+        "name": "Deepseek-AI",
+        "model": [
+          {
+            "type": "deepseek",
+            "name": "deepseek-ai/DeepSeek-V3.1",
+            "properties": [3, 4]
+          },
+          {
+            "type": "deepseek",
+            "name": "deepseek-ai/DeepSeek-R1",
+            "properties": [3, 4]
+          },
+          {
+            "type": "deepseek",
+            "name": "deepseek-v4-pro",
+            "properties": [3, 4]
+          },
+          {
+            "type": "deepseek",
+            "name": "deepseek-v4-flash",
+            "properties": [3, 4]
+          }
+        ]
+      },
+      {
+        "name": "Anthropic",
+        "model": [
+          {
+            "type": "anthropic",
+            "name": "claude-opus-4-6",
+            "properties": [3, 4]
+          },
+          {
+            "type": "anthropic",
+            "name": "claude-sonnet-4.5",
+            "properties": [3, 4]
+          },
+          {
+            "type": "anthropic",
+            "name": "claude-sonnet-4.5-thinking",
+            "properties": [3, 4]
+          },
+          {
+            "type": "anthropic",
+            "name": "claude-opus-4-8",
+            "properties": [3, 4]
+          },
+          {
+            "type": "anthropic",
+            "name": "claude-opus-4-7",
+            "properties": [3, 4]
+          },
+          {
+            "type": "anthropic",
+            "name": "claude-sonnet-4-6",
+            "properties": [3, 4]
+          },
+          {
+            "type": "anthropic",
+            "name": "claude-haiku-4-5-20251001",
+            "properties": [3, 4]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "deepseek",
+    "type": "openai",
+    "is_system": 1,
+    "url": "https://api.deepseek.com/v1/chat/completions",
+    "models": [
+      {
+        "name": "DeepSeek Chat",
+        "model": [
+          {
+            "type": "deepseek",
+            "name": "deepseek-chat",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "DeepSeek Reasoner",
+        "model": [
+          {
+            "type": "deepseek",
+            "name": "deepseek-reasoner",
+            "properties": [3]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "ollama",
+    "type": "openai",
+    "is_system": 1,
+    "url": "http://localhost:11434/v1/chat/completions",
+    "models": [
+      {
+        "name": "Deepseek-AI",
+        "model": [
+          {
+            "type": "deepeek",
+            "name": "deepseek-r1:14b"
+          }
+        ]
+      },
+      {
+        "name": "Qwen",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "qwen2.5-coder:14b"
+          },
+          {
+            "type": "qwenlm",
+            "name": "qwen2.5:14b"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "hunyuan",
+    "type": "openai",
+    "is_system": 1,
+    "url": "https://api.hunyuan.cloud.tencent.com/v1/chat/completions",
+    "models": [
+      {
+        "name": "Hunyuan",
+        "model": [
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-pro",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-standard",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-lite",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-standard-256k",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-vision",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-code",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-role",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-standard",
+            "properties": [3]
+          },
+          {
+            "type": "hunyuan",
+            "name": "hunyuan-turbo",
+            "properties": [3]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "baiducloud",
+    "type": "openai",
+    "is_system": 1,
+    "url": "https://qianfan.baidubce.com/v2/chat/completions",
+    "models": [
+      {
+        "name": "DeepSeek",
+        "model": [
+          {
+            "type": "deepseek",
+            "name": "deepseek-r1",
+            "properties": [3]
+          },
+          {
+            "type": "deepseek",
+            "name": "deepseek-v3",
+            "properties": [3]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "gemini",
+    "type": "gemini",
+    "is_system": 1,
+    "url": "https://generativelanguage.googleapis.com/v1/chat/completions",
+    "models": [
+      {
+        "name": "Gemini 1.5",
+        "model": [
+          {
+            "type": "gemini",
+            "name": "gemini-1.5-flash",
+            "properties": [3]
+          },
+          {
+            "type": "gemini",
+            "name": "gemini-1.5-flash-8b",
+            "properties": [3]
+          },
+          {
+            "type": "gemini",
+            "name": "gemini-1.5-pro",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "Gemini 2.0",
+        "model": [
+          {
+            "type": "gemini",
+            "name": "gemini-2.0-flash",
+            "properties": [3]
+          },
+          {
+            "type": "gemini",
+            "name": "gemini-2.0-flash-lite",
+            "properties": [3]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "qwenlm",
+    "type": "openai",
+    "is_system": 1,
+    "url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "models": [
+      {
+        "name": "qwen-vl",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "qwen-vl-plus",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "qwen-coder",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "qwen-coder-plus",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "qwen-plus",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "qwen-plus",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "qwen-turbo",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "qwen-turbo",
+            "properties": [3]
+          }
+        ]
+      },
+      {
+        "name": "qwen-max",
+        "model": [
+          {
+            "type": "qwenlm",
+            "name": "qwen-max",
+            "properties": [3]
+          }
+        ]
+      }
+    ]
+  }
+]

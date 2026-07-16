@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>teambeit-cloud</artifactId>
+        <groupId>cloud.apposs</groupId>
+        <version>1.0.0</version>
+        <relativePath></relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>teambeit-robot</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0</version>
+    <modules>
+        <module>gateway</module>
+        <module>worker</module>
+        <module>harness</module>
+        <module>shellx</module>
+    </modules>
+
+    <properties>
+        <!-- 项目编码 -->
+        <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+        <!-- 编译版本 -->
+        <jdk.version>1.8</jdk.version>
+        <!-- 项目依赖包指定版本，版本按最小1.0.0，最大不超过2.0.0来自动更新包 -->
+        <cloud.apposs.util.version>[1.0.0,2.0.0)</cloud.apposs.util.version>
+        <cloud.apposs.logger.version>[1.0.0,2.0.0)</cloud.apposs.logger.version>
+        <cloud.apposs.balance.version>[1.0.0,2.0.0)</cloud.apposs.balance.version>
+        <cloud.apposs.protobuf.version>[1.0.0,2.0.0)</cloud.apposs.protobuf.version>
+        <cloud.apposs.threadx.version>[1.0.0,2.0.0)</cloud.apposs.threadx.version>
+        <cloud.apposs.cachex.version>[1.0.0,2.0.0)</cloud.apposs.cachex.version>
+        <cloud.apposs.guard.version>[1.0.0,2.0.0)</cloud.apposs.guard.version>
+        <cloud.apposs.react.version>[1.0.0,2.0.0)</cloud.apposs.react.version>
+        <cloud.apposs.iohttp.version>[1.0.0,2.0.0)</cloud.apposs.iohttp.version>
+        <cloud.apposs.rest.version>[1.0.0,2.0.0)</cloud.apposs.rest.version>
+        <cloud.apposs.webx.version>[1.0.0,2.0.0)</cloud.apposs.webx.version>
+        <cloud.apposs.netkit.version>[1.0.0,2.0.0)</cloud.apposs.netkit.version>
+        <cloud.apposs.bootor.version>[1.0.0,2.0.0)</cloud.apposs.bootor.version>
+        <cloud.apposs.websocket.version>[1.0.0,2.0.0)</cloud.apposs.websocket.version>
+        <cloud.apposs.app.version>[1.0.0,2.0.0)</cloud.apposs.app.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>teambeit-util</artifactId>
+            <version>${cloud.apposs.util.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>teambeit-logger</artifactId>
+            <version>${cloud.apposs.logger.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>teambeit-cache</artifactId>
+            <version>${cloud.apposs.cache.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>teambeit-ioc</artifactId>
+            <version>${cloud.apposs.ioc.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>cloud.apposs</groupId>
+            <artifactId>teambeit-okhttp</artifactId>
+            <version>${cloud.apposs.okhttp.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+</project>

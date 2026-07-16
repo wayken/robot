@@ -1,0 +1,87 @@
+@use "../common/variable.scss" as *;
+
+.a-main-head {
+  height: 42px;
+  user-select: none;
+  -webkit-app-region: drag;
+  border-bottom: 1px solid var(--var-menu-border-color);
+  background-color: var(--var-card-background-color);
+  .head--left {
+    flex: 1;
+    overflow: hidden;
+    padding: 0 4px;
+    > div {
+      height: 32px;
+      -webkit-app-region: no-drag;
+    }
+    .windows {
+      position: relative;
+    }
+    .window, .append {
+      max-width: 240px;
+      cursor: pointer;
+      padding: 0 14px;
+      margin-left: 8px;
+      border-radius: 5px;
+      background-color: var(--var-module-hover-color);
+      .icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .name {
+        margin-left: 4px;
+      }
+      .close {
+        font-size: 15px;
+        margin-left: 4px;
+        color: var(--var-default-font-color);
+        transform: rotate(0);
+        transition: transform 0.3s;
+        &:hover {
+          color: $var-color-danger;
+          transform: rotate(90deg);
+        }
+      }
+      &.is-actived {
+        color: var(--var-theme-primary-4);
+      }
+      &:hover {
+        color: var(--var-theme-primary-4);
+      }
+    }
+  }
+  .head--right {
+    height: 100%;
+    -webkit-app-region: no-drag;
+    .icon {
+      width: 38px;
+      height: 100%;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      > svg {
+        width: 18px;
+        height: 18px;
+      }
+      &.is-actived {
+        color: #fff;
+        background-color: var(--var-theme-primary-4);
+      }
+      &:hover {
+        color: var(--var-theme-primary-4);
+        background-color: var(--var-module-hover-color);
+      }
+      &.close:hover {
+        color: #fff;
+        background-color: $var-color-danger;
+      }
+    }
+    .button {
+      width: auto;
+      padding: 0 14px;
+      .name {
+        margin-left: 8px;
+      }
+    }
+  }
+}

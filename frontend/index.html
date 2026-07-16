@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%- VITE_APP_TITLE %></title>
+    <style>
+      :root {
+        /** -- 外观变量 -- */
+        --var-page-background-color: #f6f8f9;
+        --var-menu-border-color: #eeeeee;
+        --var-menu-actived-color: #f4f5f5;
+        --var-default-font-color: #24292e;
+        --var-module-hover-color: #f4f5f5;
+        --var-module-background-color: #f4f5f5;
+        --var-card-background-color: #ffffff;
+        --var-scrollbar-background-color: #d3d5d7;
+        --var-selection-background-color: #ebf5ff;
+        --var-loading-background-color: rgba(255, 255, 255, 0.8);
+        /** -- 主题变量 -- */
+        --var-theme-primary-1: rgba(64, 158, 255, 0.1);
+        --var-theme-primary-2: rgba(64, 158, 255, 0.4);
+        --var-theme-primary-3: rgba(64, 158, 255, 0.7);
+        --var-theme-primary-4: #409eff;
+        --var-theme-primary-5: #2563eb;
+        --var-theme-primary-6: #1d4ed8;
+        --var-theme-primary-7: #1e40af;
+        --var-theme-primary-8: #1e3a8a;
+      }
+    </style>
+    <style>
+      .web-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #fff;
+      }
+      .web-loading .loading-box {
+        position: relative;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, transparent, transparent 40%, #409eff);
+        animation: animate-loading 1s linear infinite;
+      }
+      .web-loading .loading-box::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+        background-color: #fff;
+        border-radius: 50%;
+        z-index: 10;
+      }
+      .web-loading .loading-box::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, transparent 40%, #409eff);
+        border-radius: 50%;
+        filter: blur(2px);
+      }
+      @keyframes animate-loading {
+        0% {
+          transform: rotate(0deg);
+          filter: hue-rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+          filter: hue-rotate(360deg);
+        }
+      }
+      .web-loading .loading-icon {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%,-50%);
+        width: 166px;
+        height: 166px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 14px 0 rgb(0 0 0 / 16%);
+        border-radius: 50%;
+        overflow: hidden;
+      }
+      .web-loading svg {
+        width: 120px;
+        height: 120px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="web-loading">
+        <div class="loading-box"></div>
+        <div class="loading-icon">
+          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
+            <rect x="239.304" y="289.525" style="fill:#D7D7D7;" width="33.391" height="112.818"/>
+            <rect x="256" y="289.525" style="fill:#B0B0B0;" width="16.696" height="112.818"/>
+            <g>
+              <rect x="59.325" y="348.483" style="fill:#D7D7D7;" width="33.391" height="53.86"/>
+              <rect x="118.254" y="225.012" transform="matrix(-0.4931 -0.87 0.87 -0.4931 -38.6611 529.5649)" style="fill:#D7D7D7;" width="33.392" height="102.068"/>
+            </g>
+            <g>
+              <rect x="419.283" y="348.483" style="fill:#B0B0B0;" width="33.391" height="53.86"/>
+              <rect x="326.011" y="259.346" transform="matrix(-0.87 -0.4931 0.4931 -0.87 568.9533 702.1093)" style="fill:#B0B0B0;" width="102.069" height="33.392"/>
+              <path style="fill:#B0B0B0;" d="M332.025,478.372H179.975v-16.696c0-41.921,34.105-76.025,76.025-76.025 s76.025,34.105,76.025,76.025L332.025,478.372L332.025,478.372z"/>
+            </g>
+            <path style="fill:#8B8B8B;" d="M332.025,478.372H256c0,0,0-60.4,0-92.721c41.921,0,76.025,34.105,76.025,76.025L332.025,478.372 L332.025,478.372z"/>
+            <path style="fill:#B0B0B0;" d="M152.051,478.372H0v-16.696c0-41.921,34.105-76.025,76.025-76.025s76.025,34.105,76.025,76.025 V478.372z"/>
+            <path style="fill:#8B8B8B;" d="M512,478.372H359.949v-16.696c0-41.921,34.105-76.025,76.025-76.025S512,419.755,512,461.676V478.372 z"/>
+            <g>
+              <path style="fill:#B5E45F;" d="M76.025,365.178c-23.474,0-42.572-19.096-42.572-42.571c0-23.474,19.098-42.572,42.572-42.572 c23.473,0,42.571,19.098,42.571,42.572C118.596,346.082,99.499,365.178,76.025,365.178z"/>
+              <path style="fill:#B5E45F;" d="M435.975,365.178c-23.473,0-42.571-19.096-42.571-42.571c0-23.474,19.098-42.572,42.571-42.572 c23.474,0,42.572,19.098,42.572,42.572C478.546,346.082,459.449,365.178,435.975,365.178z"/>
+              <path style="fill:#B5E45F;" d="M256,296.786c-72.553,0-131.578-59.026-131.578-131.58c0-72.553,59.026-131.578,131.578-131.578 s131.578,59.026,131.578,131.578S328.553,296.786,256,296.786z"/>
+            </g>
+            <g>
+              <path style="fill:#7DBB4E;" d="M256,296.786c0-44.631,0-237.135,0-263.158c72.553,0,131.578,59.026,131.578,131.578 S328.553,296.786,256,296.786z"/>
+              <path style="fill:#7DBB4E;" d="M256,235.257c-38.626,0-70.051-31.425-70.051-70.052S217.374,95.156,256,95.156 s70.051,31.423,70.051,70.05S294.626,235.257,256,235.257z"/>
+            </g>
+            <path style="fill:#588D3F;" d="M256,235.257c0-31.047,0-97.152,0-140.101c38.626,0,70.051,31.423,70.051,70.05 S294.626,235.257,256,235.257z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

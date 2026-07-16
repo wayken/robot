@@ -1,0 +1,95 @@
+.a-disk-window {
+  .el-dialog {
+    &__body {
+      padding: 0;
+    }
+    &__footer {
+      border-top: 1px solid var(--var-menu-border-color);
+    }
+  }
+  .main {
+    margin: 12px 12px;
+    user-select: none;
+  }
+  .content {
+    height: 288px;
+    overflow: auto;
+    padding: 8px 8px;
+    position: relative;
+    border-radius: 6px;
+    border: 1px solid var(--var-menu-border-color);
+    .module {
+      height: 42px;
+      cursor: pointer;
+      padding: 0 12px;
+      margin-bottom: 2px;
+      border-radius: 4px;
+      &:hover {
+        background-color: var(--var-module-hover-color);
+      }
+      &.is-selected {
+        background-color: var(--var-theme-primary-1);
+      }
+      .icon {
+        color: #5fb2fe;
+        flex-shrink: 0;
+        margin-right: 8px;
+      }
+      .name {
+        flex: 1;
+        font-size: 14px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .check {
+        flex-shrink: 0;
+        color: var(--var-theme-primary-5);
+      }
+      .open-btn {
+        display: none;
+        flex-shrink: 0;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 4px 8px;
+        margin-left: 8px;
+        border-radius: 4px;
+        color: var(--var-theme-primary-4);
+        &:hover {
+          background-color: var(--var-theme-primary-1);
+        }
+      }
+      &:hover .open-btn {
+        display: block;
+      }
+    }
+  }
+  .breadcrumb {
+    flex-wrap: wrap;
+    margin: 0 0 12px 4px;
+    .menu {
+      gap: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      &.is-active {
+        color: var(--var-theme-primary-4);
+      }
+      &:not(.is-active):hover {
+        color: var(--var-theme-primary-4);
+      }
+      .icon {
+        margin-right: 4px;
+        margin-bottom: -2px;
+      }
+    }
+  }
+  .marked {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: var(--var-theme-primary-1);
+    .value {
+      color: var(--var-theme-primary-4);
+    }
+  }
+}

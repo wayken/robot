@@ -1,0 +1,57 @@
+gateway:
+  # 网络相关配置
+  network:
+    # IO模式，可为NETTY
+    io_mode: netty
+    # 多少个EventLoop轮询器，主要用于处理各自网络读写数据
+    # 当服务性能不足可提高此配置提升对网络IO的并发处理，但注意EventLoop业务层必须要做到异步，不能有同步阻塞请求
+    eventloop_count: 8
+    # 工作线程池数量
+    worker_count: 1024
+    # 半连接队列数
+    backlog: 2048
+    # 是否允许共用该端口
+    reuse-address: on
+    # 开启此参数，那么客户端在每次发送数据时，无论数据包的大小都会将这些数据发送出去
+    tcp_nodelay: on
+    # 是否采用Linux底层Epoll网络模型，针对底层为NETTY
+    # Netty底层会通过Native方法为调用底层Epoll函数，可以提升性能，减少GC
+    use_linux_epoll: off
+  # HTTP相关配置
+  http:
+    # 网关监听HOST
+    host: 0.0.0.0
+    # 网关监听端口
+    port: 8160
+    # 网关服务编码
+    charset: utf-8
+    # 启动网关时是否显示BANNER信息
+    banner: true
+  # 缓存相关配置
+  cache:
+    type: jvm
+    expiration_time: 3600000
+    expiration_time_random: true
+  # 日志相关配置
+  logger:
+    # 日志输出级别，可为FATAL（致命）、ERROR（错误）、WARN（警告）、INFO（信息）、DEBUG（调试）、TRACE（追踪）、OFF（关闭）
+    level: trace
+    # 日志输出终端，可为CONSOLE（控制台）、FILE（文件）
+    appender: console
+    # 日志的存储路径，前提是appender配置为FILE
+    path: C://logs-{yyyy-MM-dd}.log
+    # 日志输出模板
+    format: "%d{yyyy-MM-dd HH:mm:ss} %-5.5P %I --- %-32.32c : %m%n%E"
+  database:
+    # 数据库类型，可为MYSQL、SQLITE
+    dialect: mysql
+    # 数据库连接地址
+    url: "jdbc:mysql://192.168.5.57:9090/robot?useUnicode=true&characterEncoding=UTF8&connectTimeout=1000&socketTimeout=3000"
+    # 数据库用户名
+    username: root
+    # 数据库密码
+    password: root
+    # 数据库连接池最小连接数
+    min_pool_size: 12
+    # 数据库连接池最大连接数
+    max_pool_size: 24

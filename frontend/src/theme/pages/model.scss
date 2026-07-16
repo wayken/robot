@@ -1,0 +1,41 @@
+// 模型属性标签通用样式
+.a-model-marker {
+  font-size: 12px;
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  box-sizing: border-box;
+  vertical-align: middle;
+  > i {
+    font-size: 16px;
+    margin-right: 4px;
+  }
+  &.is-embedding {
+    color: #d46b08;
+    background: #fff7e6;
+    border: 1px solid #ffd591;
+  }
+  &.is-vision {
+    color: #08979c;
+    background: #e6fffb;
+    border: 1px solid #87e8de;
+  }
+  &.is-inference {
+    color: #531dab;
+    background: #f9f0ff;
+    border: 1px solid #d3adf7;
+  }
+  &.is-tool {
+    color: #1d39c4;
+    background: #f0f5ff;
+    border: 1px solid #adc6ff;
+  }
+  &.is-bedrock {
+    color: #c41d7f;
+    background: #fff0f6;
+    border: 1px solid #ffadd2;
+  }
+}

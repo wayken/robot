@@ -1,0 +1,32 @@
+appId: cloud.apposs.wiki
+productName: TeambeitWiki
+asar: true
+directories:
+  buildResources: assets
+  output: release/${version}
+files:
+  - dist
+mac:
+  icon: "./public/logo.ico"
+  target:
+    - dmg
+  artifactName: ${productName}_${version}.${ext}
+win:
+  icon: "./public/logo.ico"
+  target:
+    - nsis
+  artifactName: ${productName}_${version}.${ext}
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  artifactName: ${productName}_${version}.${ext}
+  deleteAppDataOnUninstall: true
+publish:
+  provider: generic
+  url: https://app.yiurl.net/wiki/version

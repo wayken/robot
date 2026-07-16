@@ -1,0 +1,100 @@
+@use "../../common/variable.scss" as *;
+
+.a-setting {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  padding: $var-page-body-padding;
+  .card {
+    padding: 0 28px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    background-color: var(--var-card-background-color);
+    .field {
+      height: 64px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      &::after {
+        content: '';
+        position: absolute;
+        box-sizing: border-box;
+        right: 0px;
+        bottom: 0;
+        left: 0px;
+        border-bottom: 1px solid #eee;
+        transform: scaleY(0.5);
+      }
+      &:last-child {
+        &::after {
+          display: none;
+        }
+      }
+    }
+    .label {
+      flex: 1;
+      color: var(--var-default-font-color);
+    }
+    .value {
+      display: flex;
+      align-items: center;
+      .name {
+        cursor: pointer;
+        color: var(--var-default-font-color);
+        margin-right: 8px;
+        &:hover {
+          color: var(--var-theme-primary-4);
+        }
+      }
+    }
+    .theme {
+      display: flex;
+      align-items: center;
+      > div {
+        width: 38px;
+        height: 38px;
+        margin: 0 6px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &.blue {
+          box-shadow: 0 0 0 0 #bfdbfe;
+          background-image: linear-gradient(to bottom right, #3B82F6, #2563EB);
+        }
+        &.emerald {
+          box-shadow: 0 0 0 0 #A7F3D0;
+          background-image: linear-gradient(to bottom right, #10B981, #059669);
+        }
+        &.rose {
+          box-shadow: 0 0 0 0 #FECDD3;
+          background-image: linear-gradient(to bottom right, #F43F5E, #E11D48);
+        }
+        &.orange {
+          box-shadow: 0 0 0 0 #FED7AA;
+          background-image: linear-gradient(to bottom right, #F97316, #EA580C);
+        }
+        > i {
+          font-size: 18px;
+          color: #ffffff;
+        }
+      }
+    }
+    .el-dropdown-link {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      .el-icon {
+        margin-left: 4px;
+      }
+      &:hover {
+        color: var(--var-theme-primary-4);
+      }
+    }
+  }
+}
+
+@import './setting/about.scss';

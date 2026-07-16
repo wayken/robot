@@ -1,0 +1,89 @@
+.a-image-modal {
+  width: 420px;
+  border-radius: 18px;
+  background-color: var(--var-card-background-color);
+  .head {
+    height: 48px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--var-menu-border-color);
+    .name {
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      .a-svgicon {
+        color: var(--var-theme-primary-4);
+        margin: 2px 8px 0 0;
+      }
+    }
+    .close {
+      cursor: pointer;
+      &:hover {
+        color: var(--var-theme-primary-4);
+      }
+    }
+  }
+  .source {
+    padding: 12px 22px;
+    .field {
+      height: 54px;
+      display: flex;
+      align-items: center;
+    }
+    .key {
+      margin-right: 12px;
+    }
+    .value {
+      flex: 1;
+    }
+    input {
+      width: 100%;
+      border: 0;
+      resize: none;
+      outline: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      transition: border-color .3s;
+      border: 1px solid var(--var-menu-border-color);
+      background-color: var(--var-card-background-color);
+      &:focus {
+        border-color: var(--var-theme-primary-4);
+      }
+    }
+  }
+  .metadata {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 12px 12px 12px;
+    .button {
+      width: 88px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 1px solid var(--var-menu-border-color);
+      > i {
+        font-size: 16px;
+        margin-right: 6px;
+      }
+      &:hover {
+        color: var(--var-theme-primary-5);
+        border-color: var(--var-theme-primary-4);
+      }
+      &.primary {
+        color: #fff;
+        margin-left: 8px;
+        border-color: var(--var-theme-primary-4);
+        background-color: var(--var-theme-primary-4);
+        &:hover {
+          background-color: var(--var-theme-primary-3);
+        }
+      }
+    }
+  }
+}

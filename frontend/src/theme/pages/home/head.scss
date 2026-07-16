@@ -1,0 +1,60 @@
+@use "../../common/variable.scss" as *;
+
+.a-head {
+  height: 48px;
+  padding: 0 12px;
+  -webkit-app-region: drag;
+  border-bottom: 1px solid var(--var-menu-border-color);
+  background-color: var(--var-card-background-color);
+  .head--left {
+    -webkit-app-region: no-drag;
+    .icon {
+      cursor: pointer;
+      padding: 2px 2px;
+      border-radius: 3px;
+      &:hover {
+        color: var(--var-theme-primary-4);
+        background-color: var(--var-theme-primary-1);
+      }
+    }
+  }
+  .head--right {
+    height: 100%;
+    -webkit-app-region: no-drag;
+    .icon {
+      cursor: pointer;
+      margin-right: 18px;
+      &:hover {
+        color: var(--var-theme-primary-4);
+      }
+    }
+    .consule {
+      .description {
+        font-size: 15px;
+        text-align: center;
+        margin: -8px 0 10px 0;
+      }
+    }
+    .account {
+      padding: 4px 10px;
+      cursor: pointer;
+      margin-left: 12px;
+      border-radius: 22px;
+      .name {
+        margin: 0 8px;
+        min-width: 58px;
+      }
+      &.is-actived {
+        background-color: var(--var-theme-primary-1);
+      }
+      &:hover {
+        background-color: var(--var-theme-primary-1);
+      }
+    }
+    .el-dropdown{
+      &__list {
+        width: 180px;
+      }
+    }
+  }
+}

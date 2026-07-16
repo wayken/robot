@@ -1,0 +1,82 @@
+.x-link-menu {
+  gap: 2px;
+  z-index: 12;
+  display: flex;
+  position: absolute;
+  align-items: center;
+  padding: 4px 6px;
+  user-select: none;
+  border-radius: 8px;
+  white-space: nowrap;
+  border: 1px solid var(--var-menu-border-color);
+  background-color: var(--var-card-background-color);
+  .icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-left: 2px;
+  }
+  .preview {
+    gap: 4px;
+    display: flex;
+    max-width: 200px;
+    overflow: hidden;
+    align-items: center;
+    .name {
+      font-size: 13px;
+      max-width: 148px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+  .divider {
+    width: 1px;
+    height: 16px;
+    margin: 0 2px;
+    flex-shrink: 0;
+    background-color: var(--var-menu-border-color);
+  }
+  .button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 6px;
+    align-items: center;
+    justify-content: center;
+    :deep(svg) {
+      width: 14px;
+      height: 14px;
+    }
+    &:hover {
+      color: var(--var-theme-primary-4);
+      background-color: var(--var-theme-primary-1);
+    }
+  }
+  .marked {
+    flex: 1;
+    height: 24px;
+    outline: none;
+    padding: 0 6px;
+    font-size: 13px;
+    min-width: 160px;
+    max-width: 260px;
+    border-radius: 4px;
+    border: 1px solid var(--var-menu-border-color);
+    &::placeholder {
+      opacity: 0.4;
+    }
+  }
+}
+
+.x-link-menu-enter-active,
+.x-link-menu-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.x-link-menu-enter-from,
+.x-link-menu-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}

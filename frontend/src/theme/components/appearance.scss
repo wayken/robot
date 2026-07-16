@@ -1,0 +1,100 @@
+.appearance {
+  .checkbox {
+    &__items {
+      padding: 5px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      background-color: #00d0f3;
+      border-radius: 50px;
+      width: 54px;
+      height: 18px;
+      border: 3px solid #99ecfa;
+      cursor: pointer;
+      overflow: hidden;
+      transition: background-color .1s, border-color .1s linear;
+    }
+    &__sun-moon {
+      width: 22px;
+      height: 22px;
+      left: 2px;
+      position: relative;
+      background-color: #ffe441;
+      border-radius: 50%;
+      transition: transform .2s linear;
+      &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        border-radius: 50%;
+        transform: translate(10px, -2px);
+        transition: opacity .2s linear;
+        background-color: #1a2762;
+      }
+    }
+    &__cloud {
+      width: 32px;
+      height: 12px;
+      border-radius: 50px;
+      background-color: #fff;
+      transition: transform .2s linear, opacity .2s linear;
+      &-body {
+        position: absolute;
+        right: 18px;
+        top: 14px;
+      }
+      &::before, &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        background-color: #fff;
+        border-radius: 50%;
+      }
+      &::after {
+        width: 18px;
+        height: 18px;
+        top: -8px;
+        right: 6px;
+      }
+    }
+    &__star {
+      width: 4px;
+      height: 4px;
+      opacity: 0;
+      border-radius: 50%;
+      background-color: #fff;
+      box-shadow: 
+      10px -6px 0px 1px #fff,
+      -4px 8px 0px 0px #fff,
+      12px 8px 0px 0px #fff;
+      transition: opacity .2s linear;
+      &-body {
+        transform: translateX(-14px);
+      }
+    }
+    &__input {
+      display: none;
+      visibility: hidden;
+      &:checked ~ .checkbox__items {
+        border-color: #5668b5;
+        background-color: #1a2762;
+        .checkbox__sun-moon{
+          transform: translateX(34px);
+          &::before {
+            opacity: 1;
+          }
+        }
+        .checkbox__cloud {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        .checkbox__star {
+          opacity: 1;
+          transition-delay: .2s;
+        }
+      }
+    }
+  }
+}

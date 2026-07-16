@@ -1,0 +1,101 @@
+.a-setting-skill {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: var(--var-card-background-color);
+  .head {
+    height: 42px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--var-menu-border-color);
+    .title {
+      .name {
+        font-size: 15px;
+        font-weight: 500;
+      }
+      .count {
+        font-size: 12px;
+        margin-left: 8px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background-color: var(--var-module-hover-color);
+      }
+    }
+    .operations {
+      gap: 10px;
+      .search {
+        width: 280px;
+      }
+    }
+  }
+  .content {
+    flex: 1;
+    overflow: auto;
+    padding: 18px 20px;
+  }
+  .card {
+    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    .module {
+      cursor: pointer;
+      padding: 14px 18px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      border: 1px solid var(--var-menu-border-color);
+      &:hover {
+        border-color: var(--var-theme-primary-3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+      .header {
+        margin-bottom: 8px;
+        .infomation {
+          flex: 1;
+          overflow: hidden;
+          .icon {
+            flex-shrink: 0;
+            margin-right: 8px;
+            color: var(--var-theme-primary-4);
+          }
+          .name {
+            font-size: 16px;
+            overflow: hidden;
+            font-weight: 500;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+      .body {
+        height: 72px;
+        .description {
+          margin: 0;
+          line-clamp: 3;
+          font-size: 13px;
+          overflow: hidden;
+          line-height: 1.8;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+        }
+      }
+      .footer {
+        margin-top: 10px;
+        .marks {
+          gap: 4px;
+        }
+        .el-tag {
+          font-size: 13px;
+          padding: 0 12px;
+        }
+        .more {
+          font-size: 16px;
+          cursor: pointer;
+          &:hover {
+            color: var(--var-theme-primary-4);
+          }
+        }
+      }
+    }
+  }
+}

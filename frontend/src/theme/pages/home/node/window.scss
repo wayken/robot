@@ -1,0 +1,34 @@
+@use "../../../common/variable.scss" as *;
+
+.a-node--window {
+  .notification {
+    margin-left: 58px;
+    .icon {
+      display: flex;
+      align-items: center;
+      > i {
+        font-size: 16px;
+        margin: 2px 4px 0 0;
+      }
+      color: $var-color-danger;
+    }
+    > p {
+      color: $var-color-text-primary;
+    }
+  }
+  .ip {
+    gap: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    .el-input {
+      flex: 1;
+    }
+    .separator {
+      padding: 0 6px;
+      color: var(--el-text-color-regular);
+      line-height: 32px;
+      flex-shrink: 0;
+    }
+  }
+}

@@ -1,0 +1,52 @@
+.a-marksuit {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    height: 140px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    background-clip: content-box;
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+  &.is-preview {
+    .content .wrapper {
+      cursor: default;
+      .ProseMirror {
+        cursor: default;
+        caret-color: transparent;
+      }
+    }
+  }
+  &.is-fullscreen {
+    width: 100%;
+    height: 100% !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    border: none;
+    background-color: var(--var-card-background-color);
+  }
+  @import './menu.scss';
+  @import './bubble.scss';
+  @import './content.scss';
+  @import './prosemirror.scss';
+  @import './statusbar.scss';
+  @import './codemirror.scss';
+}
+
+@import './command.scss';
+@import './common/popup.scss';
+@import './common/preview.scss';
+@import './common/colorpicker.scss';
+@import './prosemirror/link.scss';

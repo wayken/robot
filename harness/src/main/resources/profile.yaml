@@ -1,0 +1,80 @@
+# 基础配置
+framework:
+  # AI引擎的最大迭代次数，超过该次数后将停止继续迭代
+  maxIterations: 40
+  # 是否启用工作区限制，则只允许访问工作区内的文件
+  workspaceRestricted: true
+  # 当前配置的记忆系统
+  mindType: filesystem
+  # 沙箱类型，默认为本地环境中运行智能体的任务
+  sandboxType: localhost
+  # 智能体记忆窗口大小，框架会根据这个配置来控制智能体进行记忆巩固有最大上下文消息添加
+  memoryWindow: 50
+# 工具包配置
+toolkit:
+  - name: read_file
+    enabled: true
+  - name: write_file
+    enabled: true
+  - name: edit_file
+    enabled: true
+  - name: glob
+    enabled: true
+    properties:
+      maxResults: 1000
+  - name: exec_shell
+    enabled: true
+  - name: schedule
+    enabled: true
+  - name: web_search
+    enabled: true
+    properties:
+      provider: duckduckgo
+  - name: session_search
+    enabled: true
+  - name: add_delegate_worker
+    enabled: true
+  - name: list_delegate_worker
+    enabled: true
+  - name: assign_delegate_worker
+    enabled: true
+# 插件配置
+plugins: ["*"]
+# 模型服务商配置
+provider:
+  - name: silicon
+    type: openai
+    primary: true
+    link: https://api.siliconflow.cn/v1/chat/completions
+    model:
+      name: Qwen/Qwen3.5-397B-A17B
+      properties: [3]
+    keys:
+      - sk-yfteolckczsrrcvfcldkrofpvxbuaxdlnfqxygvtuhewvxxw
+    temperature: 0.7
+    maxTokens: 2048
+    topP: 1
+    stream: true
+    timeout: 60
+# MCP配置
+mcp:
+  - name: demo-server
+    enabled: false
+    type: streamable
+    url: http://127.0.0.1:8000/mcp
+# 消息渠道平台配置
+platform:
+  - id: dingtalk001
+    name: dingtalk
+    enabled: false
+    properties:
+      clientId: dingttum5xmhixgy799d
+      clientSecret: R_HFl8XHTH4uj87I3Ds0pms3naNrXEZYIeKqVzBt8CMT4WHkRzDbeAVK5rovg44I
+  - id: feishu001
+    name: feishu
+    enabled: false
+    properties:
+      appId: your_app_id
+      appSecret: your_app_secret
+      streaming: true
+      domain: feishu

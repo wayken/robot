@@ -1,0 +1,27 @@
+/** -------------------------------- 全局样式定义 -------------------------------- */
+$var-font-size-base: 14px !default;
+$var-card-border-raduis: 5px !default;
+$var-page-header-height: 72px !default;
+$var-page-body-padding: 8px !default;
+$var-menu-width: 228px !default;
+$var-header-height: 48px !default;
+$var-module-header-height: 42px !default;
+$var-menu-item-height: 48px !default;
+$var-min-page-width: 1128px !default;
+$var-color-danger: #f56c6c !default;
+$var-color-success: #67c23a !default;
+$var-color-text-primary: #909399 !default;
+
+/** -------------------------------- 响应式样式定义 ------------------------------- */
+$var-media-sm: 768px !default;
+$var-media-xs: $var-media-sm - 1;
+$var-media-md: 992px !default;
+$var-media-lg: 1200px !default;
+$var-media-xl: 1920px !default;
+$var-breakpoints: (
+  'xs' : (max-width: $var-media-xs),
+  'sm' : (min-width: $var-media-sm),
+  'md' : (min-width: $var-media-md),
+  'lg' : (min-width: $var-media-lg),
+  'xl' : (min-width: $var-media-xl)
+);

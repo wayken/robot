@@ -1,0 +1,11 @@
+@use "../../common/variable.scss" as *;
+
+.a-worker-task {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  .content {
+    flex: 1;
+    position: relative;
+  }
+}

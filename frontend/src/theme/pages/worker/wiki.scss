@@ -1,0 +1,17 @@
+@use "../../common/variable.scss" as *;
+
+.a-worker-wiki {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  padding: $var-page-body-padding;
+  @import './wiki/drawer.scss';
+  @import './wiki/mine.scss';
+  @import './wiki/remote.scss';
+  @import './wiki/trash.scss';
+  @import './wiki/contextmenu.scss';
+  @import './wiki/mine/workspace.scss';
+  @import './wiki/mine/document.scss';
+}
+
+@import './wiki/window.scss';

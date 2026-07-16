@@ -1,0 +1,32 @@
+# ShellX Configuration
+# AI Agent Command-Line Interface based on Harness Framework
+
+shellx:
+  # 工作主目录，存储 agent 配置、会话记录、日志等
+  home: ~/.shellx
+
+  # 默认使用的 Agent 名称
+  default_agent: default
+
+  # 是否开启请求日志（用于调试）
+  request_log: off
+
+  # 请求转发连接池配置
+  proxy_pool:
+    pool_size: 12
+    connect_timeout: 12000
+    socket_timeout: 300000
+
+  # 日志配置
+  logger:
+    level: info
+
+  # 显示配置
+  display:
+    # 是否启用彩色输出
+    color: on
+    # 文本换行模式：always/never/auto
+    wrap: auto
+
+  # 默认推理强度：low/medium/high
+  effort: medium

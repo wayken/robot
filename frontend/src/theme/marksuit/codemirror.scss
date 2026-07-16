@@ -1,0 +1,26 @@
+.codemirror {
+  flex: 1;
+  width: 100%;
+  margin: 0 auto;
+  .cm-editor {
+    height: 100%;
+    outline: none;
+    color: var(--var-default-font-color);
+    background-color: var(--var-card-background-color);
+    .cm-scroller {
+      font-family: "Microsoft YaHei",Helvetica,"Meiryo UI","Malgun Gothic","Segoe UI";
+    }
+    .cm-activeLine {
+      background-color: transparent;
+    }
+    .cm-layer .cm-selectionBackground {
+      background-color: var(--var-theme-primary-1);
+    }
+    .cm-content {
+      .cm-line {
+        line-height: 2;
+        padding: 0 18px;
+      }
+    }
+  }
+}

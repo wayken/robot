@@ -1,0 +1,137 @@
+.inline {
+  // flex原子布局
+  // 命名规则[flex-direction]-[align-items]-[justify-content]
+  &-flex {
+    &-r-c-b {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    &-r-c-n {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    &-r-c-c {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    &-r-n-c {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    &-r-c-a {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      flex-shrink: 0;
+    }
+
+    &-r-e-n {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    &-r-s-n {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      flex-shrink: 0;
+    }
+
+    &-r-n-e {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+
+    &-r-n-n {
+      display: flex;
+      flex-direction: row;
+      flex-shrink: 0;
+    }
+
+    &-c-c-b {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    &-c-c-n {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    &-c-c-c {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    &-c-n-n {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    &-wrap {
+      flex-wrap: wrap;
+    }
+  }
+  // 宽度设置
+  &-w-full {
+    width: 100% !important;
+  }
+  // 颜色原子设置
+  &-color-d {
+    color: #f56c6c;
+  }
+  &-color-h-d {
+    &:hover {
+      color: #f56c6c !important;
+    }
+  }
+  &-pointer {
+    cursor: pointer;
+    &:hover {
+      color: var(--var-theme-primary-4);
+    }
+  }
+  // 文本原子设置
+  &-text-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  // 全屏
+  &-fullscreen {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    left:  0 !important;
+    top: 0 !important;
+    border-radius: 0 !important;
+  }
+}

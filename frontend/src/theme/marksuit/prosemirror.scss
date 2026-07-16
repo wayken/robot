@@ -1,0 +1,114 @@
+.ProseMirror {
+  font-size: 15px;
+  line-height: 1.8;
+  padding: 22px 24px;
+  h1, h2, h3, h4 {
+    font-weight: 700;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 22px;
+  }
+  h3 {
+    font-size: 20px;
+  }
+  h4 {
+    font-size: 18px;
+  }
+  ul {
+    list-style: disc;
+  }
+  ol {
+    list-style: decimal;
+  }
+  ul, ol {
+    padding: 0 1rem;
+    margin: 1.25rem 1rem 1.25rem 0.4rem;
+  }
+  ul li p, ol li p {
+    margin: 2px 0 0 0;
+  }
+  ul[data-type="taskList"] {
+    list-style: none;
+    padding-left: 0.5em;
+    li {
+      display: flex;
+      align-items: flex-start;
+      > div {
+        flex: 1;
+        margin-left: 8px;
+      }
+      > label {
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+    }
+    li[data-checked="true"] {
+      > div {
+        color: #9ca3af;
+        text-decoration: line-through;
+      }
+    }
+  }
+  blockquote {
+    margin: 14px 0;
+    padding: 8px 16px;
+    background-color: var(--var-menu-actived-color);
+    border-left: 5px solid var(--var-module-hover-color);
+    ul, ol {
+      li {
+        font-size: 14px;
+      }
+    }
+  }
+  code {
+    color: #e2777a;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: var(--var-module-background-color);
+  }
+  table {
+    margin: 0;
+    width: 100%;
+    overflow: hidden;
+    table-layout: fixed;
+    border-collapse: collapse;
+    td, th {
+      padding: 10px;
+      min-width: 1em;
+      position: relative;
+      vertical-align: top;
+      box-sizing: border-box;
+      border: 1px solid var(--var-menu-border-color);
+      > * {
+        margin-bottom: 0;
+      }
+    }
+    th {
+      text-align: left;
+      font-weight: bold;
+      background-color: var(--var-card-background-color);
+    }
+    .selectedCell:after {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      background-color: var(--var-theme-primary-1);
+    }
+  }
+  .x-link {
+    cursor: pointer;
+    text-decoration: underline
+  }
+  @import './prosemirror/image.scss';
+  @import './prosemirror/codeblock.scss';
+  @import './prosemirror/placeholder.scss';
+  @import './prosemirror/completion.scss';
+}

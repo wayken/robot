@@ -1,0 +1,14 @@
+@use "../../common/variable.scss" as *;
+
+.a-worker-chat {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  padding: $var-page-body-padding;
+  @import './chat/drawer.scss';
+  @import './chat/layout.scss';
+  @import './chat/promotion.scss';
+  @import './chat/markdown.scss';
+}
+
+@import './chat/model.scss';

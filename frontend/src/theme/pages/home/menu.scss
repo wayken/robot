@@ -1,0 +1,110 @@
+@use "../../common/variable.scss" as *;
+
+.a-menu {
+  height: 100%;
+  overflow: hidden;
+  width: $var-menu-width;
+  transition: width .3s;
+  white-space: nowrap;
+  border-right: 1px solid var(--var-menu-border-color);
+  background-color: var(--var-card-background-color);
+  .logo {
+    padding-left: 18px;
+    height: $var-page-header-height;
+    -webkit-app-region: no-drag;
+    img {
+      width: 36px;
+      height: 36px;
+    }
+    .name {
+      opacity: 1;
+      margin-left: 8px;
+      font-size: 20px;
+      font-weight: 600;
+      transition: opacity .3s;
+    }
+  }
+  .navigation {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-right: -17px;
+    padding-right: 17px;
+  }
+  .interface {
+    border-top: 1px solid var(--var-menu-border-color);
+  }
+  .navigation, .interface {
+    > ul {
+      padding: 0 12px;
+      li {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        list-style: none;
+        position: relative;
+        padding-left: 16px;
+        margin-bottom: 4px;
+        border-radius: 5px;
+        transition: all .3s;
+        -webkit-app-region: no-drag;
+        height: $var-menu-item-height;
+        line-height: $var-menu-item-height;
+        > svg {
+          width: 20px;
+          height: 20px;
+          flex-shrink: 0;
+          margin-right: 8px;
+          border-radius: 5px;
+          transition: all .3s;
+        }
+        .text {
+          opacity: 1;
+          transition: opacity .3s;
+        }
+        &.is-docked {
+          height: 24px;
+          line-height: 24px;
+          cursor: default;
+          padding-left: 10px;
+          color: $var-color-text-primary;
+        }
+        &.is-actived {
+          color: var(--var-theme-primary-4);
+          background-color: var(--var-module-background-color);
+        }
+        // 排除CSS样式是is-docked的元素, 为其添加hover效果
+        &:not(.is-docked):hover {
+          color: var(--var-theme-primary-4);
+          background-color: var(--var-module-background-color);
+        }
+      }
+    }
+  }
+  &.is-collapsed {
+    width: 72px;
+    .logo {
+      img {
+        width: 36px;
+        height: 36px;
+      }
+      .name {
+        opacity: 0;
+      }
+    }
+    .navigation, .interface {
+      > ul {
+        li {
+            > svg {
+              width: 22px;
+              height: 22px;
+              transform: translateX(-4px);
+            }
+            .text {
+              opacity: 0;
+            }
+        }
+      }
+    }
+  }
+}

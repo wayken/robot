@@ -1,0 +1,68 @@
+.a-setting-about {
+  background-color: var(--var-card-background-color);
+  .main {
+    height: 428px;
+  }
+  .dashboard {
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid var(--var-menu-border-color);
+    .logo {
+      height: 58px;
+      cursor: pointer;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .infomation {
+      margin-left: 12px;
+      .name {
+        font-size: 18px;
+      }
+      .version {
+        font-size: 15px;
+        margin-top: 6px;
+        .refresh {
+          font-size: 18px;
+          margin: 2px 0 0 8px;
+          cursor: pointer;
+          &:hover {
+            color: var(--var-theme-primary-4);
+          }
+        }
+      }
+    }
+  }
+  .metadata {
+    .title {
+      font-size: 18px;
+      margin: 4px 0 8px 0;
+    }
+    .link {
+      > a {
+        font-size: 15px;
+        cursor: pointer;
+        color: var(--var-theme-primary-4);
+        &:hover {
+          color: var(--var-theme-primary-3);
+        }
+      }
+    }
+    .wechat {
+      .description {
+        margin: 8px 0 14px 0;
+      }
+      .image {
+        width: 188px;
+        height: 188px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
+  .el-dialog__body {
+    padding: 12px 24px !important;
+  }
+}

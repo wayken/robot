@@ -1,0 +1,39 @@
+.bubble {
+  gap: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--var-menu-border-color);
+  background-color: var(--var-card-background-color);
+  .block {
+    cursor: pointer;
+    padding: 4px 4px;
+    position: relative;
+    border-radius: 5px;
+    .svgicon {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+    &.is-actived {
+      background-color: var(--var-theme-primary-1);
+      .svgicon {
+        color: var(--var-theme-primary-4) !important;
+      }
+    }
+    &:hover {
+      background-color: var(--var-theme-primary-1);
+      .svgicon {
+        color: var(--var-theme-primary-4) !important;
+      }
+    }
+  }
+  .is-divider {
+    width: 1px;
+    height: 22px;
+    margin: 0 10px;
+    border-right: 1px solid var(--var-menu-border-color);
+  }
+}

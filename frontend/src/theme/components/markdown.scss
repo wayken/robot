@@ -1,0 +1,20 @@
+@use "../common/variable.scss" as *;
+
+.a-document-markdown {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  .panel {
+    border-left: 1px solid var(--var-menu-border-color);
+    svg {
+      width: 24px;
+      height: 24px;
+      margin: 12px 8px;
+      cursor: pointer;
+    }
+  }
+}
+
+@import './markdown/export.scss';
+@import './markdown/theme.scss';
+@import './markdown/model.scss';

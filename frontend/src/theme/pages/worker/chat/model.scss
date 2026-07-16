@@ -1,0 +1,114 @@
+.a-worker-chat-model {
+  .main {
+    padding: 12px 32px;
+  }
+  .field {
+    height: 54px;
+    display: flex;
+    padding: 0 18px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--var-menu-border-color);
+    .key {
+      width: 228px;
+      padding: 12px 0;
+    }
+    .value {
+      flex: 1;
+      text-align: right;
+    }
+    .label {
+      .icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        margin-right: 8px;
+        border: 1px solid var(--var-menu-border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        > img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 6px;
+        }
+      }
+    }
+    &.is-column {
+      height: 112px;
+      align-items: normal;
+      flex-direction: column;
+    }
+    &.is-flexable {
+      height: auto;
+      padding: 12px 0;
+      align-items: normal;
+      flex-direction: column;
+    }
+  }
+  .module {
+    .image {
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      margin: 0 6px 0 0;
+      flex-shrink: 0;
+      > img {
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+      }
+    }
+  }
+  .el-select-dropdown__item {
+    height: 34px;
+    display: flex;
+    align-items: center;
+  }
+  .backup {
+    .key {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .models {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+      .provider {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        .icon {
+          width: 32px;
+          height: 32px;
+          flex-shrink: 0;
+          border-radius: 6px;
+          overflow: hidden;
+          border: 1px solid var(--var-menu-border-color);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          > img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+          }
+        }
+        .el-select {
+          flex: 1;
+        }
+      }
+    }
+  }
+  .el-dialog__body {
+    padding: 0;
+    overflow: auto;
+    max-height: 718px;
+  }
+}

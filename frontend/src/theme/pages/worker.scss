@@ -1,0 +1,17 @@
+@use "../common/variable.scss" as *;
+
+.a-worker {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  min-width: $var-min-page-width;
+  @import './worker/head.scss';
+}
+
+@import './worker/chat.scss';
+@import './worker/disk.scss';
+@import './worker/wiki.scss';
+@import './worker/task.scss';
+@import './worker/summary.scss';
+@import './worker/subworker.scss';
+@import './worker/setting.scss';

@@ -1,0 +1,93 @@
+.project-panel {
+  position: relative;
+  .project-btn {
+    height: 34px;
+    cursor: pointer;
+    padding: 0 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    color: var(--el-text-color-regular);
+    border: 1px solid var(--el-border-color);
+    &:hover {
+      color: var(--var-theme-primary-4);
+      border-color: var(--var-theme-primary-4);
+    }
+    .label {
+      font-size: 14px;
+      max-width: 120px;
+      overflow: hidden;
+      margin: 0 4px 2px 6px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .arrow {
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+  }
+  .project-panel {
+    left: 0;
+    z-index: 100;
+    overflow: hidden;
+    min-width: 240px;
+    max-width: 280px;
+    position: absolute;
+    border-radius: 10px;
+    bottom: calc(100% + 8px);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--var-menu-border-color);
+    background-color: var(--var-card-background-color);
+    &__body {
+      padding: 4px 0;
+      overflow-y: auto;
+      max-height: 260px;
+    }
+    &__info {
+      gap: 8px;
+      display: flex;
+      cursor: pointer;
+      padding: 12px 14px;
+      align-items: center;
+      &:hover {
+        background-color: var(--var-module-hover-color);
+      }
+      &.is-selected {
+        color: var(--var-theme-primary-4);
+        background-color: var(--var-theme-primary-1);
+      }
+    }
+    &__icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    &__name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    &__check {
+      flex-shrink: 0;
+      font-size: 14px;
+      color: var(--var-theme-primary-4);
+    }
+    &__divider {
+      margin-bottom: 4px;
+      border-top: 1px solid var(--var-menu-border-color);
+    }
+    &__add {
+      color: var(--var-theme-primary-4);
+    }
+  }
+}
+
+.project-panel-fade-enter-active,
+.project-panel-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.project-panel-fade-enter-from,
+.project-panel-fade-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}

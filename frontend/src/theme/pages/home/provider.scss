@@ -1,0 +1,172 @@
+.a-provider {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  margin: $var-page-body-padding;
+  background-color: var(--var-card-background-color);
+  .source {
+    height: 100%;
+    width: 228px;
+    overflow: auto;
+    border-right: 1px solid var(--var-menu-actived-color);
+    .wrapper {
+      flex: 1;
+      padding: 12px 10px 0 10px;
+    }
+    .provider {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+      padding: 0 12px;
+      cursor: pointer;
+      border-radius: 3px;
+      background-color: var(--var-card-background-color);
+      .image {
+        width: 34px;
+        height: 34px;
+        overflow: hidden;
+        border-radius: 5px;
+        > img {
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .name {
+        margin-left: 8px;
+      }
+      .on {
+        font-size: 12px;
+        color: #389e0d;
+        margin-left: auto;
+        padding: 2px 8px;
+        border-radius: 12px;
+        border: 1px solid #b7eb8f;
+        background-color: #f6ffed;
+      }
+      &.is-actived {
+        color: var(--var-theme-primary-4);
+        background-color: var(--var-menu-actived-color);
+      }
+      &:hover:not(.is-actived) {
+        background-color: var(--var-module-hover-color);
+      }
+    }
+    .add {
+      padding: 4px 12px;
+      .a-button {
+        width: 100%;
+      }
+    }
+  }
+  .context {
+    flex: 1;
+    padding: 0 8px;
+    overflow: auto;
+    user-select: text;
+    background-color: var(--var-page-background-color);
+    .head {
+      padding: 4px 18px;
+      border-radius: 5px;
+      background-color: var(--var-card-background-color);
+      &--left {
+        .name {
+          margin-right: 4px;
+        }
+        > i {
+          font-size: 16px;
+          cursor: pointer;
+          &:hover {
+            color: var(--var-theme-primary-4);
+          }
+        }
+      }
+      &--right {
+        > i {
+          padding: 6px;
+          font-size: 18px;
+          cursor: pointer;
+          margin-right: 4px;
+          border-radius: 3px;
+          &:hover {
+            color: var(--var-theme-primary-4);
+            background-color: var(--var-theme-primary-1);
+          }
+        }
+      }
+    }
+    .main {
+      .title {
+        font-weight: 500;
+        padding: 12px 18px;
+      }
+      .card {
+        border-radius: 5px;
+        padding: 4px 18px 22px 18px;
+        background-color: var(--var-card-background-color);
+      }
+      .option {
+        .key {
+          margin: 12px 0;
+        }
+        .description {
+          font-size: 13px;
+          margin: 8px 0 0 0;
+          color: $var-color-text-primary;
+        }
+      }
+      .wrapper {
+        min-height: 328px;
+        position: relative;
+        border-radius: 5px;
+        background-color: var(--var-card-background-color);
+      }
+      .model {
+        padding: 0 12px 0 12px;
+        border-radius: 5px;
+        margin-bottom: 12px;
+        background-color: var(--var-card-background-color);
+        .name {
+          padding: 12px 4px;
+          border-bottom: 1px solid var(--var-menu-border-color);
+        }
+        .child {
+          height: 58px;
+          display: flex;
+          align-items: center;
+          padding: 0 4px;
+          .image {
+            width: 28px;
+            height: 28px;
+            > img {
+              width: 100%;
+              height: 100%;
+              border-radius: 50%;
+            }
+          }
+          .text {
+            margin-left: 8px;
+          }
+          .metadata {
+            display: flex;
+            align-items: center;
+          }
+          .operation {
+            margin-left: auto;
+            .icon {
+              font-size: 22px;
+              cursor: pointer;
+              margin-left: 12px;
+              &:hover {
+                color: var(--var-theme-primary-4)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@import './provider/window-model.scss';
+@import './provider/window-provider.scss';

@@ -1,0 +1,30 @@
+@use "../common/variable.scss" as *;
+
+.a-home {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  @import './home/menu.scss';
+  @import './home/head.scss';
+  .a-page {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-app-region: no-drag;
+  }
+}
+
+@import './home/dashboard.scss';
+@import './home/mission.scss';
+@import './home/assistant.scss';
+@import './home/node.scss';
+@import './home/provider.scss';
+@import './home/channel.scss';
+@import './home/authority.scss';
+@import './home/wiki.scss';
+@import './home/summary.scss';
+@import './home/skill.scss';
+@import './home/logger.scss';
+@import './home/setting.scss';

@@ -1,0 +1,10 @@
+.a-disk-trash {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: var(--var-card-background-color);
+  .content {
+    flex: 1;
+    position: relative;
+  }
+}

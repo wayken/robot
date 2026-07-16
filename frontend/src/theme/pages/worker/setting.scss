@@ -1,0 +1,14 @@
+@use "../../common/variable.scss" as *;
+
+.a-worker-setting {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  padding: $var-page-body-padding;
+  @import './setting/drawer.scss';
+  @import './setting/rule.scss';
+  @import './setting/memory.scss';
+  @import './setting/skill.scss';
+  @import './setting/toolkit.scss';
+  @import './setting/plugin.scss';
+}

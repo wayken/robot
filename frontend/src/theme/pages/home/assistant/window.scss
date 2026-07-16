@@ -1,0 +1,47 @@
+@use "../../../common/variable.scss" as *;
+
+.a-assistant--window {
+  .mode {
+    gap: 12px;
+    display: flex;
+    width: 100%;
+    .unit {
+      flex: 1;
+      padding: 12px 14px;
+      border: 1px solid var(--el-border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+      &:hover {
+        border-color: var(--el-color-primary-light-5);
+        background-color: var(--el-color-primary-light-9);
+      }
+      &.is-active {
+        border-color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-9);
+      }
+      .head {
+        gap: 6px;
+        margin-bottom: 6px;
+        .icon {
+          font-size: 16px;
+          color: var(--el-color-primary);
+        }
+        .name {
+          font-size: 14px;
+          font-weight: 600;
+          flex: 1;
+        }
+        .check {
+          font-size: 16px;
+          color: var(--el-color-primary);
+        }
+      }
+      .description {
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--el-text-color-secondary);
+      }
+    }
+  }
+}

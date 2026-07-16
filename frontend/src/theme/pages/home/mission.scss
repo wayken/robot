@@ -1,0 +1,8 @@
+@use "../../common/variable.scss" as *;
+
+.a-mission {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  padding: $var-page-body-padding;
+}
