@@ -73,7 +73,7 @@ public class FileSystemMind implements IMind {
      */
     @Override
     public boolean buildMessages(String wid, MessageStruct message, AIMessages messages) throws Exception {
-        messages.append(buildSystemMessage(message.getSid()));
+        messages.append(buildSystemMessage());
         AIMessages historyMessages = buildHistoryMessages(message.getSid());
         messages.append(historyMessages);
         AIMessage userMessage = buildUserParsedMessage(message.getMessage());
@@ -215,43 +215,38 @@ public class FileSystemMind implements IMind {
     }
 
     @Override
-    public Table<Param> getProjectList(String wid) throws Exception {
-        return sessionDatabaseLoader.getProjectList(wid);
+    public Table<Param> getMissionList(String wid) throws Exception {
+        return sessionDatabaseLoader.getMissionList(wid);
     }
 
     @Override
-    public String addProject(String wid, String name, String description) throws Exception {
-        return sessionDatabaseLoader.addProject(wid, name, description);
+    public String addMission(String wid, String name, String description) throws Exception {
+        return sessionDatabaseLoader.addMission(wid, name, description);
     }
 
     @Override
-    public String addProject(String wid, String name, String description, String path) throws Exception {
-        return sessionDatabaseLoader.addProject(wid, name, description, path);
+    public boolean removeMission(String wid, String missionId) throws Exception {
+        return sessionDatabaseLoader.removeMission(wid, missionId);
     }
 
     @Override
-    public boolean removeProject(String wid, String projectId) throws Exception {
-        return sessionDatabaseLoader.removeProject(wid, projectId);
+    public boolean renameMission(String wid, String missionId, String name) throws Exception {
+        return sessionDatabaseLoader.renameMission(wid, missionId, name);
     }
 
     @Override
-    public boolean renameProject(String wid, String projectId, String name) throws Exception {
-        return sessionDatabaseLoader.renameProject(wid, projectId, name);
+    public boolean updateMissionSortOrder(String wid, int[] missionIds) throws Exception {
+        return sessionDatabaseLoader.updateMissionSortOrder(wid, missionIds);
     }
 
     @Override
-    public boolean updateProjectSortOrder(String wid, int[] projectIds) throws Exception {
-        return sessionDatabaseLoader.updateProjectSortOrder(wid, projectIds);
+    public boolean updateSessionMission(String wid, String sid, int missionId) throws Exception {
+        return sessionDatabaseLoader.updateSessionMission(wid, sid, missionId);
     }
 
     @Override
-    public boolean updateSessionProject(String wid, String sid, int projectId) throws Exception {
-        return sessionDatabaseLoader.updateSessionProject(wid, sid, projectId);
-    }
-
-    @Override
-    public Param getSessionProject(String wid, String sid) throws Exception {
-        return sessionDatabaseLoader.getSessionProject(wid, sid);
+    public Param getSessionMission(String wid, String sid) throws Exception {
+        return sessionDatabaseLoader.getSessionMission(wid, sid);
     }
 
     @Override
@@ -264,21 +259,10 @@ public class FileSystemMind implements IMind {
      *
      * @return 系统提示词消息
      */
-    private AIMessage buildSystemMessage(String sid) throws Exception {
+    private AIMessage buildSystemMessage() throws Exception {
         Table<String> messages = Table.builder();
-        // 根据会话关联的项目确定工作空间路径
-        String projectPath = null;
-        if (sid != null) {
-            Param project = sessionDatabaseLoader.getSessionProject(worker.getId(), sid);
-            if (project != null) {
-                projectPath = project.getString("path");
-                if (projectPath != null && projectPath.isEmpty()) {
-                    projectPath = null;
-                }
-            }
-        }
         // 加载身份信息
-        messages.add(identityFileLoader.buildPrompt(projectPath));
+        messages.add(identityFileLoader.buildPrompt());
         // 加载规则文件
         messages.add(ruleFileSystemLoader.buildPrompt());
         // 加载记忆文件

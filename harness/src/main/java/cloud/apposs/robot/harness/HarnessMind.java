@@ -111,36 +111,32 @@ public final class HarnessMind {
         return mind.renameMemoryFile(wid, filename, newFilename);
     }
 
-    public Table<Param> getProjectList(String wid) throws Exception {
-        return mind.getProjectList(wid);
+    public Table<Param> getMissionList(String wid) throws Exception {
+        return mind.getMissionList(wid);
     }
 
-    public String addProject(String wid, String name, String description) throws Exception {
-        return mind.addProject(wid, name, description);
+    public String addMission(String wid, String name, String description) throws Exception {
+        return mind.addMission(wid, name, description);
     }
 
-    public String addProject(String wid, String name, String description, String path) throws Exception {
-        return mind.addProject(wid, name, description, path);
+    public boolean removeMission(String wid, String missionId) throws Exception {
+        return mind.removeMission(wid, missionId);
     }
 
-    public boolean removeProject(String wid, String projectId) throws Exception {
-        return mind.removeProject(wid, projectId);
+    public boolean renameMission(String wid, String missionId, String name) throws Exception {
+        return mind.renameMission(wid, missionId, name);
     }
 
-    public boolean renameProject(String wid, String projectId, String name) throws Exception {
-        return mind.renameProject(wid, projectId, name);
+    public boolean updateMissionSortOrder(String wid, int[] missionIds) throws Exception {
+        return mind.updateMissionSortOrder(wid, missionIds);
     }
 
-    public boolean updateProjectSortOrder(String wid, int[] projectIds) throws Exception {
-        return mind.updateProjectSortOrder(wid, projectIds);
+    public boolean updateSessionMission(String wid, String sid, int missionId) throws Exception {
+        return mind.updateSessionMission(wid, sid, missionId);
     }
 
-    public boolean updateSessionProject(String wid, String sid, int projectId) throws Exception {
-        return mind.updateSessionProject(wid, sid, projectId);
-    }
-
-    public Param getSessionProject(String wid, String sid) throws Exception {
-        return mind.getSessionProject(wid, sid);
+    public Param getSessionMission(String wid, String sid) throws Exception {
+        return mind.getSessionMission(wid, sid);
     }
 
     public void shutdown() {

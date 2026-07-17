@@ -10,6 +10,10 @@
         <el-icon><Edit /></el-icon>
         <div>{{ $t('extension.rename') }}</div>
       </div>
+      <div class="menu" @click="handleMoveTo">
+        <el-icon><Rank /></el-icon>
+        <div>{{ $t('disk.move-to') }}</div>
+      </div>
       <div class="menu menu--danger" @click="handleDelete">
         <el-icon><Delete /></el-icon>
         <div>{{ $t('common.delete') }}</div>
@@ -21,6 +25,7 @@
 <script setup lang="ts">
 import {
   Edit,
+  Rank,
   Delete,
   FolderOpened
 } from '@element-plus/icons-vue'
@@ -35,6 +40,7 @@ const handleEmit = defineEmits<{
   (e: 'close'): void
   (e: 'open'): void
   (e: 'rename'): void
+  (e: 'move-to'): void
   (e: 'delete'): void
 }>()
 
@@ -66,6 +72,10 @@ const handleOpen = () => {
 }
 const handleRename = () => {
   handleEmit('rename')
+  handleEmit('close')
+}
+const handleMoveTo = () => {
+  handleEmit('move-to')
   handleEmit('close')
 }
 const handleDelete = () => {

@@ -79,6 +79,9 @@
         <a-button v-if="loadSelectedSet.size === 1" :icon="Edit" @click="handleBatchRename">
           {{ $t('extension.rename') }}
         </a-button>
+        <a-button :icon="Rank" @click="handleBatchMoveTo">
+          {{ $t('disk.move-to') }}
+        </a-button>
         <a-button type="danger" :icon="Delete" @click="handleBatchDelete">
           {{ $t('disk.batch-delete') }}
         </a-button>
@@ -105,7 +108,16 @@
       @open="handleContextMenuOpen"
       @close="handleContextMenuClose"
       @rename="handleContextMenuRename"
+      @move-to="handleContextMenuMoveTo"
       @delete="handleContextMenuDelete"
+    />
+    <!-- 移动到弹窗 -->
+    <a-disk-window
+      :title="$t('disk.move-to')"
+      :visible="loadMoveWindow.visible"
+      :wid="useWid()"
+      @close="handleMoveWindowClose"
+      @submit="handleMoveWindowSubmit"
     />
   </div>
 </template>
@@ -118,6 +130,7 @@ import {
 import {
   Close,
   Edit,
+  Rank,
   Upload,
   Folder,
   Delete,
@@ -139,6 +152,7 @@ import AViewImage from '@/components/worker/view/image.vue'
 import ACheckbox from '@/components/common/checkbox/index.vue'
 import AViewMonaco from '@/components/worker/view/monaco.vue'
 import ADiskContextmenu from '@/components/worker/disk/mine/contextmenu.vue'
+import ADiskWindow from '@/components/worker/disk/mine/window.vue'
 
 const {
   ioRequest,
@@ -538,6 +552,50 @@ const handleContextMenuDelete = () => {
       }
     })
   }).catch(() => {})
+}
+
+// 移动到弹窗
+const loadMoveWindow = reactive({
+  visible: false
+})
+const handleContextMenuMoveTo = () => {
+  loadMoveWindow.visible = true
+}
+const handleBatchMoveTo = () => {
+  loadMoveWindow.visible = true
+}
+const handleMoveWindowClose = () => {
+  loadMoveWindow.visible = false
+}
+const handleMoveWindowSubmit = async (targetPath: string) => {
+  const wid = useWid()
+  // 收集要移动的文件列表：优先使用批量选中项，否则使用右键菜单项
+  let moveItems: any[] = []
+  if (loadSelectedSet.value.size > 0) {
+    moveItems = Array.from(loadSelectedSet.value).map(i => infomation.value[i]).filter(Boolean)
+  } else if (loadContextMenu.data) {
+    moveItems = [loadContextMenu.data]
+  }
+  if (moveItems.length === 0) return
+  let successCount = 0
+  for (const data of moveItems) {
+    const sourcePath = data.path || (unref(loadCurrentPath) ? `${unref(loadCurrentPath)}/${data.name}` : data.name)
+    const params = {
+      wid: wid,
+      path: sourcePath,
+      target: targetPath
+    }
+    const result: any = await ioRequest('disk.move', params)
+    const success = Array.isArray(result) ? result[0] : result
+    if (success) successCount++
+  }
+  if (successCount > 0) {
+    ElMessage.success(i18n.t('disk.move-success'))
+    loadMoveWindow.visible = false
+    handleDataLoad()
+  } else {
+    ElMessage.error(i18n.t('disk.move-failed'))
+  }
 }
 // 加载图片缩略图
 const handleLoadThumbnails = () => {

@@ -250,7 +250,7 @@ public interface IMind {
      * @param  wid 智能体ID
      * @return 项目列表
      */
-    Table<Param> getProjectList(String wid) throws Exception;
+    Table<Param> getMissionList(String wid) throws Exception;
 
     /**
      * 创建项目
@@ -260,65 +260,54 @@ public interface IMind {
      * @param  description 项目描述
      * @return 新创建的项目ID
      */
-    String addProject(String wid, String name, String description) throws Exception;
-
-    /**
-     * 创建项目（含路径）
-     *
-     * @param  wid         智能体ID
-     * @param  name        项目名称
-     * @param  description 项目描述
-     * @param  path        项目路径（相对于workspace/disk）
-     * @return 新创建的项目ID
-     */
-    String addProject(String wid, String name, String description, String path) throws Exception;
+    String addMission(String wid, String name, String description) throws Exception;
 
     /**
      * 删除项目
      *
      * @param  wid       智能体ID
-     * @param  projectId 项目ID
+     * @param  missionId 任务分组ID
      * @return 是否成功
      */
-    boolean removeProject(String wid, String projectId) throws Exception;
+    boolean removeMission(String wid, String missionId) throws Exception;
 
     /**
      * 重命名项目
      *
      * @param  wid       智能体ID
-     * @param  projectId 项目ID
+     * @param  missionId 任务分组ID
      * @param  name      新项目名称
      * @return 是否成功
      */
-    boolean renameProject(String wid, String projectId, String name) throws Exception;
+    boolean renameMission(String wid, String missionId, String name) throws Exception;
 
     /**
      * 批量更新项目排序
      *
      * @param  wid        智能体ID
-     * @param  projectIds 按顺序排列的项目ID数组
+     * @param  missionIds 按顺序排列的任务分组ID数组
      * @return 是否成功
      */
-    boolean updateProjectSortOrder(String wid, int[] projectIds) throws Exception;
+    boolean updateMissionSortOrder(String wid, int[] missionIds) throws Exception;
 
     /**
      * 更新会话所属项目
      *
      * @param  wid       智能体ID
      * @param  sid       会话ID
-     * @param  projectId 项目ID
+     * @param  missionId 任务分组ID
      * @return 是否成功
      */
-    boolean updateSessionProject(String wid, String sid, int projectId) throws Exception;
+    boolean updateSessionMission(String wid, String sid, int missionId) throws Exception;
 
     /**
      * 获取会话所属项目信息
      *
      * @param  wid 智能体ID
      * @param  sid 会话ID
-     * @return 项目信息(id/name/description/path/date)，无项目时返回null
+     * @return 项目信息(id/name/description/date)，无项目时返回null
      */
-    Param getSessionProject(String wid, String sid) throws Exception;
+    Param getSessionMission(String wid, String sid) throws Exception;
 
     /**
      * 关闭智能体，释放相关资源

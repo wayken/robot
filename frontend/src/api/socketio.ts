@@ -1,5 +1,10 @@
 import { SocketIOOption } from './interface'
 import { io, Socket } from '@/websocket/index'
+import { ElNotification } from 'element-plus'
+import i18n from '@/locale'
+
+const { t } = i18n.global
+const messagePosition = 'bottom-left'
 
 class SocketIO {
   private socket: Socket | null = null
@@ -28,6 +33,11 @@ class SocketIO {
           })
           this.socket.on('disconnect', () => {
             this.initPromise = null
+            ElNotification.error({
+              title: t('common.error'),
+              message: t('error.network-error'),
+              position: messagePosition
+            })
             reject(new Error('Socket connection failed after all reconnect attempts'))
           })
         }).catch((cause) => {

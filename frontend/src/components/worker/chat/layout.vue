@@ -216,7 +216,7 @@ const handleContentAutoScroll = (smooth = false) => {
     })
   })
 }
-const handleMessageSubmit = async (message: string, display: string, projectId: number) => {
+const handleMessageSubmit = async (message: string, display: string, missionId: number) => {
   if (!message || isMessageSending.value) return
   const rid = uuid()
   // 保存用户发送的消息数据（展示用纯文本，不含技能前缀）
@@ -239,8 +239,8 @@ const handleMessageSubmit = async (message: string, display: string, projectId: 
         wid: useWid(),
         name: (display || message).trim()
       }
-      if (projectId > 0) {
-        params.projectId = projectId
+      if (missionId > 0) {
+        params.missionId = missionId
       }
       isSessionBuilding.value = true
       const result = await ioRequest('sessions.add', params)

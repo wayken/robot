@@ -190,4 +190,38 @@ public class DiskModel {
             this.path = path;
         }
     }
+
+    public static class Move {
+        @NotBlank
+        private String wid;
+
+        @NotBlank
+        private String path;
+
+        private String target = "";
+
+        public String getWid() {
+            return wid;
+        }
+
+        public void setWid(String wid) {
+            this.wid = wid;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public String getTarget() {
+            return target;
+        }
+
+        public void setTarget(String target) {
+            this.target = target;
+        }
+    }
 }

@@ -31,7 +31,7 @@
             <a-svg-icon icon-class="skill" size="18px" />
             <div class="label">{{ $t('skill.use') }}</div>
           </div>
-          <a-project v-if="!loadSessionId" :session-id="loadSessionId" @change="handleProjectChange" />
+          <a-mission :session-id="loadSessionId" @update="handleMissionUpdate" />
         </div>
         <div class="summation inline-flex-r-c-n">
           <el-icon class="icon"><Microphone /></el-icon>
@@ -58,7 +58,7 @@ import {
   Microphone
 } from '@element-plus/icons-vue'
 import ASkill from './promotion/skill.vue'
-import AProject from './promotion/project.vue'
+import AMission from './promotion/mission.vue'
 
 interface SkillItem {
   name: string
@@ -68,7 +68,7 @@ interface SkillItem {
 }
 
 const handleEmit = defineEmits<{
-  (e: 'submit', message: string, display: string, projectId: number): void
+  (e: 'submit', message: string, display: string, missionId: number): void
 }>()
 
 const route = useRoute()
@@ -76,7 +76,7 @@ const loadPromptValue = ref('')
 const loadActiveSkillIndex = ref(-1)
 const isSkillPanelVisible = ref(false)
 const loadSelectedSkills = ref<SkillItem[]>([])
-const loadCurrentProjectId = ref(0)
+const loadCurrentMissionId = ref(0)
 const loadPromotionRef = ref<HTMLTextAreaElement | null>(null)
 const loadSessionId = computed(() => route.query.id as string | undefined)
 
@@ -114,7 +114,7 @@ const handleMessageSend = () => {
   const skillPrefix = loadSelectedSkills.value.map(s => `$${s.name}`).join(' ')
   const message = skillPrefix ? `${skillPrefix} ${text}` : text
   if (!message.trim()) return
-  handleEmit('submit', message, text, loadCurrentProjectId.value)
+  handleEmit('submit', message, text, loadCurrentMissionId.value)
   handleDataReset()
 }
 const handleDataReset = () => {
@@ -128,9 +128,8 @@ const handlePromptSubmit = (event: KeyboardEvent) => {
     handleMessageSend()
   }
 }
-// 项目切换回调
-const handleProjectChange = (projectId: number) => {
-  loadCurrentProjectId.value = projectId
+const handleMissionUpdate = (missionId: number) => {
+  loadCurrentMissionId.value = missionId
 }
 
 defineExpose({

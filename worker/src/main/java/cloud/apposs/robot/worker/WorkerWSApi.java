@@ -60,73 +60,73 @@ public class WorkerWSApi {
     private SkillService skillService;
 
     @Autowired
-    private ProjectService projectService;
+    private MissionService missionService;
 
     @OnCommand("sessions.index")
-    public void sessionIndex(WSSession session, Metadata metadata, SessionModel.Index model) throws Exception {
-        Table<Param> sessionList = sessionsService.getSessionList(model);
+    public void sessionIndex(WSSession session, Metadata metadata, SessionModel.Index request) throws Exception {
+        Table<Param> sessionList = sessionsService.getSessionList(request);
         session.sendResponse(metadata.getCommandId(), sessionList);
     }
 
     @OnCommand("sessions.add")
-    public void addSession(WSSession session, Metadata metadata, SessionModel.Add model) throws Exception {
-        String sid = sessionsService.addSession(model);
-        if (sid != null && model.getProjectId() > 0) {
-            projectService.updateSessionProject(model.getWid(), sid, model.getProjectId());
+    public void addSession(WSSession session, Metadata metadata, SessionModel.Add request) throws Exception {
+        String sid = sessionsService.addSession(request);
+        if (sid != null && request.getMissionId() > 0) {
+            missionService.updateSessionMission(request.getWid(), sid, request.getMissionId());
         }
         session.sendResponse(metadata.getCommandId(), sid);
-        handleSessionIndexBroadcast(session, model.getWid());
+        handleSessionIndexBroadcast(session, request.getWid());
     }
 
     @OnCommand("sessions.remove")
-    public void removeSession(WSSession session, Metadata metadata, SessionModel.Remove model) throws Exception {
-        boolean success = sessionsService.removeSession(model);
+    public void removeSession(WSSession session, Metadata metadata, SessionModel.Remove request) throws Exception {
+        boolean success = sessionsService.removeSession(request);
         session.sendResponse(metadata.getCommandId(), success);
         if (success) {
-            handleSessionIndexBroadcast(session, model.getWid());
+            handleSessionIndexBroadcast(session, request.getWid());
         }
     }
 
     @OnCommand("sessions.rename")
-    public void renameSession(WSSession session, Metadata metadata, SessionModel.Rename model) throws Exception {
-        boolean success = sessionsService.renameSession(model);
+    public void renameSession(WSSession session, Metadata metadata, SessionModel.Rename request) throws Exception {
+        boolean success = sessionsService.renameSession(request);
         session.sendResponse(metadata.getCommandId(), success);
         if (success) {
-            handleSessionIndexBroadcast(session, model.getWid());
+            handleSessionIndexBroadcast(session, request.getWid());
         }
     }
 
     @OnCommand("message.index")
-    public void sessionMessageIndex(WSSession session, Metadata metadata, MessageModel.Index model) throws Exception {
-        Table<Param> messageList = messagesService.getMessageList(model.getWid(), model.getSid());
+    public void sessionMessageIndex(WSSession session, Metadata metadata, MessageModel.Index request) throws Exception {
+        Table<Param> messageList = messagesService.getMessageList(request.getWid(), request.getSid());
         session.sendResponse(metadata.getCommandId(), messageList);
     }
 
     @OnCommand("message.remove")
-    public void removeSessionMessage(WSSession session, Metadata metadata, MessageModel.Remove model) throws Exception {
-        boolean success = messagesService.removeMessage(model);
+    public void removeSessionMessage(WSSession session, Metadata metadata, MessageModel.Remove request) throws Exception {
+        boolean success = messagesService.removeMessage(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("message.clear")
-    public void clearSessionMessages(WSSession session, Metadata metadata, MessageModel.Clear model) throws Exception {
-        boolean success = messagesService.clearMessages(model);
+    public void clearSessionMessages(WSSession session, Metadata metadata, MessageModel.Clear request) throws Exception {
+        boolean success = messagesService.clearMessages(request);
         session.sendResponse(metadata.getCommandId(), success);
         if (success) {
-            handleSessionIndexBroadcast(session, model.getWid());
+            handleSessionIndexBroadcast(session, request.getWid());
         }
     }
 
     @OnCommand("worker.profile.provider.index")
-    public void workerProfileProviderIndex(WSSession session, Metadata metadata, WorkerProviderModel.Provider model) throws Exception {
-        AIProviderSetting provider = workerProfileService.getPrimaryProviderSetting(model);
+    public void workerProfileProviderIndex(WSSession session, Metadata metadata, WorkerProviderModel.Provider request) throws Exception {
+        AIProviderSetting provider = workerProfileService.getPrimaryProviderSetting(request);
         Param infomation = Param.builder("name", provider.getName())
                 .setString("link", provider.getLink())
                 .setObject("model", provider.getModel())
                 .setDouble("temperature", provider.getTemperature())
                 .setDouble("topP", provider.getTopP())
                 .setBoolean("stream", provider.isStream());
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         Table<Param> backups = Table.builder();
         if (worker != null) {
             List<AIProviderSetting> providers = worker.getProfile().getProvider();
@@ -141,8 +141,8 @@ public class WorkerWSApi {
     }
 
     @OnCommand("worker.profile.provider.update")
-    public void workerProfileProviderUpdate(WSSession session, Metadata metadata, WorkerProviderModel.Update model) throws Exception {
-        workerProfileService.updateProvider(model);
+    public void workerProfileProviderUpdate(WSSession session, Metadata metadata, WorkerProviderModel.Update request) throws Exception {
+        workerProfileService.updateProvider(request);
         session.sendResponse(metadata.getCommandId(), true);
     }
 
@@ -165,236 +165,242 @@ public class WorkerWSApi {
     }
 
     @OnCommand("disk.index")
-    public void diskIndex(WSSession session, Metadata metadata, DiskModel.Index model) throws Exception {
-        Table<Param> dataList = diskService.getDirectories(model.getWid(), model.getPath());
+    public void diskIndex(WSSession session, Metadata metadata, DiskModel.Index request) throws Exception {
+        Table<Param> dataList = diskService.getDirectories(request.getWid(), request.getPath());
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("disk.trash")
-    public void diskTrash(WSSession session, Metadata metadata, DiskModel.Trash model) throws Exception {
-        Table<Param> dataList = diskService.getTrashFiles(model.getWid());
+    public void diskTrash(WSSession session, Metadata metadata, DiskModel.Trash request) throws Exception {
+        Table<Param> dataList = diskService.getTrashFiles(request.getWid());
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("disk.read")
-    public void diskRead(WSSession session, Metadata metadata, DiskModel.Read model) throws Exception {
-        String base64Content = diskService.readFileBase64(model.getWid(), model.getPath());
+    public void diskRead(WSSession session, Metadata metadata, DiskModel.Read request) throws Exception {
+        String base64Content = diskService.readFileBase64(request.getWid(), request.getPath());
         session.sendResponse(metadata.getCommandId(), base64Content);
     }
 
     @OnCommand("disk.write")
-    public void diskWrite(WSSession session, Metadata metadata, DiskModel.Write model) throws Exception {
-        boolean success = diskService.writeFileBase64(model.getWid(), model.getPath(), model.getContent());
+    public void diskWrite(WSSession session, Metadata metadata, DiskModel.Write request) throws Exception {
+        boolean success = diskService.writeFileBase64(request.getWid(), request.getPath(), request.getContent());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("disk.read.text")
-    public void diskReadText(WSSession session, Metadata metadata, DiskModel.Read model) throws Exception {
-        String content = diskService.readFileText(model.getWid(), model.getPath());
+    public void diskReadText(WSSession session, Metadata metadata, DiskModel.Read request) throws Exception {
+        String content = diskService.readFileText(request.getWid(), request.getPath());
         session.sendResponse(metadata.getCommandId(), content);
     }
 
     @OnCommand("disk.write.text")
-    public void diskWriteText(WSSession session, Metadata metadata, DiskModel.Write model) throws Exception {
-        boolean success = diskService.writeFileText(model.getWid(), model.getPath(), model.getContent());
+    public void diskWriteText(WSSession session, Metadata metadata, DiskModel.Write request) throws Exception {
+        boolean success = diskService.writeFileText(request.getWid(), request.getPath(), request.getContent());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("disk.mkdir")
-    public void diskMkdir(WSSession session, Metadata metadata, DiskModel.Mkdir model) throws Exception {
-        boolean success = diskService.createDirectory(model.getWid(), model.getPath(), model.getName());
+    public void diskMkdir(WSSession session, Metadata metadata, DiskModel.Mkdir request) throws Exception {
+        boolean success = diskService.createDirectory(request.getWid(), request.getPath(), request.getName());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("disk.rename")
-    public void diskRename(WSSession session, Metadata metadata, DiskModel.Rename model) throws Exception {
-        boolean success = diskService.rename(model.getWid(), model.getPath(), model.getName());
+    public void diskRename(WSSession session, Metadata metadata, DiskModel.Rename request) throws Exception {
+        boolean success = diskService.rename(request.getWid(), request.getPath(), request.getName());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("disk.delete")
-    public void diskDelete(WSSession session, Metadata metadata, DiskModel.Delete model) throws Exception {
-        boolean success = diskService.delete(model.getWid(), model.getPath());
+    public void diskDelete(WSSession session, Metadata metadata, DiskModel.Delete request) throws Exception {
+        boolean success = diskService.delete(request.getWid(), request.getPath());
+        session.sendResponse(metadata.getCommandId(), success);
+    }
+
+    @OnCommand("disk.move")
+    public void diskMove(WSSession session, Metadata metadata, DiskModel.Move request) throws Exception {
+        boolean success = diskService.move(request.getWid(), request.getPath(), request.getTarget());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("wiki.index")
-    public void wikiIndex(WSSession session, Metadata metadata, WikiModel.Index model) throws Exception {
-        Table<Param> dataList = wikiService.getWikiDirs(model.getWid(), model.getPath());
+    public void wikiIndex(WSSession session, Metadata metadata, WikiModel.Index request) throws Exception {
+        Table<Param> dataList = wikiService.getWikiDirs(request.getWid(), request.getPath());
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("wiki.source")
-    public void wikiSource(WSSession session, Metadata metadata, WikiModel.Source model) throws Exception {
-        Table<Param> dataList = wikiService.getWikiFiles(model.getWid(), model.getPath());
+    public void wikiSource(WSSession session, Metadata metadata, WikiModel.Source request) throws Exception {
+        Table<Param> dataList = wikiService.getWikiFiles(request.getWid(), request.getPath());
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("wiki.trash")
-    public void wikiTrash(WSSession session, Metadata metadata, DiskModel.Trash model) throws Exception {
-        Table<Param> dataList = wikiService.getTrashWikis(model.getWid());
+    public void wikiTrash(WSSession session, Metadata metadata, DiskModel.Trash request) throws Exception {
+        Table<Param> dataList = wikiService.getTrashWikis(request.getWid());
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("wiki.document.read")
-    public void wikiDocumentRead(WSSession session, Metadata metadata, WikiDocumentModel.Read model) throws Exception {
-        String content = wikiService.readWikiFile(model.getWid(), model.getPath());
+    public void wikiDocumentRead(WSSession session, Metadata metadata, WikiDocumentModel.Read request) throws Exception {
+        String content = wikiService.readWikiFile(request.getWid(), request.getPath());
         session.sendResponse(metadata.getCommandId(), content);
     }
 
     @OnCommand("wiki.document.write")
-    public void wikiDocumentWrite(WSSession session, Metadata metadata, WikiDocumentModel.Write model) throws Exception {
-        boolean success = wikiService.writeWikiFile(model.getWid(), model.getPath(), model.getContent());
+    public void wikiDocumentWrite(WSSession session, Metadata metadata, WikiDocumentModel.Write request) throws Exception {
+        boolean success = wikiService.writeWikiFile(request.getWid(), request.getPath(), request.getContent());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("wiki.mkdir")
-    public void wikiMkdir(WSSession session, Metadata metadata, WikiModel.Mkdir model) throws Exception {
-        boolean success = wikiService.createDirectory(model.getWid(), model.getPath(), model.getName());
+    public void wikiMkdir(WSSession session, Metadata metadata, WikiModel.Mkdir request) throws Exception {
+        boolean success = wikiService.createDirectory(request.getWid(), request.getPath(), request.getName());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("wiki.create")
-    public void wikiCreate(WSSession session, Metadata metadata, WikiModel.Create model) throws Exception {
-        boolean success = wikiService.createMarkdown(model.getWid(), model.getPath(), model.getName());
+    public void wikiCreate(WSSession session, Metadata metadata, WikiModel.Create request) throws Exception {
+        boolean success = wikiService.createMarkdown(request.getWid(), request.getPath(), request.getName());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("wiki.delete")
-    public void wikiDelete(WSSession session, Metadata metadata, WikiModel.Delete model) throws Exception {
-        boolean success = wikiService.delete(model.getWid(), model.getPath());
+    public void wikiDelete(WSSession session, Metadata metadata, WikiModel.Delete request) throws Exception {
+        boolean success = wikiService.delete(request.getWid(), request.getPath());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("wiki.rename")
-    public void wikiRename(WSSession session, Metadata metadata, WikiModel.Rename model) throws Exception {
-        boolean success = wikiService.rename(model.getWid(), model.getPath(), model.getName());
+    public void wikiRename(WSSession session, Metadata metadata, WikiModel.Rename request) throws Exception {
+        boolean success = wikiService.rename(request.getWid(), request.getPath(), request.getName());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("wiki.move")
-    public void wikiMove(WSSession session, Metadata metadata, WikiModel.Move model) throws Exception {
-        boolean success = wikiService.move(model.getWid(), model.getPath(), model.getTarget());
+    public void wikiMove(WSSession session, Metadata metadata, WikiModel.Move request) throws Exception {
+        boolean success = wikiService.move(request.getWid(), request.getPath(), request.getTarget());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("rules.index")
-    public void rulesIndex(WSSession session, Metadata metadata, RulesModel.Index model) throws Exception {
-        Table<Param> dataList = rulesService.getRuleFiles(model.getWid());
+    public void rulesIndex(WSSession session, Metadata metadata, RulesModel.Index request) throws Exception {
+        Table<Param> dataList = rulesService.getRuleFiles(request.getWid());
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("rules.read")
-    public void rulesRead(WSSession session, Metadata metadata, RulesModel.Read model) throws Exception {
-        String content = rulesService.readRuleFile(model.getWid(), model.getFilename());
+    public void rulesRead(WSSession session, Metadata metadata, RulesModel.Read request) throws Exception {
+        String content = rulesService.readRuleFile(request.getWid(), request.getFilename());
         session.sendResponse(metadata.getCommandId(), content);
     }
 
     @OnCommand("rules.write")
-    public void rulesWrite(WSSession session, Metadata metadata, RulesModel.Write model) throws Exception {
-        boolean success = rulesService.writeRuleFile(model.getWid(), model.getFilename(), model.getContent());
+    public void rulesWrite(WSSession session, Metadata metadata, RulesModel.Write request) throws Exception {
+        boolean success = rulesService.writeRuleFile(request.getWid(), request.getFilename(), request.getContent());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("rules.delete")
-    public void rulesDelete(WSSession session, Metadata metadata, RulesModel.Delete model) throws Exception {
-        boolean success = rulesService.deleteRuleFile(model.getWid(), model.getFilename());
+    public void rulesDelete(WSSession session, Metadata metadata, RulesModel.Delete request) throws Exception {
+        boolean success = rulesService.deleteRuleFile(request.getWid(), request.getFilename());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("rules.switch")
-    public void rulesSwitch(WSSession session, Metadata metadata, RulesModel.Switch model) throws Exception {
-        boolean success = rulesService.switchRuleFile(model.getWid(), model.getFilename(), model.isEnabled());
+    public void rulesSwitch(WSSession session, Metadata metadata, RulesModel.Switch request) throws Exception {
+        boolean success = rulesService.switchRuleFile(request.getWid(), request.getFilename(), request.isEnabled());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("rules.rename")
-    public void rulesRename(WSSession session, Metadata metadata, RulesModel.Rename model) throws Exception {
-        boolean success = rulesService.renameRuleFile(model.getWid(), model.getFilename(), model.getNewFilename());
+    public void rulesRename(WSSession session, Metadata metadata, RulesModel.Rename request) throws Exception {
+        boolean success = rulesService.renameRuleFile(request.getWid(), request.getFilename(), request.getNewFilename());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("memory.index")
-    public void memoryIndex(WSSession session, Metadata metadata, MemoryModel.Index model) throws Exception {
-        Table<Param> dataList = memoryService.getMemoryFiles(model.getWid());
+    public void memoryIndex(WSSession session, Metadata metadata, MemoryModel.Index request) throws Exception {
+        Table<Param> dataList = memoryService.getMemoryFiles(request.getWid());
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("memory.read")
-    public void memoryRead(WSSession session, Metadata metadata, MemoryModel.Read model) throws Exception {
-        String content = memoryService.readMemoryFile(model.getWid(), model.getFilename());
+    public void memoryRead(WSSession session, Metadata metadata, MemoryModel.Read request) throws Exception {
+        String content = memoryService.readMemoryFile(request.getWid(), request.getFilename());
         session.sendResponse(metadata.getCommandId(), content);
     }
 
     @OnCommand("memory.write")
-    public void memoryWrite(WSSession session, Metadata metadata, MemoryModel.Write model) throws Exception {
-        boolean success = memoryService.writeMemoryFile(model.getWid(), model.getFilename(), model.getContent());
+    public void memoryWrite(WSSession session, Metadata metadata, MemoryModel.Write request) throws Exception {
+        boolean success = memoryService.writeMemoryFile(request.getWid(), request.getFilename(), request.getContent());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("memory.delete")
-    public void memoryDelete(WSSession session, Metadata metadata, MemoryModel.Delete model) throws Exception {
-        boolean success = memoryService.deleteMemoryFile(model.getWid(), model.getFilename());
+    public void memoryDelete(WSSession session, Metadata metadata, MemoryModel.Delete request) throws Exception {
+        boolean success = memoryService.deleteMemoryFile(request.getWid(), request.getFilename());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("memory.rename")
-    public void memoryRename(WSSession session, Metadata metadata, MemoryModel.Rename model) throws Exception {
-        boolean success = memoryService.renameMemoryFile(model.getWid(), model.getFilename(), model.getNewFilename());
+    public void memoryRename(WSSession session, Metadata metadata, MemoryModel.Rename request) throws Exception {
+        boolean success = memoryService.renameMemoryFile(request.getWid(), request.getFilename(), request.getNewFilename());
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("toolkit.index")
-    public void toolkitIndex(WSSession session, Metadata metadata, ToolkitModel.Index model) throws Exception {
-        Table<Param> dataList = toolkitService.getToolkitList(model);
+    public void toolkitIndex(WSSession session, Metadata metadata, ToolkitModel.Index request) throws Exception {
+        Table<Param> dataList = toolkitService.getToolkitList(request);
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("toolkit.switch")
-    public void toolkitSwitch(WSSession session, Metadata metadata, ToolkitModel.Switch model) throws Exception {
-        boolean success = toolkitService.switchTool(model);
+    public void toolkitSwitch(WSSession session, Metadata metadata, ToolkitModel.Switch request) throws Exception {
+        boolean success = toolkitService.switchTool(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("toolkit.properties.update")
-    public void toolkitPropertiesUpdate(WSSession session, Metadata metadata, ToolkitModel.UpdateProperties model) throws Exception {
-        boolean success = toolkitService.updateToolProperties(model);
+    public void toolkitPropertiesUpdate(WSSession session, Metadata metadata, ToolkitModel.UpdateProperties request) throws Exception {
+        boolean success = toolkitService.updateToolProperties(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("skill.index")
-    public void skillIndex(WSSession session, Metadata metadata, SkillModel.Index model) throws Exception {
-        Table<Param> dataList = skillService.getSkillList(model);
+    public void skillIndex(WSSession session, Metadata metadata, SkillModel.Index request) throws Exception {
+        Table<Param> dataList = skillService.getSkillList(request);
         session.sendResponse(metadata.getCommandId(), dataList);
     }
 
     @OnCommand("skill.read")
-    public void skillRead(WSSession session, Metadata metadata, SkillModel.Read model) throws Exception {
-        String content = skillService.readSkillContent(model);
+    public void skillRead(WSSession session, Metadata metadata, SkillModel.Read request) throws Exception {
+        String content = skillService.readSkillContent(request);
         session.sendResponse(metadata.getCommandId(), content);
     }
 
     @OnCommand("skill.write")
-    public void skillWrite(WSSession session, Metadata metadata, SkillModel.Write model) throws Exception {
-        boolean success = skillService.writeSkillContent(model);
+    public void skillWrite(WSSession session, Metadata metadata, SkillModel.Write request) throws Exception {
+        boolean success = skillService.writeSkillContent(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("skill.switch")
-    public void skillSwitch(WSSession session, Metadata metadata, SkillModel.Switch model) throws Exception {
-        boolean success = skillService.switchSkill(model);
+    public void skillSwitch(WSSession session, Metadata metadata, SkillModel.Switch request) throws Exception {
+        boolean success = skillService.switchSkill(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("skill.delete")
-    public void skillDelete(WSSession session, Metadata metadata, SkillModel.Delete model) throws Exception {
-        boolean success = skillService.deleteSkill(model);
+    public void skillDelete(WSSession session, Metadata metadata, SkillModel.Delete request) throws Exception {
+        boolean success = skillService.deleteSkill(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
     @OnCommand("skill.download")
-    public void skillDownload(WSSession session, Metadata metadata, SkillModel.Read model) throws Exception {
-        byte[] zipData = skillService.downloadSkill(model.getWid(), model.getName());
+    public void skillDownload(WSSession session, Metadata metadata, SkillModel.Read request) throws Exception {
+        byte[] zipData = skillService.downloadSkill(request.getWid(), request.getName());
         if (zipData != null) {
             String base64 = Base64.getEncoder().encodeToString(zipData);
             session.sendResponse(metadata.getCommandId(), base64);
@@ -404,55 +410,59 @@ public class WorkerWSApi {
     }
 
     @OnCommand("skill.import")
-    public void skillImport(WSSession session, Metadata metadata, SkillModel.Write model) throws Exception {
+    public void skillImport(WSSession session, Metadata metadata, SkillModel.Write request) throws Exception {
         // content 是 base64 编码的 zip 数据
-        byte[] zipData = Base64.getDecoder().decode(model.getContent());
-        boolean success = skillService.importSkillFromZip(model.getWid(), zipData);
+        byte[] zipData = Base64.getDecoder().decode(request.getContent());
+        boolean success = skillService.importSkillFromZip(request.getWid(), zipData);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
-    // ==================== Project ====================
-
-    @OnCommand("project.index")
-    public void projectIndex(WSSession session, Metadata metadata, ProjectModel.Index model) throws Exception {
-        Table<Param> projectList = projectService.getProjectList(model);
-        session.sendResponse(metadata.getCommandId(), projectList);
+    @OnCommand("mission.index")
+    public void missionIndex(WSSession session, Metadata metadata, MissionModel.Index request) throws Exception {
+        Table<Param> missionList = missionService.getMissionList(request);
+        session.sendResponse(metadata.getCommandId(), missionList);
     }
 
-    @OnCommand("project.add")
-    public void addProject(WSSession session, Metadata metadata, ProjectModel.Add model) throws Exception {
-        String projectId = projectService.addProject(model);
-        session.sendResponse(metadata.getCommandId(), projectId);
+    @OnCommand("mission.add")
+    public void addMission(WSSession session, Metadata metadata, MissionModel.Add request) throws Exception {
+        String missionId = missionService.addMission(request);
+        session.sendResponse(metadata.getCommandId(), missionId);
     }
 
-    @OnCommand("project.remove")
-    public void removeProject(WSSession session, Metadata metadata, ProjectModel.Remove model) throws Exception {
-        boolean success = projectService.removeProject(model);
+    @OnCommand("mission.remove")
+    public void removeMission(WSSession session, Metadata metadata, MissionModel.Remove request) throws Exception {
+        boolean success = missionService.removeMission(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
-    @OnCommand("project.rename")
-    public void renameProject(WSSession session, Metadata metadata, ProjectModel.Rename model) throws Exception {
-        boolean success = projectService.renameProject(model);
+    @OnCommand("mission.rename")
+    public void renameMission(WSSession session, Metadata metadata, MissionModel.Rename request) throws Exception {
+        boolean success = missionService.renameMission(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
-    @OnCommand("sessions.project.update")
-    public void updateSessionProject(WSSession session, Metadata metadata, ProjectModel.SessionProject model) throws Exception {
-        boolean success = projectService.updateSessionProject(model);
+    @OnCommand("mission.sort")
+    public void sortMission(WSSession session, Metadata metadata, MissionModel.Sort request) throws Exception {
+        boolean success = missionService.sortMission(request);
         session.sendResponse(metadata.getCommandId(), success);
     }
 
-    @OnCommand("sessions.project.infomation")
-    public void getSessionProject(WSSession session, Metadata metadata, ProjectModel.SessionProject model) throws Exception {
-        Param project = projectService.getProject(model.getWid(), model.getSid());
-        session.sendResponse(metadata.getCommandId(), project);
+    @OnCommand("sessions.mission.update")
+    public void updateSessionMission(WSSession session, Metadata metadata, MissionModel.SessionMission request) throws Exception {
+        boolean success = missionService.updateSessionMission(request);
+        session.sendResponse(metadata.getCommandId(), success);
+    }
+
+    @OnCommand("sessions.mission.infomation")
+    public void getSessionMission(WSSession session, Metadata metadata, MissionModel.SessionMission request) throws Exception {
+        Param mission = missionService.getMission(request.getWid(), request.getSid());
+        session.sendResponse(metadata.getCommandId(), mission);
     }
 
     private void handleSessionIndexBroadcast(WSSession session, String wid) throws Exception {
-        SessionModel.Index model = new SessionModel.Index();
-        model.setWid(wid);
-        Table<Param> sessionList = sessionsService.getSessionList(model);
+        SessionModel.Index request = new SessionModel.Index();
+        request.setWid(wid);
+        Table<Param> sessionList = sessionsService.getSessionList(request);
         for (WSSession remoteSession : session.getNamespace().getSessions()) {
             remoteSession.sendCommand("message.index.broadcast", wid, sessionList);
         }

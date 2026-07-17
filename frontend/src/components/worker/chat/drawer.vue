@@ -17,18 +17,35 @@
           <a-svg-icon icon-class="chat-lines" size="18px" />
           <div class="name">{{ $t('menu.chat') }}</div>
         </div>
+        <div class="operate inline-flex-r-c-n">
+          <el-tooltip :content="$t('mission.create')" placement="bottom">
+            <el-icon class="icon" @click="handleAddMission">
+              <Folder />
+            </el-icon>
+          </el-tooltip>
+          <el-tooltip :content="$t('chat.new-chat')" placement="bottom">
+            <el-icon class="icon" @click="handleNewSession">
+              <Plus />
+            </el-icon>
+          </el-tooltip>
+        </div>
       </div>
       <div class="main">
         <el-scrollbar>
           <draggable class="mission-list" itemKey="key" :animation="200" v-model="loadSortedMissionList"
             handle=".mission-head"
-            :filter="'.mission-default'"
+            :move="handleMissionMoveCheck"
             @end="handleMissionSortEnd"
           >
             <template #item="{ element: mission }">
-              <div class="mission" :class="{ 'mission-default': mission.key === '0' }">
+              <div class="mission" :class="{ 'mission-default': mission.key === '0' }"
+                @dragover.prevent="handleSessionDragOver($event, mission.key)"
+                @dragleave="handleSessionDragLeave($event, mission.key)"
+                @drop="handleSessionDrop($event, mission.key)"
+              >
                 <!-- 项目分组标题 -->
                 <div class="mission-head inline-flex-r-c-n"
+                  :class="{ 'is-drop-target': sessionDragOverMissionKey === mission.key }"
                   @click="handleMissionSwitch(mission.key)"
                 >
                   <a-svg-icon v-if="loadCollapsedMissions[mission.key]" icon-class="folder-user" class="icon" />
@@ -36,7 +53,10 @@
                   <div class="name inline-text-ellipsis" :title="mission.name">
                     {{ mission.name }}
                   </div>
-                  <div class="operate" v-if="mission.key !== '0'">
+                  <div class="operate inline-flex-r-c-n" v-if="mission.key !== '0'">
+                    <el-tooltip :content="$t('chat.new-chat-in-group')" placement="top">
+                      <el-icon @click.stop="handleNewSessionInMission(mission)"><Edit /></el-icon>
+                    </el-tooltip>
                     <el-icon @click.stop="handleMissionContextMenuView($event, mission)"
                       :class="{
                         'is-actived': isMissionContextMenuView && mission.key === loadActivedMissionData.key
@@ -55,6 +75,9 @@
                       :class="{
                         'is-actived': useSessionId() === String(info.id)
                       }"
+                      draggable="true"
+                      @dragstart="handleSessionDragStart($event, info)"
+                      @dragend="handleSessionDragEnd"
                       @click="handleChatClick(info)"
                     >
                       <div class="icon" :class="{
@@ -87,10 +110,10 @@
               </div>
             </template>
           </draggable>
-          <a-nodata v-if="infomation.length === 0" :loading="progression.loading" :success="progression.success" />
+          <a-nodata v-if="infomation.length === 0 && missionList.length === 0" :loading="progression.loading" :success="progression.success" />
         </el-scrollbar>
       </div>
-      <div class="chat inline-flex-r-c-c" @click="handleSessionNew">
+      <div class="chat inline-flex-r-c-c" @click="handleNewSession">
         <el-icon><ChatDotRound /></el-icon>
         {{ $t('chat.new-chat') }}
       </div>
@@ -152,6 +175,8 @@ import {
 } from 'element-plus'
 import {
   Edit,
+  Plus,
+  Folder,
   Delete,
   CaretLeft,
   CaretRight,
@@ -183,6 +208,7 @@ const route = useRoute()
 const router = useRouter()
 
 const infomation = ref<any[]>([])
+const missionList = ref<any[]>([])
 const loadStreamingSessions = ref<string[]>([])
 const isCollapsed = ref(false)
 const isContextMenuView = ref(false)
@@ -190,6 +216,8 @@ const isMissionContextMenuView = ref(false)
 const loadActivedContextData = ref<any>({})
 const loadActivedMissionData = ref<any>({})
 const loadCollapsedMissions = ref<Record<string, boolean>>({})
+const sessionDragOverMissionKey = ref<string | null>(null)
+const sessionDragData = ref<any>(null)
 const useWid = () => route.params.id as string
 const useSessionId = () => route.query.id as string
 const loadContextMenuRef = ref<HTMLDivElement | null>(null)
@@ -224,37 +252,48 @@ const groupByDate = (sessions: any[]) => {
 
 // 按项目分组 + 日期范围子分组的会话列表
 const loadFormatDataList = computed(() => {
-  const projectMap = new Map<string, { name: string; key: string; sortOrder: number; sessions: any[] }>()
+  const missionMap = new Map<string, { name: string; key: string; sortOrder: number; sessions: any[] }>()
+  // 先从独立加载的 mission 列表初始化所有分组（确保即使无会话也展示）
+  for (const mission of missionList.value) {
+    const key = String(mission.id)
+    missionMap.set(key, {
+      name: mission.name,
+      key,
+      sortOrder: mission.sortOrder || 0,
+      sessions: []
+    })
+  }
+  // 再将会话分配到对应分组
   for (const data of infomation.value) {
-    const projectId = data.projectId || 0
-    const projectName = data.projectName || i18n.t('project.default')
-    const sortOrder = data.projectSortOrder || 0
-    const key = String(projectId)
-    if (!projectMap.has(key)) {
-      projectMap.set(key, { name: projectName, key, sortOrder, sessions: [] })
+    const missionId = data.missionId || 0
+    const missionName = data.missionName || i18n.t('mission.default')
+    const sortOrder = data.missionSortOrder || 0
+    const key = String(missionId)
+    if (!missionMap.has(key)) {
+      missionMap.set(key, { name: missionName, key, sortOrder, sessions: [] })
     }
-    projectMap.get(key)!.sessions.push(data)
+    missionMap.get(key)!.sessions.push(data)
   }
   // 转换为数组，默认项目（id=0）放最后
   const result: { name: string; key: string; total: number; dateGroups: { label: string; datas: any[] }[] }[] = []
-  const defaultProject = projectMap.get('0')
-  projectMap.delete('0')
+  const defaultMission = missionMap.get('0')
+  missionMap.delete('0')
   // 按 sort_order 排序项目
-  const sortedProjects = Array.from(projectMap.values()).sort((a, b) => a.sortOrder - b.sortOrder)
-  for (const project of sortedProjects) {
+  const sortedMissions = Array.from(missionMap.values()).sort((a, b) => a.sortOrder - b.sortOrder)
+  for (const mission of sortedMissions) {
     result.push({
-      name: project.name,
-      key: project.key,
-      total: project.sessions.length,
-      dateGroups: groupByDate(project.sessions)
+      name: mission.name,
+      key: mission.key,
+      total: mission.sessions.length,
+      dateGroups: groupByDate(mission.sessions)
     })
   }
-  if (defaultProject) {
+  if (defaultMission) {
     result.push({
-      name: defaultProject.name,
-      key: defaultProject.key,
-      total: defaultProject.sessions.length,
-      dateGroups: groupByDate(defaultProject.sessions)
+      name: defaultMission.name,
+      key: defaultMission.key,
+      total: defaultMission.sessions.length,
+      dateGroups: groupByDate(defaultMission.sessions)
     })
   }
   return result
@@ -264,20 +303,35 @@ const loadFormatDataList = computed(() => {
 const loadSortedMissionList = ref<any[]>([])
 watch(loadFormatDataList, (val) => {
   loadSortedMissionList.value = [...val]
+  // 没有会话的分组默认折叠（仅初始化时自动设置，不覆盖用户手动切换的状态）
+  for (const mission of val) {
+    if (mission.total === 0 && !(mission.key in loadCollapsedMissions.value)) {
+      loadCollapsedMissions.value[mission.key] = true
+    }
+  }
 }, { immediate: true })
+
+// 阻止默认分组被拖动排序（返回 false 取消排序移动）
+const handleMissionMoveCheck = (evt: any) => {
+  const draggedElement = evt.draggedContext?.element
+  if (draggedElement && draggedElement.key === '0') {
+    return false
+  }
+  return true
+}
 
 // 拖拽排序结束后保存排序
 const handleMissionSortEnd = () => {
   // 收集排序后的项目ID列表（排除默认项目 key=0）
-  const projectIds = loadSortedMissionList.value
+  const missionIds = loadSortedMissionList.value
     .filter(m => m.key !== '0')
     .map(m => parseInt(m.key))
-  if (projectIds.length === 0) return
+  if (missionIds.length === 0) return
   const params = {
     wid: useWid(),
-    projectIds
+    missionIds
   }
-  ioRequest('project.sort', params)
+  ioRequest('mission.sort', params)
 }
 
 // 折叠/展开项目
@@ -291,6 +345,7 @@ onMounted(() => {
 })
 onUnmounted(() => {
   Mitter.off('mitt-chat-streaming', handleStreamingUpdate)
+  Mitter.off('mitt-session-mission-update', handleSessionMissionUpdate)
 })
 
 const handleDataLoad = () => {
@@ -299,6 +354,9 @@ const handleDataLoad = () => {
   }
   ioRequest('sessions.index', params).then((result) => {
     infomation.value = result[0] || []
+  })
+  ioRequest('mission.index', params).then((result) => {
+    missionList.value = result[0] || []
   })
 }
 const handleDataListenOn = () => {
@@ -310,6 +368,7 @@ const handleDataListenOn = () => {
     infomation.value = result[1]
   })
   Mitter.on('mitt-chat-streaming', handleStreamingUpdate)
+  Mitter.on('mitt-session-mission-update', handleSessionMissionUpdate)
 }
 const handleStreamingUpdate = (payload: any) => {
   const sid = String(payload.sid)
@@ -324,14 +383,161 @@ const handleStreamingUpdate = (payload: any) => {
     }
   }
 }
+// 输入框修改分组后同步更新左侧列表
+const handleSessionMissionUpdate = (payload: any) => {
+  const { sid, missionId, missionName } = payload
+  const missionKey = String(missionId)
+  const matched = infomation.value.find((item: any) => String(item.id) === String(sid))
+  if (matched) {
+    matched.missionId = missionId
+    if (missionId === 0) {
+      matched.missionName = null
+      matched.missionSortOrder = 0
+    } else {
+      matched.missionName = missionName || ''
+      const targetMission = missionList.value.find((m: any) => m.id === missionId)
+      matched.missionSortOrder = targetMission ? (targetMission.sortOrder || 0) : 0
+    }
+  }
+  // 展开目标分组（如果折叠中）
+  if (loadCollapsedMissions.value[missionKey]) {
+    loadCollapsedMissions.value[missionKey] = false
+  }
+  // 如果是新建的分组，刷新 missionList
+  if (missionId > 0 && !missionList.value.find((m: any) => m.id === missionId)) {
+    ioRequest('mission.index', { wid: useWid() }).then((result) => {
+      missionList.value = result[0] || []
+    })
+  }
+}
+// ==================== 会话拖拽到分组 ====================
+const handleSessionDragStart = (event: DragEvent, info: any) => {
+  sessionDragData.value = info
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', String(info.id))
+  }
+}
+const handleSessionDragEnd = () => {
+  sessionDragData.value = null
+  sessionDragOverMissionKey.value = null
+}
+const handleSessionDragOver = (event: DragEvent, missionKey: string) => {
+  if (!sessionDragData.value) return
+  event.preventDefault()
+  sessionDragOverMissionKey.value = missionKey
+}
+const handleSessionDragLeave = (event: DragEvent, missionKey: string) => {
+  // 只在真正离开该分组时清除高亮
+  const relatedTarget = event.relatedTarget as HTMLElement | null
+  const currentTarget = event.currentTarget as HTMLElement
+  if (relatedTarget && currentTarget.contains(relatedTarget)) return
+  if (sessionDragOverMissionKey.value === missionKey) {
+    sessionDragOverMissionKey.value = null
+  }
+}
+const handleSessionDrop = (event: DragEvent, missionKey: string) => {
+  event.preventDefault()
+  sessionDragOverMissionKey.value = null
+  const info = sessionDragData.value
+  if (!info) return
+  const currentMissionId = String(info.missionId || 0)
+  if (currentMissionId === missionKey) {
+    // 未变更分组，不处理
+    sessionDragData.value = null
+    return
+  }
+  const newMissionId = parseInt(missionKey)
+  const params = {
+    wid: useWid(),
+    sid: String(info.id),
+    missionId: newMissionId
+  }
+  ioRequest('sessions.mission.update', params).then((result: any) => {
+    const success = result[0]
+    if (success) {
+      // 更新本地数据
+      const matched = infomation.value.find((item: any) => item.id === info.id)
+      if (matched) {
+        matched.missionId = newMissionId
+        // 更新 missionName
+        if (newMissionId === 0) {
+          matched.missionName = null
+          matched.missionSortOrder = 0
+        } else {
+          const targetMission = missionList.value.find((m: any) => m.id === newMissionId)
+          matched.missionName = targetMission ? targetMission.name : ''
+          matched.missionSortOrder = targetMission ? (targetMission.sortOrder || 0) : 0
+        }
+      }
+      // 展开目标分组（如果折叠中）
+      if (loadCollapsedMissions.value[missionKey]) {
+        loadCollapsedMissions.value[missionKey] = false
+      }
+      // 通知右侧输入框的分组按钮更新
+      Mitter.emit('mitt-drawer-mission-update', { sid: String(info.id), missionId: newMissionId })
+    } else {
+      ElMessage.error(i18n.t('mission.move-failed'))
+    }
+  })
+  sessionDragData.value = null
+}
 const handleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
 }
-const handleSessionNew = () => {
+const handleNewSession = () => {
   router.replace({
     path: route.path,
     query: {}
   })
+}
+const handleNewSessionInMission = (mission: any) => {
+  // 先通知输入框预设分组（设置skip标记，防止watch重置）
+  Mitter.emit('mitt-new-session-mission', {
+    missionId: parseInt(mission.key),
+    missionName: mission.name
+  })
+  router.replace({
+    path: route.path,
+    query: {}
+  })
+}
+const handleAddMission = () => {
+  ElMessageBox.prompt(
+    i18n.t('mission.create-placeholder'),
+    i18n.t('mission.create-title'),
+    {
+      inputPattern: /\S+/,
+      inputErrorMessage: i18n.t('mission.create-empty'),
+      cancelButtonText: i18n.t('common.cancel'),
+      confirmButtonText: i18n.t('common.confirm')
+    }
+  ).then(({ value }) => {
+    const name = value.trim()
+    const params = {
+      wid: useWid(),
+      name: name,
+      description: ''
+    }
+    ioRequest('mission.add', params).then((result: any) => {
+      const newMissionId = result[0]
+      if (!newMissionId) {
+        ElMessage.error(i18n.t('mission.create-failed'))
+        return
+      }
+      ElMessage.success(i18n.t('mission.create-success'))
+      // 刷新分组列表
+      ioRequest('mission.index', { wid: useWid() }).then((res) => {
+        missionList.value = res[0] || []
+      })
+      // 先通知输入框预设分组（设置skip标记），再开启新会话
+      Mitter.emit('mitt-new-session-mission', {
+        missionId: parseInt(newMissionId),
+        missionName: name
+      })
+      router.replace({ path: route.path, query: {} })
+    })
+  }).catch(() => {})
 }
 const handleChatClick = (data: any) => {
   router.replace({
@@ -506,12 +712,12 @@ const handleRenameMission = () => {
   if (!mission || mission.key === '0') return
   handleMissionContextMenuHide()
   ElMessageBox.prompt(
-    i18n.t('project.rename-placeholder'),
-    i18n.t('project.rename-title'),
+    i18n.t('mission.rename-placeholder'),
+    i18n.t('mission.rename-title'),
     {
       inputValue: mission.name,
       inputPattern: /\S+/,
-      inputErrorMessage: i18n.t('project.create-empty'),
+      inputErrorMessage: i18n.t('mission.create-empty'),
       cancelButtonText: i18n.t('common.cancel'),
       confirmButtonText: i18n.t('common.confirm')
     }
@@ -525,22 +731,29 @@ const handleRenameMission = () => {
 const handleXhrMissionRename = (mission: any, newName: string) => {
   const params = {
     wid: useWid(),
-    projectId: mission.key,
+    missionId: mission.key,
     name: newName
   }
-  ioRequest('project.rename', params).then((result: any) => {
+  ioRequest('mission.rename', params).then((result: any) => {
     const success = result[0]
     if (!success) {
-      ElMessage.error(i18n.t('project.rename-failed'))
+      ElMessage.error(i18n.t('mission.rename-failed'))
       return
     }
-    ElMessage.success(i18n.t('project.rename-success'))
-    // 更新本地列表中会话的项目名称
+    ElMessage.success(i18n.t('mission.rename-success'))
+    // 更新本地分组列表中的名称
+    const targetMission = missionList.value.find((m: any) => String(m.id) === mission.key)
+    if (targetMission) {
+      targetMission.name = newName
+    }
+    // 更新本地会话列表中的项目名称
     for (const info of infomation.value) {
-      if (String(info.projectId) === mission.key) {
-        info.projectName = newName
+      if (String(info.missionId) === mission.key) {
+        info.missionName = newName
       }
     }
+    // 通知右侧输入框分组名称更新
+    Mitter.emit('mitt-mission-rename', { missionId: parseInt(mission.key), missionName: newName })
   })
 }
 // 删除项目
@@ -549,8 +762,8 @@ const handleDeleteMission = () => {
   if (!mission || mission.key === '0') return
   handleMissionContextMenuHide()
   ElMessageBox.confirm(
-    i18n.t('project.delete-confirm', { placeholder: mission.name }),
-    i18n.t('project.delete-title'),
+    i18n.t('mission.delete-confirm', { placeholder: mission.name }),
+    i18n.t('mission.delete-title'),
     {
       type: 'warning',
       cancelButtonText: i18n.t('common.cancel'),
@@ -564,22 +777,27 @@ const handleDeleteMission = () => {
 const handleXhrMissionDelete = (mission: any) => {
   const params = {
     wid: useWid(),
-    projectId: mission.key
+    missionId: mission.key
   }
-  ioRequest('project.remove', params).then((result: any) => {
+  ioRequest('mission.remove', params).then((result: any) => {
     const success = result[0]
     if (!success) {
-      ElMessage.error(i18n.t('project.delete-failed'))
+      ElMessage.error(i18n.t('mission.delete-failed'))
       return
     }
-    ElMessage.success(i18n.t('project.delete-success'))
+    ElMessage.success(i18n.t('mission.delete-success'))
     // 将该项目下的会话归入默认项目
     for (const info of infomation.value) {
-      if (String(info.projectId) === mission.key) {
-        info.projectId = 0
-        info.projectName = null
-        info.projectSortOrder = 0
+      if (String(info.missionId) === mission.key) {
+        info.missionId = 0
+        info.missionName = null
+        info.missionSortOrder = 0
       }
+    }
+    // 从 missionList 中移除
+    const missionIndex = missionList.value.findIndex((m: any) => String(m.id) === mission.key)
+    if (missionIndex !== -1) {
+      missionList.value.splice(missionIndex, 1)
     }
   })
 }

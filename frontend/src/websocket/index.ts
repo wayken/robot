@@ -1,4 +1,4 @@
-import { Socket, SocketOptions } from './socket'
+import { Socket, SocketOptions, SocketError } from './socket'
 
 function lookup(url: string, opts?: SocketOptions) {
   opts = opts || {}
@@ -11,6 +11,7 @@ function lookup(url: string, opts?: SocketOptions) {
 
 export {
   Socket,
+  SocketError,
   lookup as io,
   lookup as connect,
   lookup as default

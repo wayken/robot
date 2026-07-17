@@ -23,6 +23,17 @@
           margin-left: 4px;
         }
       }
+      .operate {
+        margin-left: auto;
+        .icon {
+          font-size: 18px;
+          margin-right: 12px;
+          cursor: pointer;
+          &:hover {
+            color: var(--var-theme-primary-4);
+          }
+        }
+      }
     }
     .main {
       flex: 1;
@@ -36,7 +47,7 @@
         }
       }
       .source {
-        cursor: pointer;
+        cursor: grab;
         margin: 4px 10px;
         border-radius: 5px;
         padding: 10px 8px 10px 12px;
@@ -124,6 +135,9 @@
         margin: 0 4px;
         cursor: pointer;
         padding: 0 12px;
+        transition: background-color 0.2s, border-color 0.2s;
+        border: 2px solid transparent;
+        border-radius: 5px;
         .icon {
           width: 20px;
           height: 20px;
@@ -138,11 +152,12 @@
         .operate {
           margin-left: 4px;
           > i {
-            display: none;
-            font-size: 15px;
             padding: 4px;
-            border-radius: 50%;
+            display: none;
+            font-size: 16px;
             cursor: pointer;
+            margin-left: 2px;
+            border-radius: 50%;
             &.is-actived {
               display: block;
               color: var(--var-theme-primary-4);
@@ -159,6 +174,10 @@
           }
           background-color: var(--var-module-hover-color);
         }
+        &.is-drop-target {
+          border-color: var(--var-theme-primary-4);
+          background-color: var(--var-theme-primary-1);
+        }
       }
       &-body {
         opacity: 1;
@@ -169,6 +188,12 @@
         transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
         &__wrapper {
           overflow: hidden;
+          .empty {
+            padding: 8px 22px;
+            font-size: 13px;
+            color: $var-color-text-primary;
+            opacity: 0.6;
+          }
         }
         &.is-collapsed {
           opacity: 0;

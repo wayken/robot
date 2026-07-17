@@ -2,7 +2,7 @@ package cloud.apposs.robot.worker.service.model;
 
 import cloud.apposs.rest.validator.checker.NotBlank;
 
-public class ProjectModel {
+public class MissionModel {
     public static class Index {
         @NotBlank
         private String wid;
@@ -65,7 +65,7 @@ public class ProjectModel {
         private String wid;
 
         @NotBlank
-        private String projectId;
+        private String missionId;
 
         public String getWid() {
             return wid;
@@ -75,12 +75,12 @@ public class ProjectModel {
             this.wid = wid;
         }
 
-        public String getProjectId() {
-            return projectId;
+        public String getMissionId() {
+            return missionId;
         }
 
-        public void setProjectId(String projectId) {
-            this.projectId = projectId;
+        public void setMissionId(String missionId) {
+            this.missionId = missionId;
         }
     }
 
@@ -89,7 +89,7 @@ public class ProjectModel {
         private String wid;
 
         @NotBlank
-        private String projectId;
+        private String missionId;
 
         @NotBlank
         private String name;
@@ -102,12 +102,12 @@ public class ProjectModel {
             this.wid = wid;
         }
 
-        public String getProjectId() {
-            return projectId;
+        public String getMissionId() {
+            return missionId;
         }
 
-        public void setProjectId(String projectId) {
-            this.projectId = projectId;
+        public void setMissionId(String missionId) {
+            this.missionId = missionId;
         }
 
         public String getName() {
@@ -119,14 +119,37 @@ public class ProjectModel {
         }
     }
 
-    public static class SessionProject {
+    public static class Sort {
+        @NotBlank
+        private String wid;
+
+        private int[] missionIds;
+
+        public String getWid() {
+            return wid;
+        }
+
+        public void setWid(String wid) {
+            this.wid = wid;
+        }
+
+        public int[] getMissionIds() {
+            return missionIds;
+        }
+
+        public void setMissionIds(int[] missionIds) {
+            this.missionIds = missionIds;
+        }
+    }
+
+    public static class SessionMission {
         @NotBlank
         private String wid;
 
         @NotBlank
         private String sid;
 
-        private int projectId;
+        private int missionId;
 
         public String getWid() {
             return wid;
@@ -144,12 +167,12 @@ public class ProjectModel {
             this.sid = sid;
         }
 
-        public int getProjectId() {
-            return projectId;
+        public int getMissionId() {
+            return missionId;
         }
 
-        public void setProjectId(int projectId) {
-            this.projectId = projectId;
+        public void setMissionId(int missionId) {
+            this.missionId = missionId;
         }
     }
 }

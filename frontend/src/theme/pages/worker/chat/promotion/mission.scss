@@ -1,6 +1,6 @@
-.project-panel {
+.mission-panel {
   position: relative;
-  .project-btn {
+  .mission-btn {
     height: 34px;
     cursor: pointer;
     padding: 0 12px;
@@ -25,7 +25,7 @@
       transition: transform 0.2s;
     }
   }
-  .project-panel {
+  .mission-panel {
     left: 0;
     z-index: 100;
     overflow: hidden;
@@ -76,18 +76,15 @@
       margin-bottom: 4px;
       border-top: 1px solid var(--var-menu-border-color);
     }
-    &__add {
-      color: var(--var-theme-primary-4);
-    }
   }
 }
 
-.project-panel-fade-enter-active,
-.project-panel-fade-leave-active {
+.mission-panel-fade-enter-active,
+.mission-panel-fade-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.project-panel-fade-enter-from,
-.project-panel-fade-leave-to {
+.mission-panel-fade-enter-from,
+.mission-panel-fade-leave-to {
   opacity: 0;
   transform: translateY(8px);
 }

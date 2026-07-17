@@ -41,12 +41,12 @@
         </div>
         <!-- 无子目录提示 -->
         <a-nodata v-if="dataList.length === 0" :loading="progression.loading" :success="true"
-          :description="$t('project.no-subdirectories')"
+          :description="$t('mission.no-subdirectories')"
         />
       </div>
       <!-- 已选路径 -->
       <div class="marked">
-        <span class="label">{{ $t('project.selected-path') }}：</span>
+        <span class="label">{{ $t('mission.selected-path') }}：</span>
         <span class="value">{{ loadSelectedPath || '/' }}</span>
       </div>
     </div>
@@ -66,7 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { Select, ArrowRight } from '@element-plus/icons-vue'
+import {
+  Select,
+  ArrowRight
+} from '@element-plus/icons-vue'
 import useSocketIO from '@/hooks/useSocketIO'
 
 const props = defineProps({

@@ -25,6 +25,9 @@ const FILE_TYPE_MAP: {
   ts: {
     icon: 'document-ts'
   },
+  java: {
+    icon: 'document-java'
+  },
   immp: {
     icon: 'document-mind'
   },

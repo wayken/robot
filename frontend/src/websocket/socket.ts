@@ -9,6 +9,20 @@ export interface SocketOptions {
 }
 
 /**
+ * WebSocket RPC 错误对象，包含错误码和错误信息
+ */
+export class SocketError extends Error {
+  /** 错误码，对应后端 Errno 定义 */
+  public code: number
+  
+  constructor(code: number, message: string) {
+    super(message)
+    this.code = code
+    this.name = 'SocketError'
+  }
+}
+
+/**
  * 系统指令类型，各指令类型说明如下：
  * 1. HANDSHAKE: 建立WebSocket连接后的握手数据传输，
  *  业务可通过socket.on('handshake', fn...)来实现建立连接过程中的降级、权限校验等
@@ -471,7 +485,11 @@ export class Socket {
       this.pendingRequests.delete(commandId)
       if (pending.timeout) clearTimeout(pending.timeout)
       if (status !== 0) {
-        pending.reject(new Error(`Request failed with status ${status}`))
+        // 从 parameters 中提取错误码和错误信息，格式为 [errorCode, errorMessage]
+        const errorCode = parameters.length > 0 ? parameters[0] : status
+        const errorMessage = parameters.length > 1 ? parameters[1] : `Request failed with status ${status}`
+        const error = new SocketError(errorCode, errorMessage)
+        pending.reject(error)
       } else {
         pending.resolve(parameters)
       }

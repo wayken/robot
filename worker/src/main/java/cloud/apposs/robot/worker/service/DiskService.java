@@ -199,6 +199,47 @@ public class DiskService {
     }
 
     /**
+     * 移动文件或文件夹到目标目录
+     */
+    public boolean move(String workerId, String filePath, String targetDir) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(workerId);
+        if (worker == null) {
+            return false;
+        }
+        Path diskPath = worker.getWorkspace().disk();
+        Path sourcePath = diskPath.resolve(filePath).normalize();
+        // 安全检查：确保源路径在磁盘目录下
+        if (!sourcePath.startsWith(diskPath)) {
+            return false;
+        }
+        if (!Files.exists(sourcePath)) {
+            return false;
+        }
+        // 目标路径 = 目标目录 + 源文件名
+        String fileName = sourcePath.getFileName().toString();
+        Path targetPath = diskPath.resolve(targetDir).resolve(fileName).normalize();
+        // 安全检查：确保目标路径在磁盘目录下
+        if (!targetPath.startsWith(diskPath)) {
+            return false;
+        }
+        // 不能移动到自身或自身子目录下
+        if (targetPath.equals(sourcePath) || targetPath.startsWith(sourcePath)) {
+            return false;
+        }
+        // 目标已存在则返回失败
+        if (Files.exists(targetPath)) {
+            return false;
+        }
+        // 确保目标目录存在
+        Path targetParent = targetPath.getParent();
+        if (targetParent != null && !Files.exists(targetParent)) {
+            Files.createDirectories(targetParent);
+        }
+        Files.move(sourcePath, targetPath);
+        return true;
+    }
+
+    /**
      * 删除文件或文件夹
      */
     public boolean delete(String workerId, String filePath) throws Exception {

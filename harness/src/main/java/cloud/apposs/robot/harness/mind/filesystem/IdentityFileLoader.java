@@ -13,10 +13,6 @@ public class IdentityFileLoader {
     }
 
     public String buildPrompt() throws Exception {
-        return buildPrompt(null);
-    }
-
-    public String buildPrompt(String projectPath) throws Exception {
         String osName = Runtimes.CURRENT_OS;
         String runtime = osName + " " + System.getProperty("os.arch");
         String platformPolicy;
@@ -25,14 +21,8 @@ public class IdentityFileLoader {
         } else {
             platformPolicy = PromptLoader.readPrompt("identity/postfix");
         }
-        String workspacePath;
-        if (projectPath != null && !projectPath.isEmpty()) {
-            workspacePath = workspace.disk().resolve(projectPath).toString();
-        } else {
-            workspacePath = workspace.root().toString();
-        }
+        String workspacePath = workspace.root().toString();
         Param replacement = Param.builder("runtime", runtime)
-                .setString("workhome", workspace.root().toString())
                 .setString("workspace", workspacePath)
                 .setString("platform", platformPolicy);
         return PromptLoader.readPrompt("identity/runtime", replacement);

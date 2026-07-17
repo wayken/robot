@@ -41,13 +41,13 @@
         </div>
         <!-- 无子目录提示 -->
         <a-nodata v-if="dataList.length === 0" :loading="progression.loading" :success="true"
-          :description="$t('project.no-subdirectories')"
+          :description="$t('mission.no-subdirectories')"
         />
       </div>
       <!-- 已选路径 -->
       <div class="marked">
-        <span class="label">{{ $t('project.selected-path') }}：</span>
-        <span class="value">{{ loadSelectedPath }}</span>
+        <span class="label">{{ $t('mission.selected-path') }}：</span>
+        <span class="value">{{ loadSelectedPath || '/' }}</span>
       </div>
     </div>
     <template #footer>
@@ -55,7 +55,7 @@
         <el-button @click="handleClose">
           {{ $t('common.cancel') }}
         </el-button>
-        <el-button type="primary" :disabled="!loadSelectedPath"
+        <el-button type="primary" :disabled="loadSelectedPath === null"
           @click="handleSubmit"
         >
           {{ $t('common.confirm') }}
@@ -66,7 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { Select, ArrowRight } from '@element-plus/icons-vue'
+import {
+  Select,
+  ArrowRight
+} from '@element-plus/icons-vue'
 import useSocketIO from '@/hooks/useSocketIO'
 
 const props = defineProps({
@@ -109,13 +112,15 @@ const loadPathList = computed(() => {
   }
   return list
 })
-// 最终选中的完整路径
+// 最终选中的完整路径（选中子文件夹时返回子路径，未选中时返回当前浏览路径）
 const loadSelectedPath = computed(() => {
-  if (!loadSelectedFolder.value) return ''
-  if (loadCurrentPath.value) {
-    return `${loadCurrentPath.value}/${loadSelectedFolder.value}`
+  if (loadSelectedFolder.value) {
+    if (loadCurrentPath.value) {
+      return `${loadCurrentPath.value}/${loadSelectedFolder.value}`
+    }
+    return loadSelectedFolder.value
   }
-  return loadSelectedFolder.value
+  return loadCurrentPath.value
 })
 // 打开弹窗时加载根目录
 const handleOpen = () => {
@@ -156,7 +161,6 @@ const handleClose = () => {
   handleEmit('close')
 }
 const handleSubmit = () => {
-  if (!loadSelectedPath.value) return
   handleEmit('submit', loadSelectedPath.value)
 }
 </script>

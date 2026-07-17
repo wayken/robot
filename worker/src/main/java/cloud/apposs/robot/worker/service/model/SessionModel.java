@@ -23,7 +23,7 @@ public class SessionModel {
         @NotBlank
         private String name;
 
-        private int projectId;
+        private int missionId;
 
         public String getWid() {
             return wid;
@@ -41,12 +41,12 @@ public class SessionModel {
             this.name = name;
         }
 
-        public int getProjectId() {
-            return projectId;
+        public int getMissionId() {
+            return missionId;
         }
 
-        public void setProjectId(int projectId) {
-            this.projectId = projectId;
+        public void setMissionId(int missionId) {
+            this.missionId = missionId;
         }
     }
 

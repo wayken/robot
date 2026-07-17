@@ -27,7 +27,7 @@ public class SessionDatabaseLoader {
     private static final String TABLE_NAME_MESSAGES = "messages";
     private static final String TABLE_NAME_MESSAGES_FTS = "messages_fts";
     private static final String TABLE_NAME_MESSAGES_FTS_TRIGRAM = "messages_fts_trigram";
-    private static final String TABLE_NAME_PROJECTS = "projects";
+    private static final String TABLE_NAME_MISSIONS = "missions";
 
     private final String dbUrl;
 
@@ -62,14 +62,14 @@ public class SessionDatabaseLoader {
     public Table<Param> getSessionList(String wid) throws Exception {
         Table<Param> sessions = Table.builder();
         String querySql = "SELECT s.id, s.name, s.created, s.updated, " +
-                "s.project_id, " +
-                "p.name AS project_name, " +
-                "COALESCE(p.sort_order, 0) AS project_sort_order, " +
+                "s.mission_id, " +
+                "p.name AS mission_name, " +
+                "COALESCE(p.sort_order, 0) AS mission_sort_order, " +
                 "COALESCE(mc.cnt, 0) AS message_count " +
                 "FROM " + TABLE_NAME_SESSIONS + " s " +
                 "LEFT JOIN (SELECT sid, COUNT(*) AS cnt FROM " + TABLE_NAME_MESSAGES + " GROUP BY sid) mc " +
                 "ON mc.sid = CAST(s.id AS TEXT) " +
-                "LEFT JOIN " + TABLE_NAME_PROJECTS + " p ON p.id = s.project_id " +
+                "LEFT JOIN " + TABLE_NAME_MISSIONS + " p ON p.id = s.mission_id " +
                 "ORDER BY s.updated DESC";
         try (Connection conn = getConnection();
              Statement statement = conn.createStatement();
@@ -82,9 +82,9 @@ public class SessionDatabaseLoader {
                 long timestamp = LocalDateTime.parse(date, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli();
                 param.put("date", timestamp);
                 param.put("size", resultSet.getInt("message_count"));
-                param.put("projectId", resultSet.getInt("project_id"));
-                param.put("projectName", resultSet.getString("project_name"));
-                param.put("projectSortOrder", resultSet.getInt("project_sort_order"));
+                param.put("missionId", resultSet.getInt("mission_id"));
+                param.put("missionName", resultSet.getString("mission_name"));
+                param.put("missionSortOrder", resultSet.getInt("mission_sort_order"));
                 sessions.add(param);
             }
         }
@@ -319,11 +319,9 @@ public class SessionDatabaseLoader {
         }
     }
 
-    // ==================== Project CRUD ====================
-
-    public Table<Param> getProjectList(String wid) throws Exception {
-        Table<Param> projects = Table.builder();
-        String sql = "SELECT id, name, description, path, sort_order, created, updated FROM " + TABLE_NAME_PROJECTS + " ORDER BY sort_order ASC, updated DESC";
+    public Table<Param> getMissionList(String wid) throws Exception {
+        Table<Param> missions = Table.builder();
+        String sql = "SELECT id, name, description, sort_order, created, updated FROM " + TABLE_NAME_MISSIONS + " ORDER BY sort_order ASC, updated DESC";
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet resultSet = stmt.executeQuery(sql)) {
@@ -332,80 +330,74 @@ public class SessionDatabaseLoader {
                 param.put("id", resultSet.getInt("id"));
                 param.put("name", resultSet.getString("name"));
                 param.put("description", resultSet.getString("description"));
-                param.put("path", resultSet.getString("path"));
                 param.put("sortOrder", resultSet.getInt("sort_order"));
                 String date = resultSet.getString("updated");
                 long timestamp = LocalDateTime.parse(date, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli();
                 param.put("date", timestamp);
-                projects.add(param);
+                missions.add(param);
             }
         }
-        return projects;
+        return missions;
     }
 
-    public String addProject(String wid, String name, String description) throws Exception {
-        return addProject(wid, name, description, "");
-    }
-
-    public String addProject(String wid, String name, String description, String path) throws Exception {
-        String sql = "INSERT INTO " + TABLE_NAME_PROJECTS + " (name, description, path, created, updated) VALUES (?, ?, ?, ?, ?)";
+    public String addMission(String wid, String name, String description) throws Exception {
+        String sql = "INSERT INTO " + TABLE_NAME_MISSIONS + " (name, description, created, updated) VALUES (?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             String now = LocalDateTime.now().format(dateTimeFormatter);
             pstmt.setString(1, name);
             pstmt.setString(2, description != null ? description : "");
-            pstmt.setString(3, path != null ? path : "");
+            pstmt.setString(3, now);
             pstmt.setString(4, now);
-            pstmt.setString(5, now);
             pstmt.executeUpdate();
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     return String.valueOf(generatedKeys.getInt(1));
                 } else {
-                    throw new SQLException("Creating project failed, no ID obtained.");
+                    throw new SQLException("Creating mission failed, no ID obtained.");
                 }
             }
         }
     }
 
-    public boolean removeProject(String wid, String projectId) throws Exception {
+    public boolean removeMission(String wid, String missionId) throws Exception {
         try (Connection conn = getConnection()) {
             // 将引用该项目的会话重置为默认项目
-            String resetSql = "UPDATE " + TABLE_NAME_SESSIONS + " SET project_id = 0 WHERE project_id = ?";
+            String resetSql = "UPDATE " + TABLE_NAME_SESSIONS + " SET mission_id = 0 WHERE mission_id = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(resetSql)) {
-                pstmt.setInt(1, Integer.parseInt(projectId));
+                pstmt.setInt(1, Integer.parseInt(missionId));
                 pstmt.executeUpdate();
             }
             // 删除项目
-            String deleteSql = "DELETE FROM " + TABLE_NAME_PROJECTS + " WHERE id = ?";
+            String deleteSql = "DELETE FROM " + TABLE_NAME_MISSIONS + " WHERE id = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(deleteSql)) {
-                pstmt.setInt(1, Integer.parseInt(projectId));
+                pstmt.setInt(1, Integer.parseInt(missionId));
                 int affected = pstmt.executeUpdate();
                 return affected > 0;
             }
         }
     }
 
-    public boolean renameProject(String wid, String projectId, String name) throws Exception {
-        String sql = "UPDATE " + TABLE_NAME_PROJECTS + " SET name = ?, updated = ? WHERE id = ?";
+    public boolean renameMission(String wid, String missionId, String name) throws Exception {
+        String sql = "UPDATE " + TABLE_NAME_MISSIONS + " SET name = ?, updated = ? WHERE id = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String now = LocalDateTime.now().format(dateTimeFormatter);
             pstmt.setString(1, name);
             pstmt.setString(2, now);
-            pstmt.setInt(3, Integer.parseInt(projectId));
+            pstmt.setInt(3, Integer.parseInt(missionId));
             int affected = pstmt.executeUpdate();
             return affected > 0;
         }
     }
 
-    public boolean updateProjectSortOrder(String wid, int[] projectIds) throws Exception {
-        String sql = "UPDATE " + TABLE_NAME_PROJECTS + " SET sort_order = ? WHERE id = ?";
+    public boolean updateMissionSortOrder(String wid, int[] missionIds) throws Exception {
+        String sql = "UPDATE " + TABLE_NAME_MISSIONS + " SET sort_order = ? WHERE id = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            for (int i = 0; i < projectIds.length; i++) {
+            for (int i = 0; i < missionIds.length; i++) {
                 pstmt.setInt(1, i);
-                pstmt.setInt(2, projectIds[i]);
+                pstmt.setInt(2, missionIds[i]);
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -413,14 +405,12 @@ public class SessionDatabaseLoader {
         }
     }
 
-    // ==================== Session Project ====================
-
-    public boolean updateSessionProject(String wid, String sid, int projectId) throws Exception {
-        String sql = "UPDATE " + TABLE_NAME_SESSIONS + " SET project_id = ?, updated = ? WHERE id = ?";
+    public boolean updateSessionMission(String wid, String sid, int missionId) throws Exception {
+        String sql = "UPDATE " + TABLE_NAME_SESSIONS + " SET mission_id = ?, updated = ? WHERE id = ?";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String now = LocalDateTime.now().format(dateTimeFormatter);
-            pstmt.setInt(1, projectId);
+            pstmt.setInt(1, missionId);
             pstmt.setString(2, now);
             pstmt.setInt(3, Integer.parseInt(sid));
             int affected = pstmt.executeUpdate();
@@ -428,11 +418,11 @@ public class SessionDatabaseLoader {
         }
     }
 
-    public Param getSessionProject(String wid, String sid) throws Exception {
-        String sql = "SELECT p.id, p.name, p.description, p.path, p.created, p.updated " +
+    public Param getSessionMission(String wid, String sid) throws Exception {
+        String sql = "SELECT p.id, p.name, p.description, p.created, p.updated " +
                 "FROM " + TABLE_NAME_SESSIONS + " s " +
-                "LEFT JOIN " + TABLE_NAME_PROJECTS + " p ON p.id = s.project_id " +
-                "WHERE s.id = ? AND s.project_id > 0";
+                "LEFT JOIN " + TABLE_NAME_MISSIONS + " p ON p.id = s.mission_id " +
+                "WHERE s.id = ? AND s.mission_id > 0";
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, Integer.parseInt(sid));
@@ -442,31 +432,12 @@ public class SessionDatabaseLoader {
                     param.put("id", resultSet.getInt("id"));
                     param.put("name", resultSet.getString("name"));
                     param.put("description", resultSet.getString("description"));
-                    param.put("path", resultSet.getString("path"));
                     String date = resultSet.getString("updated");
                     if (date != null) {
                         long timestamp = LocalDateTime.parse(date, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli();
                         param.put("date", timestamp);
                     }
                     return param;
-                }
-                return null;
-            }
-        }
-    }
-
-    public String getProjectPath(int projectId) throws Exception {
-        if (projectId <= 0) {
-            return null;
-        }
-        String sql = "SELECT path FROM " + TABLE_NAME_PROJECTS + " WHERE id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, projectId);
-            try (ResultSet resultSet = pstmt.executeQuery()) {
-                if (resultSet.next()) {
-                    String path = resultSet.getString("path");
-                    return (path != null && !path.isEmpty()) ? path : null;
                 }
                 return null;
             }
@@ -487,7 +458,7 @@ public class SessionDatabaseLoader {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "name TEXT NOT NULL, " +
                     "consolidated INTEGER NOT NULL DEFAULT 0," +
-                    "project_id INTEGER NOT NULL DEFAULT 0," +
+                    "mission_id INTEGER NOT NULL DEFAULT 0," +
                     "created TEXT NOT NULL," +
                     "updated TEXT NOT NULL" +
                     ")";
@@ -507,12 +478,11 @@ public class SessionDatabaseLoader {
                 stmt.execute(sql);
             }
         }
-        if (!isTableExists(connection, TABLE_NAME_PROJECTS)) {
-            String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME_PROJECTS + " (" +
+        if (!isTableExists(connection, TABLE_NAME_MISSIONS)) {
+            String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME_MISSIONS + " (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "name TEXT NOT NULL, " +
                     "description TEXT DEFAULT '', " +
-                    "path TEXT DEFAULT ''," +
                     "sort_order INTEGER DEFAULT 0," +
                     "created TEXT NOT NULL," +
                     "updated TEXT NOT NULL" +

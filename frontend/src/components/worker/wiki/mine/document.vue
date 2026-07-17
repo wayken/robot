@@ -72,9 +72,9 @@ const handleManualSave = () => {
   })
 }
 const handleKeydown = (e: KeyboardEvent) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-    console.log(222)
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
     e.preventDefault()
+    e.stopPropagation()
     handleManualSave()
   }
 }
