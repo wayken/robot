@@ -53,7 +53,7 @@ public class AIResponse {
     }
 
     public static AIResponse of(String id, String content, int status, boolean finished) {
-        return new AIResponse(id, HttpStatus.HTTP_STATUS_200.getCode(), content, finished);
+        return new AIResponse(id, status, content, finished);
     }
 
     public String getId() {

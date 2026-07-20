@@ -35,8 +35,14 @@
         </div>
         <div class="summation inline-flex-r-c-n">
           <el-icon class="icon"><Microphone /></el-icon>
-          <el-icon class="icon submit" @click="handleMessageSend">
-            <Promotion />
+          <el-icon class="icon submit"
+            :class="{
+              'is-stop': streaming
+            }"
+            @click="handleSubmitClick"
+          >
+            <Close v-if="streaming" />
+            <Promotion v-else />
           </el-icon>
         </div>
       </div>
@@ -69,6 +75,11 @@ interface SkillItem {
 
 const handleEmit = defineEmits<{
   (e: 'submit', message: string, display: string, missionId: number): void
+  (e: 'cancel'): void
+}>()
+
+const props = defineProps<{
+  streaming?: boolean
 }>()
 
 const route = useRoute()
@@ -117,6 +128,13 @@ const handleMessageSend = () => {
   handleEmit('submit', message, text, loadCurrentMissionId.value)
   handleDataReset()
 }
+const handleSubmitClick = () => {
+  if (props.streaming) {
+    handleEmit('cancel')
+    return
+  }
+  handleMessageSend()
+}
 const handleDataReset = () => {
   loadPromptValue.value = ''
   loadSelectedSkills.value = []
@@ -125,7 +143,9 @@ const handleDataReset = () => {
 const handlePromptSubmit = (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
-    handleMessageSend()
+    if (!props.streaming) {
+      handleMessageSend()
+    }
   }
 }
 const handleMissionUpdate = (missionId: number) => {

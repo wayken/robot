@@ -3,6 +3,7 @@ package cloud.apposs.robot.harness.tool.filesystem;
 import cloud.apposs.react.React;
 import cloud.apposs.robot.harness.bus.IMessageHook;
 import cloud.apposs.robot.harness.tool.ITool;
+import cloud.apposs.robot.harness.util.PathUtil;
 import cloud.apposs.robot.harness.util.Strings;
 import cloud.apposs.util.JsonUtil;
 import cloud.apposs.util.Param;
@@ -97,7 +98,7 @@ public class GlobTool implements ITool {
         if (Strings.isBlank(basePath)) {
             baseDir = workspace != null ? workspace : Paths.get("").toAbsolutePath();
         } else {
-            baseDir = handlePathResolve(basePath);
+            baseDir = PathUtil.resolveAbsolutePath(basePath, workspace);
         }
         if (!Files.exists(baseDir)) {
             return React.just("Error: directory not found: " + baseDir);
@@ -183,19 +184,5 @@ public class GlobTool implements ITool {
     private Path handleUnixPathParse(Path path) {
         String parsedPath = path.toString().replace("\\", "/");
         return Paths.get(parsedPath);
-    }
-
-    // 解析路径：支持 ~ 展开，相对路径基于 workspace 解析
-    private Path handlePathResolve(String path) {
-        String raw = path;
-        if (raw.startsWith("~")) {
-            String home = System.getProperty("user.home", "");
-            raw = home + raw.substring(1);
-        }
-        Path ofPath = Paths.get(raw);
-        if (!ofPath.isAbsolute() && workspace != null) {
-            ofPath = workspace.resolve(ofPath);
-        }
-        return ofPath.toAbsolutePath().normalize();
     }
 }

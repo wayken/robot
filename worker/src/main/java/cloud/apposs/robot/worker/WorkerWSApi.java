@@ -96,6 +96,15 @@ public class WorkerWSApi {
         }
     }
 
+    @OnCommand("sessions.fork")
+    public void forkSession(WSSession session, Metadata metadata, SessionModel.Fork request) throws Exception {
+        String newSid = sessionsService.forkSession(request);
+        session.sendResponse(metadata.getCommandId(), newSid);
+        if (newSid != null) {
+            handleSessionIndexBroadcast(session, request.getWid());
+        }
+    }
+
     @OnCommand("message.index")
     public void sessionMessageIndex(WSSession session, Metadata metadata, MessageModel.Index request) throws Exception {
         Table<Param> messageList = messagesService.getMessageList(request.getWid(), request.getSid());

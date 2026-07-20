@@ -152,6 +152,26 @@ public final class HarnessWorker {
     }
 
     /**
+     * 检查指定会话是否正在进行迭代循环
+     *
+     * @param  sid 会话ID
+     * @return 是否正在运行
+     */
+    public boolean isRunning(String sid) {
+        IoSubscription subscription = subscriptions.get(sid);
+        return subscription != null && !subscription.isUnsubscribed();
+    }
+
+    /**
+     * 完成指定会话的迭代循环，清理相关资源
+     *
+     * @param sid 会话ID
+     */
+    public void finishRunning(String sid) {
+        subscriptions.remove(sid);
+    }
+
+    /**
      * 运行 Agent 迭代循环（核心推理引擎），工作流程如下：
      * <pre>
      *     1. 调用大模型接口获取响应，将系统提示、消息历史、工具描述等作为输入
@@ -196,6 +216,7 @@ public final class HarnessWorker {
             HarnessSubscriber subscriber = new HarnessSubscriber(this, request, messageHook);
             HarnessIterationLoop iterationLoop = new HarnessIterationLoop(this, request, messageHook);
             IoSubscription subscription = completions(request).loop(iterationLoop).subscribe(subscriber).start();
+            subscriptions.put(message.getSid(), subscription);
             // 添加取消订阅回调，确保在取消订阅时能够正确清理资源
             subscription.addOnUnsubscribe(subscriber::onUnsubscribe);
             subscription.addOnUnsubscribe(() -> subscriptions.remove(message.getSid()));
@@ -241,6 +262,13 @@ public final class HarnessWorker {
         return completions(request, provider);
     }
 
+    /**
+     * 调用大模型接口，获取AI响应数据
+     *
+     * @param  request  AI请求参数
+     * @param  provider AI提供商配置
+     * @return AI响应结果
+     */
     public React<AIResponse> completions(AIRequest request, AIProviderSetting provider) throws Exception {
         String providerType = provider.getType();
         OkHttp httpClient = framework.getHttpClient();

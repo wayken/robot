@@ -13,52 +13,52 @@ public class MissionService {
     @Autowired
     private WorkerFramework framework;
 
-    public Table<Param> getMissionList(MissionModel.Index model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public Table<Param> getMissionList(MissionModel.Index request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return null;
         }
-        return worker.getMind().getMissionList(model.getWid());
+        return worker.getMind().getMissionList(request.getWid());
     }
 
-    public String addMission(MissionModel.Add model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public String addMission(MissionModel.Add request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return null;
         }
-        return worker.getMind().addMission(model.getWid(), model.getName(), model.getDescription());
+        return worker.getMind().addMission(request.getWid(), request.getName(), request.getDescription());
     }
 
-    public boolean removeMission(MissionModel.Remove model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public boolean removeMission(MissionModel.Remove request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return false;
         }
-        return worker.getMind().removeMission(model.getWid(), model.getMissionId());
+        return worker.getMind().removeMission(request.getWid(), request.getMissionId());
     }
 
-    public boolean sortMission(MissionModel.Sort model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public boolean sortMission(MissionModel.Sort request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return false;
         }
-        return worker.getMind().updateMissionSortOrder(model.getWid(), model.getMissionIds());
+        return worker.getMind().updateMissionSortOrder(request.getWid(), request.getMissionIds());
     }
 
-    public boolean renameMission(MissionModel.Rename model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public boolean renameMission(MissionModel.Rename request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return false;
         }
-        return worker.getMind().renameMission(model.getWid(), model.getMissionId(), model.getName());
+        return worker.getMind().renameMission(request.getWid(), request.getMissionId(), request.getName());
     }
 
-    public boolean updateSessionMission(MissionModel.SessionMission model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public boolean updateSessionMission(MissionModel.SessionMission request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return false;
         }
-        return worker.getMind().updateSessionMission(model.getWid(), model.getSid(), model.getMissionId());
+        return worker.getMind().updateSessionMission(request.getWid(), request.getSid(), request.getMissionId());
     }
 
     public boolean updateSessionMission(String wid, String sid, int missionId) throws Exception {

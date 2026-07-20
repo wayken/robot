@@ -28,6 +28,9 @@ const FILE_TYPE_MAP: {
   java: {
     icon: 'document-java'
   },
+  py: {
+    icon: 'document-python'
+  },
   immp: {
     icon: 'document-mind'
   },

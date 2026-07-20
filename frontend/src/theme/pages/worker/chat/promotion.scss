@@ -104,6 +104,9 @@
         color: #ffffff;
         border-radius: 50%;
         background: var(--var-theme-primary-4);
+        &.is-stop {
+          background: var(--el-color-danger);
+        }
       }
     }
   }

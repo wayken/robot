@@ -51,6 +51,10 @@ public final class HarnessMind {
         return mind.removeSessionMessage(wid, sid, rid, id);
     }
 
+    public boolean truncateSessionMessages(String wid, String sid, String id) throws Exception {
+        return mind.truncateSessionMessages(wid, sid, id);
+    }
+
     public Table<Param> getSessionMessages(String wid, String sid) throws Exception {
         return mind.getSessionMessages(wid, sid);
     }
@@ -137,6 +141,10 @@ public final class HarnessMind {
 
     public Param getSessionMission(String wid, String sid) throws Exception {
         return mind.getSessionMission(wid, sid);
+    }
+
+    public String forkSession(String wid, String sid, String messageId, String name) throws Exception {
+        return mind.forkSession(wid, sid, messageId, name);
     }
 
     public void shutdown() {

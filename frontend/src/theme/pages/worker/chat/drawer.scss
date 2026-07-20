@@ -78,6 +78,7 @@
         .operate {
           > i {
             display: none;
+            cursor: pointer;
             font-size: 15px;
             padding: 6px 6px;
             border-radius: 50%;
@@ -188,12 +189,6 @@
         transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
         &__wrapper {
           overflow: hidden;
-          .empty {
-            padding: 8px 22px;
-            font-size: 13px;
-            color: $var-color-text-primary;
-            opacity: 0.6;
-          }
         }
         &.is-collapsed {
           opacity: 0;

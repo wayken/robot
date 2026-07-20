@@ -346,6 +346,9 @@
     "high": "High",
     "off": "OFF",
     "select-backup-model-placeholder": "Please Select backup model",
+    "fork-session": "Fork Session",
+    "forkk-session-success": "Session forked",
+    "forkk-session-failed": "Fork session failed",
     "tool": {
       "schedule": "Schedule",
       "edit_file": "Edit File",

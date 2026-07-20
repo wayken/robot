@@ -3,6 +3,7 @@ package cloud.apposs.robot.harness.tool.filesystem;
 import cloud.apposs.react.React;
 import cloud.apposs.robot.harness.bus.IMessageHook;
 import cloud.apposs.robot.harness.tool.ITool;
+import cloud.apposs.robot.harness.util.PathUtil;
 import cloud.apposs.robot.harness.util.Strings;
 import cloud.apposs.util.JsonUtil;
 import cloud.apposs.util.Param;
@@ -11,12 +12,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EditFileTool implements ITool {
     public static final String NAME = "edit_file";
+
+    private final Path workspace;
+
+    public EditFileTool(Path workspace) {
+        this.workspace = workspace;
+    }
 
     @Override
     public String name() {
@@ -73,7 +79,7 @@ public class EditFileTool implements ITool {
             newText = "";
         }
         boolean replaceAll = parameter.getBoolean("replaceAll", false);
-        Path pathResolved = Paths.get(path).toAbsolutePath().normalize();
+        Path pathResolved = PathUtil.resolveAbsolutePath(path, workspace);
         if (!Files.exists(pathResolved)) {
             return React.just("Error: file not found at path: " + path);
         }

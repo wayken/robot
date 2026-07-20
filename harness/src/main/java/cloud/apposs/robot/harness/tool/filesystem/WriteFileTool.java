@@ -3,6 +3,7 @@ package cloud.apposs.robot.harness.tool.filesystem;
 import cloud.apposs.react.React;
 import cloud.apposs.robot.harness.bus.IMessageHook;
 import cloud.apposs.robot.harness.tool.ITool;
+import cloud.apposs.robot.harness.util.PathUtil;
 import cloud.apposs.robot.harness.util.Strings;
 import cloud.apposs.util.JsonUtil;
 import cloud.apposs.util.Param;
@@ -10,10 +11,15 @@ import cloud.apposs.util.Param;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class WriteFileTool implements ITool {
     public static final String NAME = "write_file";
+
+    private final Path workspace;
+
+    public WriteFileTool(Path workspace) {
+        this.workspace = workspace;
+    }
 
     @Override
     public String name() {
@@ -58,7 +64,7 @@ public class WriteFileTool implements ITool {
             content = "";
         }
         try {
-            Path pathResolved = Paths.get(path.trim());
+            Path pathResolved = PathUtil.resolveAbsolutePath(path.trim(), workspace);
             if (pathResolved.getParent() != null) {
                 Files.createDirectories(pathResolved.getParent());
             }

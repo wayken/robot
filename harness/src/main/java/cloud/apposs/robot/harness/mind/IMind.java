@@ -103,6 +103,8 @@ public interface IMind {
      */
     boolean removeSessionMessage(String wid, String sid, String rid, String id) throws Exception;
 
+    boolean truncateSessionMessages(String wid, String sid, String id) throws Exception;
+
     /**
      * 获取指定会话的对话消息列表
      *
@@ -129,6 +131,17 @@ public interface IMind {
      * @param force 是否强制压缩，如果为true则无论当前消息数量多少都进行压缩，否则只有当消息数量超过一定阈值时才进行压缩
      */
     void submitSession(String wid, String sid, boolean force) throws Exception;
+
+    /**
+     * 新会话中创建会话：创建一个新的会话，并将源会话中指定消息ID及之前的所有消息复制到新会话中
+     *
+     * @param  wid       智能体ID
+     * @param  sid       源会话ID
+     * @param  messageId 截止消息ID（含），复制该消息及之前的所有消息
+     * @param  name      新会话名称
+     * @return 新会话的ID，如果失败返回null
+     */
+    String forkSession(String wid, String sid, String messageId, String name) throws Exception;
 
     /**
      * 搜索智能体的会话，根据查询条件返回匹配的会话ID列表

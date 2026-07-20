@@ -19,7 +19,7 @@ const sessions = new Map<string, StreamingSession>()
  * 
  * @param sid 会话ID
  */
-export function useStartStreaming(sid: string): void {
+export function useStreamingStart(sid: string): void {
   const session = sessions.get(sid)
   if (session) {
     session.streaming = true
@@ -33,7 +33,7 @@ export function useStartStreaming(sid: string): void {
  * 
  * @param sid 会话ID
  */
-export function useStopStreaming(sid: string): void {
+export function useStreamingStop(sid: string): void {
   const session = sessions.get(sid)
   if (session) {
     session.streaming = false
@@ -56,7 +56,7 @@ export function isSessionStreaming(sid: string): boolean {
  * @param sid     会话ID
  * @param message 消息内容
  */
-export function usePushToBuffer(sid: string, message: any): void {
+export function useBufferPush(sid: string, message: any): void {
   const session = sessions.get(sid)
   if (session) {
     session.buffer.push(message)
@@ -71,7 +71,7 @@ export function usePushToBuffer(sid: string, message: any): void {
  * @param   sid 会话ID
  * @returns 消费的消息数组
  */
-export function useConsumeBuffer(sid: string): any[] {
+export function useBufferConsume(sid: string): any[] {
   const session = sessions.get(sid)
   if (!session || session.buffer.length === 0) return []
   const messages = [...session.buffer]
@@ -88,7 +88,7 @@ export function useConsumeBuffer(sid: string): any[] {
  *
  * @param sid 会话ID
  */
-export function useClearBuffer(sid: string): void {
+export function useBufferRemove(sid: string): void {
   const session = sessions.get(sid)
   if (session) {
     session.buffer = []
@@ -100,18 +100,18 @@ export function useClearBuffer(sid: string): void {
  * 
  * @param sid 会话ID
  */
-export function useRemoveSession(sid: string): void {
+export function useSessionRemove(sid: string): void {
   sessions.delete(sid)
 }
 
 export function useStreamingState() {
   return {
-    useStartStreaming,
-    useStopStreaming,
+    useStreamingStart,
+    useStreamingStop,
     isSessionStreaming,
-    usePushToBuffer,
-    useConsumeBuffer,
-    useClearBuffer,
-    useRemoveSession
+    useBufferPush,
+    useBufferConsume,
+    useBufferRemove,
+    useSessionRemove
   }
 }

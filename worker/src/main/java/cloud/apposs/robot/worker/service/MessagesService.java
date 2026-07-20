@@ -21,19 +21,27 @@ public class MessagesService {
         return worker.getMind().getSessionMessages(wid, sid);
     }
 
-    public boolean removeMessage(MessageModel.Remove model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public boolean removeMessage(MessageModel.Remove request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return false;
         }
-        return worker.getMind().removeSessionMessage(model.getWid(), model.getSid(), model.getRid(), model.getId());
+        return worker.getMind().removeSessionMessage(request.getWid(), request.getSid(), request.getRid(), request.getId());
     }
 
-    public boolean clearMessages(MessageModel.Clear model) throws Exception {
-        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+    public boolean truncateMessages(MessageModel.Truncate request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
         if (worker == null) {
             return false;
         }
-        return worker.getMind().clearSessionMessages(model.getWid(), model.getSid());
+        return worker.getMind().truncateSessionMessages(request.getWid(), request.getSid(), request.getId());
+    }
+
+    public boolean clearMessages(MessageModel.Clear request) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(request.getWid());
+        if (worker == null) {
+            return false;
+        }
+        return worker.getMind().clearSessionMessages(request.getWid(), request.getSid());
     }
 }

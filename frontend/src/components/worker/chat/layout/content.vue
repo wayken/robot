@@ -1,7 +1,7 @@
 <template>
   <div class="content" ref="loadContentRef">
     <div class="wrapper inline-flex-c-n-n" v-loading="loading">
-      <div class="welcome inline-flex-c-c-c" v-if="messages.length === 0">
+      <div class="welcome inline-flex-c-c-c" v-if="messages.length === 0 && !streaming">
         <img class="logo" :src="logoSvg" />
         <div class="domain">
           Team<span class="highlight">Robot</span>
@@ -16,13 +16,47 @@
           </div>
         </div>
       </div>
-      <div class="sources" v-if="messages.length > 0">
+      <div class="sources" v-if="messages.length > 0 || isShowStandaloneStreamingIndicator">
         <div class="round" v-for="(round, ridx) in loadFormatMessages" :key="ridx">
           <!-- 用户消息 -->
           <div class="message is-user">
             <el-avatar class="avatar" :size="42" :icon="UserFilled" shape="square" />
             <div class="context">
-              <div class="markdown" v-html="markdownItIntance.render(round.user?.message?.content || '')"></div>
+              <template v-if="isUserMessageEditing(round.user)">
+                <div class="inbox">
+                  <textarea class="input" :ref="handleEditInputRefSet" v-model="loadEditingMessageContent" rows="3"
+                    @keydown="handleUserMessageEditKeydown($event, round.user)"
+                  ></textarea>
+                  <div class="actions">
+                    <el-tooltip effect="dark" placement="top" :content="$t('common.cancel')">
+                      <el-icon class="action" @click="handleUserMessageEditCancel">
+                        <Close />
+                      </el-icon>
+                    </el-tooltip>
+                    <el-tooltip effect="dark" placement="top" :content="$t('common.confirm')">
+                      <el-icon class="action is-primary" @click="handleUserMessageEditSubmit(round.user)">
+                        <Select />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <div class="markdown" v-html="markdownItIntance.render(round.user?.message?.content || '')"></div>
+                <div class="actions">
+                  <el-tooltip effect="dark" placement="top" :content="$t('common.copy')">
+                    <el-icon class="action" @click="handleMessageCopy(useMessageActionKey(round.user, 'user'), round.user?.message?.content || '')">
+                      <Check v-if="isMessageCopied(useMessageActionKey(round.user, 'user'))" />
+                      <DocumentCopy v-else />
+                    </el-icon>
+                  </el-tooltip>
+                  <el-tooltip v-if="isLastUserMessage(round.user)" effect="dark" placement="top" :content="$t('common.edit')">
+                    <el-icon class="action" @click="handleUserMessageEdit(round.user)">
+                      <Edit />
+                    </el-icon>
+                  </el-tooltip>
+                </div>
+              </template>
             </div>
           </div>
           <!-- AI 回复（含工具调用过程） -->
@@ -32,7 +66,7 @@
               <template v-for="(msg, midx) in round.common" :key="midx">
                 <!-- 推理结果文本 -->
                 <div class="reasoning" v-if="msg.message.reasoning">
-                  <el-collapse v-model="openedReasonings">
+                  <el-collapse v-model="loadOpenedReasonings">
                     <el-collapse-item :name="msg.id">
                       <template #title>
                         <div class="label inline-flex-r-c-n">
@@ -45,7 +79,17 @@
                   </el-collapse>
                 </div>
                 <!-- 正常文本回复 -->
-                <template v-if="msg.message.role === 'assistant' && msg.message.content?.trim()">
+                <template v-if="isRoleAssistant(msg.message.role) && useAssistantErrorInfo(msg)">
+                  <div class="error">
+                    <div class="name inline-flex-r-c-n">
+                      <el-icon><WarningFilled /></el-icon>
+                      <div>{{ useAssistantErrorInfo(msg)?.title }}</div>
+                    </div>
+                    <div class="meta">{{ useAssistantErrorInfo(msg)?.message }}</div>
+                    <div class="code" v-if="useAssistantErrorInfo(msg)?.meta">{{ useAssistantErrorInfo(msg)?.meta }}</div>
+                  </div>
+                </template>
+                <template v-else-if="isRoleAssistant(msg.message.role) && msg.message.content?.trim()">
                   <div class="markdown" v-html="markdownItIntance.render(msg.message.content)"
                     :class="{
                       'is-failed': msg.message.status === 'failed'
@@ -53,12 +97,12 @@
                   ></div>
                 </template>
                 <!-- 工具调用消息 -->
-                <div class="tool" v-if="msg.message.role === 'assistant' && msg.message.tools?.length">
+                <div class="tool" v-if="isRoleAssistant(msg.message.role) && msg.message.tools?.length">
                   <div class="unit" v-for="(tool, tidx) in msg.message.tools" :key="tidx">
                     <div class="step inline-flex-r-c-n"
                       :class="{
                         'is-success': tool.success,
-                        'is-opened': openedSteps.has(`${midx}-${tidx}`)
+                        'is-opened': loadOpenedSteps.has(`${midx}-${tidx}`)
                       }"
                       @click="handleStepSwitch(`${midx}-${tidx}`)"
                     >
@@ -68,17 +112,30 @@
                       <el-icon class="arrow"><ArrowRight /></el-icon>
                     </div>
                     <transition name="metadata-slide">
-                      <div class="metadata" v-show="openedSteps.has(`${midx}-${tidx}`)">
+                      <div class="metadata" v-show="loadOpenedSteps.has(`${midx}-${tidx}`)">
                         <pre>{{ handleToolArgumentsFormat(tool.arguments) }}</pre>
                       </div>
                     </transition>
                   </div>
                 </div>
               </template>
+              <div class="actions">
+                <el-tooltip effect="dark" placement="top" :content="$t('common.copy')">
+                  <el-icon class="action" @click="handleMessageCopy(useRoundActionKey(round, ridx), useAssistantMessageText(round))">
+                    <Check v-if="isMessageCopied(useRoundActionKey(round, ridx))" />
+                    <DocumentCopy v-else />
+                  </el-icon>
+                </el-tooltip>
+                <el-tooltip effect="dark" placement="top" :content="$t('chat.fork-session')">
+                  <el-icon class="action" @click="handleMessageFork(round, ridx)">
+                    <KnifeFork />
+                  </el-icon>
+                </el-tooltip>
+              </div>
             </div>
           </div>
           <!-- 流式消息指示器 -->
-          <div class="message is-assistant" v-if="isStreamMessageComplete(ridx) && isShowStreamingIndicator(round)">
+          <div class="message is-assistant" v-if="isRoundStreamingIndicatorVisible(round, ridx)">
             <a-robot-head :kind="0" :size="42" :src="IconImage" v-if="round.common.length === 0" />
             <div class="indicator"
               :class="{
@@ -97,6 +154,19 @@
             </div>
           </div>
         </div>
+        <div class="message is-assistant" v-if="isShowStandaloneStreamingIndicator">
+          <div class="indicator is-standalone">
+            <a-loading size="small" />
+            <div class="progress">
+              <span class="label">{{ loadStreamingStatusText }}</span>
+              <span class="dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -104,15 +174,23 @@
 
 <script setup lang="ts">
 import {
+  Edit,
+  Check,
+  Close,
   Right,
   Select,
   Setting,
   ArrowRight,
+  KnifeFork,
   UserFilled,
-  Opportunity
+  Opportunity,
+  WarningFilled,
+  DocumentCopy
 } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import MarkdownIt from 'markdown-it'
 import logoSvg from '@/assets/logo.svg'
+import { useTextClipboard } from '@/utils/dom'
 import useMarkdownIt from '@/marksuit/hook/useMarkdownIt'
 import ARobotHead from '@/components/common/robot/head.vue'
 import ALoading from '@/components/common/loading/index.vue'
@@ -127,6 +205,11 @@ const props = defineProps<{
   messages: any[]
   loading: boolean
   streaming: boolean
+}>()
+
+const handleEmit = defineEmits<{
+  (e: 'resend', payload: { message: any, content: string }): void
+  (e: 'fork', payload: { round: FormatRound, ridx: number }): void
 }>()
 
 const loadSuggestionList = [
@@ -145,12 +228,23 @@ const loadSuggestionList = [
 ]
 
 const i18n = useI18n()
-const openedSteps = ref(new Set<string>())
-const openedReasonings = ref<string[]>([])
+let loadCopiedMessageTimer: number | undefined
+const loadOpenedSteps = ref(new Set<string>())
+const loadOpenedReasonings = ref<string[]>([])
+const loadCopiedMessageKey = ref('')
+const loadEditingMessageKey = ref('')
+const loadEditingMessageContent = ref('')
 const loadContentRef = ref<HTMLDivElement | null>(null)
+const loadEditInputRef = ref<HTMLTextAreaElement | null>(null)
 
 let markdownItIntance: MarkdownIt = useMarkdownIt({
   isCodeCopy: true
+})
+
+onUnmounted(() => {
+  if (loadCopiedMessageTimer) {
+    window.clearTimeout(loadCopiedMessageTimer)
+  }
 })
 
 // 按会话迭代ID分组，每组包含一条用户消息 + 若干迭代消息
@@ -172,14 +266,21 @@ const loadFormatMessages = computed<FormatRound[]>(() => {
   }
   return order.map(rid => mapping.get(rid)!)
 })
+const loadLastUserMessage = computed(() => {
+  return [...props.messages].reverse().find(data => data.message?.role === 'user')
+})
+const isRoleAssistant = (role: string) => {
+  return role === 'assistant'
+}
+
 const handleStepSwitch = (key: string) => {
-  const next = new Set(openedSteps.value)
+  const next = new Set(loadOpenedSteps.value)
   if (next.has(key)) {
     next.delete(key)
   } else {
     next.add(key)
   }
-  openedSteps.value = next
+  loadOpenedSteps.value = next
 }
 const handleToolArgumentsFormat = (args: any): string => {
   if (!args) return ''
@@ -190,10 +291,146 @@ const handleToolArgumentsFormat = (args: any): string => {
     return typeof args === 'string' ? args : JSON.stringify(args, null, 2)
   }
 }
+const handleMaybeJsonParse = (value: string): any => {
+  const text = (value || '').trim()
+  if (!text) return null
+  const ssePayloads = text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line.startsWith('data:'))
+    .map(line => line.slice(5).trim())
+    .filter(line => line && line !== '[DONE]')
+  const candidates = ssePayloads.length > 0 ? ssePayloads : [text]
+  for (const candidate of candidates) {
+    if (!candidate.startsWith('{') && !candidate.startsWith('[')) {
+      continue
+    }
+    try {
+      return JSON.parse(candidate)
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+const useAssistantErrorInfo = (msg: any): { title: string, message: string, meta: string } | null => {
+  const message = msg?.message || {}
+  const status = Number(message.status)
+  const hasHttpStatusError = Number.isFinite(status) && status > 0 && status !== 200
+  const hasFailedStatus = message.status === 'failed'
+  const content = message.content || ''
+  const payload = typeof content === 'string' ? handleMaybeJsonParse(content) : null
+  const code = Number(payload?.code)
+  const hasBusinessError = payload && Number.isFinite(code) && code !== 0 && code !== 200
+  if (!hasHttpStatusError && !hasFailedStatus && !hasBusinessError) {
+    return null
+  }
+  const detail = payload?.message || payload?.error?.message || payload?.error || content || i18n.t('error.network-error')
+  const meta = [
+    hasHttpStatusError ? `HTTP ${status}` : '',
+    hasBusinessError ? `Code ${code}` : ''
+  ].filter(Boolean).join(' · ')
+  return {
+    title: i18n.t('common.error'),
+    message: typeof detail === 'string' ? detail : JSON.stringify(detail),
+    meta
+  }
+}
+const useAssistantMessageText = (round: FormatRound): string => {
+  return round.common
+    .filter(msg => isRoleAssistant(msg.message?.role))
+    .map(msg => {
+      const error = useAssistantErrorInfo(msg)
+      if (error) {
+        return [error.title, error.message, error.meta].filter(Boolean).join('\n')
+      }
+      return [msg.message?.reasoning, msg.message?.content].filter(Boolean).join('\n\n')
+    })
+    .filter(Boolean)
+    .join('\n\n')
+}
+const useMessageActionKey = (message: any, fallback: string): string => {
+  return `${fallback}:${message?.id || message?.rid || ''}`
+}
+const useRoundActionKey = (round: FormatRound, ridx: number): string => {
+  const last = round.common[round.common.length - 1]
+  return useMessageActionKey(last, `assistant:${round.user?.rid || ridx}`)
+}
+const isMessageCopied = (key: string): boolean => {
+  return Boolean(key) && loadCopiedMessageKey.value === key
+}
+const isUserMessageEditing = (message: any): boolean => {
+  return Boolean(loadEditingMessageKey.value) && loadEditingMessageKey.value === useMessageActionKey(message, 'user')
+}
+const isLastUserMessage = (message: any): boolean => {
+  if (!message?.id || props.streaming) {
+    return false
+  }
+  const last = loadLastUserMessage.value
+  if (!last) {
+    return false
+  }
+  if (message.id && last.id) {
+    return message.id === last.id
+  }
+  return message.rid === last.rid
+}
+const handleMessageCopy = (key: string, value: string) => {
+  if (!value || !value.trim()) return
+  useTextClipboard(value).then(() => {
+    loadCopiedMessageKey.value = key
+    if (loadCopiedMessageTimer) {
+      window.clearTimeout(loadCopiedMessageTimer)
+    }
+    loadCopiedMessageTimer = window.setTimeout(() => {
+      loadCopiedMessageKey.value = ''
+      loadCopiedMessageTimer = undefined
+    }, 1200)
+    ElMessage.success(i18n.t('extension.copy-success'))
+  })
+}
+const handleMessageFork = (round: FormatRound, ridx: number) => {
+  handleEmit('fork', { round, ridx })
+}
+// 用户消息编辑重发
+const handleUserMessageEdit = (message: any) => {
+  const content = message?.message?.content || ''
+  if (!content.trim()) return
+  loadEditingMessageKey.value = useMessageActionKey(message, 'user')
+  loadEditingMessageContent.value = content
+  nextTick(() => {
+    loadEditInputRef.value?.focus()
+  })
+}
+const handleEditInputRefSet = (el: Element | any) => {
+  loadEditInputRef.value = el as HTMLTextAreaElement | null
+}
+const handleUserMessageEditCancel = () => {
+  loadEditingMessageKey.value = ''
+  loadEditingMessageContent.value = ''
+  loadEditInputRef.value = null
+}
+const handleUserMessageEditSubmit = (message: any) => {
+  const content = loadEditingMessageContent.value.trim()
+  if (!content) return
+  handleEmit('resend', { message, content })
+  handleUserMessageEditCancel()
+}
+const handleUserMessageEditKeydown = (event: KeyboardEvent, message: any) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault()
+    handleUserMessageEditSubmit(message)
+    return
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    handleUserMessageEditCancel()
+  }
+}
 // 添加推理折叠面板展开
 const addOpenedReasoning = (id: string) => {
-  if (!openedReasonings.value.includes(id)) {
-    openedReasonings.value.push(id)
+  if (!loadOpenedReasonings.value.includes(id)) {
+    loadOpenedReasonings.value.push(id)
   }
 }
 // 判断当前轮是否正在流式传输
@@ -216,6 +453,26 @@ const isShowStreamingIndicator = (round: FormatRound): boolean => {
   }
   return false
 }
+const isRoundStreamingIndicatorVisible = (round: FormatRound, ridx: number): boolean => {
+  return isStreamMessageComplete(ridx) && isShowStreamingIndicator(round)
+}
+const isShowStandaloneStreamingIndicator = computed(() => {
+  if (!props.streaming) {
+    return false
+  }
+  const isMessageSending = props.messages.some(message => {
+    return isRoleAssistant(message.message?.role) && message.finished === false
+  })
+  if (isMessageSending) {
+    return false
+  }
+  const rounds = loadFormatMessages.value
+  if (rounds.length === 0) {
+    return true
+  }
+  const lastIndex = rounds.length - 1
+  return !isRoundStreamingIndicatorVisible(rounds[lastIndex], lastIndex)
+})
 // 根据当前执行阶段动态切换
 const loadStreamingStatusText = computed(() => {
   if (!props.streaming) return ''

@@ -108,4 +108,50 @@ public class SessionModel {
             this.name = name;
         }
     }
+
+    public static class Fork {
+        @NotBlank
+        private String wid;
+
+        @NotBlank
+        private String sid;
+
+        @NotBlank
+        private String messageId;
+
+        @NotBlank
+        private String name;
+
+        public String getWid() {
+            return wid;
+        }
+
+        public void setWid(String wid) {
+            this.wid = wid;
+        }
+
+        public String getSid() {
+            return sid;
+        }
+
+        public void setSid(String sid) {
+            this.sid = sid;
+        }
+
+        public String getMessageId() {
+            return messageId;
+        }
+
+        public void setMessageId(String messageId) {
+            this.messageId = messageId;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 }

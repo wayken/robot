@@ -3,6 +3,7 @@ package cloud.apposs.robot.harness.tool.filesystem;
 import cloud.apposs.react.React;
 import cloud.apposs.robot.harness.bus.IMessageHook;
 import cloud.apposs.robot.harness.tool.ITool;
+import cloud.apposs.robot.harness.util.PathUtil;
 import cloud.apposs.robot.harness.util.Strings;
 import cloud.apposs.util.JsonUtil;
 import cloud.apposs.util.Param;
@@ -10,7 +11,6 @@ import cloud.apposs.util.Param;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 public class ReadFileTool implements ITool {
@@ -18,6 +18,12 @@ public class ReadFileTool implements ITool {
     private static final int MAX_OUTPUT_BYTES = 30 * 1024;
 
     public static final String NAME = "read_file";
+
+    private final Path workspace;
+
+    public ReadFileTool(Path workspace) {
+        this.workspace = workspace;
+    }
 
     @Override
     public String name() {
@@ -61,7 +67,7 @@ public class ReadFileTool implements ITool {
         if (Strings.isBlank(path)) {
             return React.just("Error: file path must not be empty.");
         }
-        Path pathResolved = Paths.get(path.trim()).toAbsolutePath().normalize();
+        Path pathResolved = PathUtil.resolveAbsolutePath(path.trim(), workspace);
         if (!Files.exists(pathResolved)) {
             return React.just("Error: file not found at path: " + path);
         }

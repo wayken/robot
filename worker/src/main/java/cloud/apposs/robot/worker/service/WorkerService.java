@@ -12,13 +12,13 @@ public class WorkerService {
     @Autowired
     private WorkerFramework framework;
 
-    public void initialize(WorkerConfig configuration, WorkerModel.Initialize model) throws Exception {
+    public void initialize(WorkerConfig configuration, WorkerModel.Initialize request) throws Exception {
         WorkerStruct worker = new WorkerStruct();
-        worker.setId(model.getId());
+        worker.setId(request.getId());
         framework.getHarness().initialize(worker);
     }
 
-    public void removeWorker(WorkerConfig configuration, WorkerModel.Remove model) throws Exception {
-        framework.getHarness().remove(model.getId());
+    public void removeWorker(WorkerConfig configuration, WorkerModel.Remove request) throws Exception {
+        framework.getHarness().remove(request.getId());
     }
 }

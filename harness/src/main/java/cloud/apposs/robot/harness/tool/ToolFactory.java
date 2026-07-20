@@ -50,11 +50,11 @@ public final class ToolFactory {
     public static ITool createMatchedTool(String name, HarnessWorker worker, AIToolkitSetting setting) {
         switch (name) {
             case ReadFileTool.NAME:
-                return new ReadFileTool();
+                return new ReadFileTool(worker.getWorkspace().root());
             case WriteFileTool.NAME:
-                return new WriteFileTool();
+                return new WriteFileTool(worker.getWorkspace().root());
             case EditFileTool.NAME:
-                return new EditFileTool();
+                return new EditFileTool(worker.getWorkspace().root());
             case GlobTool.NAME: {
                 int maxResults = setting != null ? setting.getProperties().getInt("maxResults", GlobTool.DEFAULT_MAX_RESULTS) : GlobTool.DEFAULT_MAX_RESULTS;
                 return new GlobTool(worker.getWorkspace().root(), null, maxResults);

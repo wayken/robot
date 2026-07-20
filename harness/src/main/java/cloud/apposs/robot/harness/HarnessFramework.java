@@ -168,6 +168,21 @@ public final class HarnessFramework implements Closeable {
     }
 
     /**
+     * 检查指定会话是否正在运行中
+     *
+     * @param workerId 智能体ID
+     * @param sid      会话ID
+     * @return true 表示该会话正在运行，false 表示该会话未运行或Worker不存在
+     */
+    public boolean isRunning(String workerId, String sid) throws Exception {
+        HarnessWorker worker = workers.get(workerId);
+        if (worker == null) {
+            throw new Exception("Worker " + workerId + " not found.");
+        }
+        return worker.isRunning(sid);
+    }
+
+    /**
      * 移除Worker工作空间，清理所有资源并删除磁盘数据
      * <pre>
      *     1. 停止并销毁 Worker 实例（关闭定时任务、MCP连接、消息渠道等）

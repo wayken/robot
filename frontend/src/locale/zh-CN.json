@@ -346,6 +346,9 @@
     "high": "长",
     "off": "关闭",
     "select-backup-model-placeholder": "请选择备用模型",
+    "fork-session": "在新会话中继续",
+    "fork-session-success": "会话已分叉",
+    "fork-session-failed": "分叉会话失败",
     "tool": {
       "schedule": "定时任务",
       "edit_file": "编辑文件",

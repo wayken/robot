@@ -23,20 +23,24 @@ public class HarnessSubscriber extends IoSubscriber<AIResponse> {
 
     @Override
     public void onNext(AIResponse response) throws Exception {
-        if (response != null) {
-            String wid = request.getWid();
-            String sid = request.getSid();
-            String rid = request.getRid();
-            AIMessages messages = request.getMessages();
-            String content = response.getContent();
-            AIAssistantMessage assistant = new AIAssistantMessage(content);
-            if (response.hasReasoningContent()) {
-                assistant.setReasoning(response.getReasoningContent());
+        try {
+            if (response != null) {
+                String wid = request.getWid();
+                String sid = request.getSid();
+                String rid = request.getRid();
+                AIMessages messages = request.getMessages();
+                String content = response.getContent();
+                AIAssistantMessage assistant = new AIAssistantMessage(content);
+                if (response.hasReasoningContent()) {
+                    assistant.setReasoning(response.getReasoningContent());
+                }
+                messages.append(assistant, true);
+                worker.getMind().submitSession(wid, sid, false);
+                messageHook.onCompletion(sid, rid, response);
+                worker.getFramework().getLogger().print(request.getWid(), request.getSid(), request.getRid(), "Response To: " + content);
             }
-            messages.append(assistant, true);
-            worker.getMind().submitSession(wid, sid, false);
-            messageHook.onCompletion(sid, rid, response);
-            worker.getFramework().getLogger().print(request.getWid(), request.getSid(), request.getRid(), "Response To: " + content);
+        } finally {
+            worker.finishRunning(request.getSid());
         }
     }
 
@@ -46,6 +50,8 @@ public class HarnessSubscriber extends IoSubscriber<AIResponse> {
             messageHook.onError(cause);
         } catch (Exception e) {
             Logger.error("HarnessSubscriber onError callback failed", e);
+        } finally {
+            worker.finishRunning(request.getSid());
         }
     }
 

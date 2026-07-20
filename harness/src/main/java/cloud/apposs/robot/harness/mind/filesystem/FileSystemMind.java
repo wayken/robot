@@ -117,6 +117,11 @@ public class FileSystemMind implements IMind {
     }
 
     @Override
+    public boolean truncateSessionMessages(String wid, String sid, String id) throws Exception {
+        return sessionDatabaseLoader.truncateSessionMessages(wid, sid, id);
+    }
+
+    @Override
     public Table<Param> getSessionMessages(String wid, String sid) throws Exception {
         return sessionDatabaseLoader.getSessionMessages(wid, sid);
     }
@@ -152,6 +157,11 @@ public class FileSystemMind implements IMind {
             consolidateMessages.add(sessionMessages.get(i));
         }
         handleSessionMessagesConsolidate(wid, sid, consolidateMessages, endIndex);
+    }
+
+    @Override
+    public String forkSession(String wid, String sid, String messageId, String name) throws Exception {
+        return sessionDatabaseLoader.forkSession(wid, sid, messageId, name);
     }
 
     @Override

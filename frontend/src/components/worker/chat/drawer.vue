@@ -133,10 +133,6 @@
           <el-icon><Edit /></el-icon>
           <div>{{ $t('common.edit') }}</div>
         </div>
-        <div class="menu">
-          <el-icon><DocumentCopy /></el-icon>
-          <div>{{ $t('common.copy') }}</div>
-        </div>
         <div class="menu" @click="handleRemoveMessage">
           <el-icon><ChatLineSquare /></el-icon>
           <div>{{ $t('chat.clear-message-history') }}</div>
@@ -182,7 +178,6 @@ import {
   CaretRight,
   MoreFilled,
   ChatDotRound,
-  DocumentCopy,
   ChatDotSquare,
   ChatLineSquare
 } from '@element-plus/icons-vue'
@@ -354,6 +349,7 @@ const handleDataLoad = () => {
   }
   ioRequest('sessions.index', params).then((result) => {
     infomation.value = result[0] || []
+    handleStreamingStatusFromSessions()
   })
   ioRequest('mission.index', params).then((result) => {
     missionList.value = result[0] || []
@@ -366,6 +362,7 @@ const handleDataListenOn = () => {
       return
     }
     infomation.value = result[1]
+    handleStreamingStatusFromSessions()
   })
   Mitter.on('mitt-chat-streaming', handleStreamingUpdate)
   Mitter.on('mitt-session-mission-update', handleSessionMissionUpdate)
@@ -381,6 +378,13 @@ const handleStreamingUpdate = (payload: any) => {
     if (index !== -1) {
       loadStreamingSessions.value.splice(index, 1)
     }
+  }
+}
+const handleStreamingStatusFromSessions = () => {
+  loadStreamingSessions.value = []
+  for (const info of infomation.value) {
+    const sid = String(info.id)
+    handleStreamingUpdate({ sid, streaming: Boolean(info.running) })
   }
 }
 // 输入框修改分组后同步更新左侧列表

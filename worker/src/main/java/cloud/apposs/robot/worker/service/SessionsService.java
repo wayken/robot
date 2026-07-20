@@ -18,7 +18,14 @@ public class SessionsService {
         if (worker == null) {
             return null;
         }
-        return worker.getMind().getSessionList(model.getWid());
+        Table<Param> sessionList = worker.getMind().getSessionList(model.getWid());
+        if (sessionList != null) {
+            for (Param session : sessionList) {
+                Object sid = session.getObject("id");
+                session.setBoolean("running", sid != null && worker.isRunning(sid.toString()));
+            }
+        }
+        return sessionList;
     }
 
     public String addSession(SessionModel.Add model) throws Exception {
@@ -51,5 +58,13 @@ public class SessionsService {
             return null;
         }
         return worker.getMind().getSessionMessages(wid, sid);
+    }
+
+    public String forkSession(SessionModel.Fork model) throws Exception {
+        HarnessWorker worker = framework.getHarness().getWorker(model.getWid());
+        if (worker == null) {
+            return null;
+        }
+        return worker.getMind().forkSession(model.getWid(), model.getSid(), model.getMessageId(), model.getName());
     }
 }

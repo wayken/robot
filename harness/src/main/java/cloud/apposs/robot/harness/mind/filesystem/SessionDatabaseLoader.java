@@ -311,6 +311,41 @@ public class SessionDatabaseLoader {
         }
     }
 
+    public boolean truncateSessionMessages(String wid, String sid, String id) throws Exception {
+        try (Connection conn = getConnection()) {
+            int rowPosition = -1;
+            String rankQuery = "SELECT COUNT(*) FROM " + TABLE_NAME_MESSAGES + " WHERE sid = ? AND id < ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(rankQuery)) {
+                pstmt.setInt(1, Integer.parseInt(sid));
+                pstmt.setInt(2, Integer.parseInt(id));
+                try (ResultSet resultSet = pstmt.executeQuery()) {
+                    if (resultSet.next()) {
+                        rowPosition = resultSet.getInt(1);
+                    }
+                }
+            }
+            String deleteQuery = "DELETE FROM " + TABLE_NAME_MESSAGES + " WHERE sid = ? AND id >= ?";
+            boolean rowDeleted;
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
+                pstmt.setInt(1, Integer.parseInt(sid));
+                pstmt.setInt(2, Integer.parseInt(id));
+                rowDeleted = pstmt.executeUpdate() > 0;
+            }
+            if (rowDeleted) {
+                if (rowPosition >= 0) {
+                    String consolidateSql = "UPDATE " + TABLE_NAME_SESSIONS + " SET consolidated = min(consolidated, ?), updated = ? WHERE id = ?";
+                    try (PreparedStatement pstmt = conn.prepareStatement(consolidateSql)) {
+                        pstmt.setInt(1, rowPosition);
+                        pstmt.setString(2, LocalDateTime.now().format(dateTimeFormatter));
+                        pstmt.setInt(3, Integer.parseInt(sid));
+                        pstmt.executeUpdate();
+                    }
+                }
+            }
+            return rowDeleted;
+        }
+    }
+
     public void clearSessionMessages(String wid, String sid) throws Exception {
         String sql = "DELETE FROM " + TABLE_NAME_MESSAGES + " WHERE sid = ?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -441,6 +476,49 @@ public class SessionDatabaseLoader {
                 }
                 return null;
             }
+        }
+    }
+
+    /**
+     * Fork会话：创建一个新的会话，并将源会话中指定消息ID及之前的所有消息复制到新会话中
+     *
+     * @param  wid       智能体ID
+     * @param  sid       源会话ID
+     * @param  messageId 截止消息ID（含），复制该消息及之前的所有消息
+     * @param  name      新会话名称
+     * @return 新会话的ID，如果失败返回null
+     */
+    public String forkSession(String wid, String sid, String messageId, String name) throws Exception {
+        try (Connection conn = getConnection()) {
+            // 1. 创建新会话
+            String now = LocalDateTime.now().format(dateTimeFormatter);
+            String insertSessionSql = "INSERT INTO " + TABLE_NAME_SESSIONS + " (name, mission_id, created, updated) " +
+                    "SELECT ?, mission_id, ?, ? FROM " + TABLE_NAME_SESSIONS + " WHERE id = ?";
+            int newSid;
+            try (PreparedStatement pstmt = conn.prepareStatement(insertSessionSql, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setString(1, name);
+                pstmt.setString(2, now);
+                pstmt.setString(3, now);
+                pstmt.setInt(4, Integer.parseInt(sid));
+                pstmt.executeUpdate();
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        newSid = generatedKeys.getInt(1);
+                    } else {
+                        throw new SQLException("Fork session failed, no ID obtained.");
+                    }
+                }
+            }
+            // 2. 复制源会话中messageId及之前的所有消息到新会话
+            String copyMessagesSql = "INSERT INTO " + TABLE_NAME_MESSAGES + " (sid, rid, message, created) " +
+                    "SELECT ?, rid, message, created FROM " + TABLE_NAME_MESSAGES + " WHERE sid = ? AND id <= ? ORDER BY id ASC";
+            try (PreparedStatement pstmt = conn.prepareStatement(copyMessagesSql)) {
+                pstmt.setString(1, String.valueOf(newSid));
+                pstmt.setInt(2, Integer.parseInt(sid));
+                pstmt.setInt(3, Integer.parseInt(messageId));
+                pstmt.executeUpdate();
+            }
+            return String.valueOf(newSid);
         }
     }
 
