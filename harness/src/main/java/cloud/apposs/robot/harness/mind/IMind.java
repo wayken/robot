@@ -103,6 +103,14 @@ public interface IMind {
      */
     boolean removeSessionMessage(String wid, String sid, String rid, String id) throws Exception;
 
+    /**
+     * 截断指定会话中的对话消息，将指定消息ID及之前的所有消息删除
+     *
+     * @param  wid 智能体ID
+     * @param  sid 会话ID
+     * @param  id  消息ID，要截断的消息的唯一标识符
+     * @return 如果消息成功截断则返回true，否则返回false
+     */
     boolean truncateSessionMessages(String wid, String sid, String id) throws Exception;
 
     /**
@@ -255,8 +263,6 @@ public interface IMind {
      */
     boolean renameMemoryFile(String wid, String filename, String newFilename) throws Exception;
 
-    // ==================== Project ====================
-
     /**
      * 获取项目列表
      *
@@ -304,6 +310,15 @@ public interface IMind {
     boolean updateMissionSortOrder(String wid, int[] missionIds) throws Exception;
 
     /**
+     * 获取会话所属项目信息
+     *
+     * @param  wid 智能体ID
+     * @param  sid 会话ID
+     * @return 项目信息(id/name/description/date)，无项目时返回null
+     */
+    Param getSessionMission(String wid, String sid) throws Exception;
+
+    /**
      * 更新会话所属项目
      *
      * @param  wid       智能体ID
@@ -312,15 +327,6 @@ public interface IMind {
      * @return 是否成功
      */
     boolean updateSessionMission(String wid, String sid, int missionId) throws Exception;
-
-    /**
-     * 获取会话所属项目信息
-     *
-     * @param  wid 智能体ID
-     * @param  sid 会话ID
-     * @return 项目信息(id/name/description/date)，无项目时返回null
-     */
-    Param getSessionMission(String wid, String sid) throws Exception;
 
     /**
      * 关闭智能体，释放相关资源

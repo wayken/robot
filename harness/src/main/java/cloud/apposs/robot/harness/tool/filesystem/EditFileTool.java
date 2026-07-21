@@ -50,7 +50,7 @@ public class EditFileTool implements ITool {
                 "    \"newText\": {" +
                 "      \"type\": \"string\"," +
                 "      \"description\": \"The text to replace with\"" +
-                "    }" +
+                "    }," +
                 "    \"replaceAll\": {" +
                 "      \"type\": \"boolean\"," +
                 "      \"description\": \"Whether to replace all occurrences (default false)\"" +

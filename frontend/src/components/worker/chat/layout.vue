@@ -5,11 +5,11 @@
     }"
   >
     <a-head @narrow="handleLayoutNarrow"></a-head>
-    <a-content ref="loadContentRef" :loading="progression.loading"
+    <a-messages ref="loadMessagesRef" :loading="progression.loading"
       :messages="infomation"
       :streaming="isStreaming"
-      @resend="handleMessageResend"
       @fork="handleMessageFork"
+      @resend="handleMessageResend"
     />
     <a-promotion ref="loadPromotionRef"
       :streaming="isStreaming"
@@ -27,7 +27,7 @@ import { ElMessage } from 'element-plus'
 import { uuid } from '@/utils/dom'
 import Mitter from '@/utils/mitt'
 import AHead from './layout/head.vue'
-import AContent from './layout/content.vue'
+import AMessages from './layout/messages.vue'
 import APromotion from './layout/promotion.vue'
 import useSocketIO from '@/hooks/useSocketIO'
 import useLocalProfile from '@/hooks/useLocalProfile'
@@ -62,7 +62,7 @@ const isMessageSending = ref(false)
 const isSessionBuilding = ref(false)
 const useWid = () => route.params.id as string
 const useSessionId = () => route.query.id as string
-const loadContentRef = ref<InstanceType<typeof AContent> | null>(null)
+const loadMessagesRef = ref<InstanceType<typeof AMessages> | null>(null)
 const loadPromotionRef = ref<InstanceType<typeof APromotion> | null>(null)
 
 onActivated(() => {
@@ -78,7 +78,7 @@ onMounted(() => {
   Mitter.on('mitt-chat-messages-remove', handleMessagesRemove)
 })
 onUnmounted(() => {
-  const instance = loadContentRef.value?.useInstance()
+  const instance = loadMessagesRef.value?.useInstance()
   instance?.removeEventListener('scroll', handleContentScroll)
   Mitter.off('mitt-chat-messages-remove', handleMessagesRemove)
 })
@@ -156,7 +156,7 @@ const handleSessionMessagesRefresh = (sessionId: string) => {
 }
 // 判断滚动容器是否已到底部（允许一定的误差）
 const isScrollAtBottom = () => {
-  const instance = loadContentRef.value?.useInstance()
+  const instance = loadMessagesRef.value?.useInstance()
   if (!instance) return true
   return instance.scrollHeight - instance.scrollTop - instance.clientHeight <= 20
 }
@@ -171,7 +171,7 @@ const handleContentScroll = () => {
 const handleMessageListenOn = () => {
   isContentManualScrolled.value = false
   nextTick(() => {
-    const instance = loadContentRef.value?.useInstance()
+    const instance = loadMessagesRef.value?.useInstance()
     instance?.addEventListener('scroll', handleContentScroll, {
       passive: true
     })
@@ -197,7 +197,7 @@ const handleMessageListenOn = () => {
       infomation.value.push(response)
     }
     if (response.message?.reasoning && response.id) {
-      loadContentRef.value?.addOpenedReasoning(response.id)
+      loadMessagesRef.value?.addOpenedReasoning(response.id)
     }
     // 收到非结束消息时激活流式指示器
     if (!response.completion && !isStreaming.value) {
@@ -242,7 +242,7 @@ const handlePromotionFocus = () => {
 }
 // 聊天框自动滚动到底部
 const handleContentAutoScroll = (smooth = false) => {
-  const instance = loadContentRef.value?.useInstance()
+  const instance = loadMessagesRef.value?.useInstance()
   if (!instance) return
   nextTick(() => {
     instance.scrollTo({

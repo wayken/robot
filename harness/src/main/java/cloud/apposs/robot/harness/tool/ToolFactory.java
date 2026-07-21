@@ -8,6 +8,7 @@ import cloud.apposs.robot.harness.tool.delegate.ListDelegateWorkerTool;
 import cloud.apposs.robot.harness.tool.filesystem.EditFileTool;
 import cloud.apposs.robot.harness.tool.filesystem.GlobTool;
 import cloud.apposs.robot.harness.tool.filesystem.ReadFileTool;
+import cloud.apposs.robot.harness.tool.filesystem.RemoveFileTool;
 import cloud.apposs.robot.harness.tool.filesystem.WriteFileTool;
 import cloud.apposs.robot.harness.tool.schedule.ScheduleTool;
 import cloud.apposs.robot.harness.tool.session.SessionSearchTool;
@@ -19,6 +20,7 @@ public final class ToolFactory {
             ReadFileTool.NAME,
             WriteFileTool.NAME,
             EditFileTool.NAME,
+            RemoveFileTool.NAME,
             GlobTool.NAME,
             ShellTool.NAME,
             ScheduleTool.NAME,
@@ -55,6 +57,8 @@ public final class ToolFactory {
                 return new WriteFileTool(worker.getWorkspace().root());
             case EditFileTool.NAME:
                 return new EditFileTool(worker.getWorkspace().root());
+            case RemoveFileTool.NAME:
+                return new RemoveFileTool(worker.getWorkspace().root());
             case GlobTool.NAME: {
                 int maxResults = setting != null ? setting.getProperties().getInt("maxResults", GlobTool.DEFAULT_MAX_RESULTS) : GlobTool.DEFAULT_MAX_RESULTS;
                 return new GlobTool(worker.getWorkspace().root(), null, maxResults);

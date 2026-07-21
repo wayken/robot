@@ -67,6 +67,10 @@ public final class HarnessMind {
         mind.submitSession(wid, sid, force);
     }
 
+    public String forkSession(String wid, String sid, String messageId, String name) throws Exception {
+        return mind.forkSession(wid, sid, messageId, name);
+    }
+
     public Table<Param> searchSession(String query, String roleFilter, int limit) throws Exception {
         return mind.searchSession(query, roleFilter, limit);
     }
@@ -131,20 +135,16 @@ public final class HarnessMind {
         return mind.renameMission(wid, missionId, name);
     }
 
+    public Param getSessionMission(String wid, String sid) throws Exception {
+        return mind.getSessionMission(wid, sid);
+    }
+
     public boolean updateMissionSortOrder(String wid, int[] missionIds) throws Exception {
         return mind.updateMissionSortOrder(wid, missionIds);
     }
 
     public boolean updateSessionMission(String wid, String sid, int missionId) throws Exception {
         return mind.updateSessionMission(wid, sid, missionId);
-    }
-
-    public Param getSessionMission(String wid, String sid) throws Exception {
-        return mind.getSessionMission(wid, sid);
-    }
-
-    public String forkSession(String wid, String sid, String messageId, String name) throws Exception {
-        return mind.forkSession(wid, sid, messageId, name);
     }
 
     public void shutdown() {

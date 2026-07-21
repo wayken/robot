@@ -39,6 +39,8 @@ import java.io.IOException;
 public class GeminiAIFunction implements IoFunction<OkResponse, AIResponse> {
     // 流式模式下持续累积的响应对象
     private AIResponse accumulated = null;
+    // 跨网络分片累积未以换行符结尾的半行原始数据
+    private final StringBuilder pendingLine = new StringBuilder();
     // 跨chunk累积当前未完成的SSE事件data行
     private final StringBuilder pendingEventData = new StringBuilder();
 
@@ -61,28 +63,61 @@ public class GeminiAIFunction implements IoFunction<OkResponse, AIResponse> {
      */
     private AIResponse handleSseChunkParse(OkResponse response) throws IOException {
         String chunk = response.getContent();
-        if (chunk == null || chunk.isEmpty()) {
-            return accumulated != null ? accumulated : AIResponse.EMPTY;
-        }
         AIResponse lastResponse = accumulated != null ? accumulated : AIResponse.EMPTY;
-        for (String rawLine : chunk.split("\\r?\\n", -1)) {
-            String dataLine = rawLine.trim();
-            if (dataLine.isEmpty()) {
+        // 先追加网络分片，只处理以换行符结尾的完整行，末尾未结束的半行保留到下个网络分片再拼接，避免续接字节因不以"data:"开头而被误丢弃导致JSON不完整。
+        if (chunk != null && !chunk.isEmpty()) {
+            pendingLine.append(chunk);
+            int start = 0;
+            int newlineIndex;
+            while ((newlineIndex = pendingLine.indexOf("\n", start)) >= 0) {
+                int lineEnd = newlineIndex;
+                if (lineEnd > start && pendingLine.charAt(lineEnd - 1) == '\r') {
+                    lineEnd--;
+                }
+                String rawLine = pendingLine.substring(start, lineEnd);
+                start = newlineIndex + 1;
+                AIResponse eventResponse = handleSseLine(rawLine);
+                if (eventResponse != null) {
+                    lastResponse = eventResponse;
+                }
+            }
+            pendingLine.delete(0, start);
+        }
+        // 流结束时冲刷缓冲区中残留的最后一行（无换行符结尾）及尚未派发的事件数据
+        if (response.isCompleted()) {
+            if (pendingLine.length() > 0) {
+                AIResponse eventResponse = handleSseLine(pendingLine.toString());
+                pendingLine.setLength(0);
+                if (eventResponse != null) {
+                    lastResponse = eventResponse;
+                }
+            }
+            if (pendingEventData.length() > 0) {
                 AIResponse eventResponse = handleSseEvent(pendingEventData);
                 if (eventResponse != null) {
                     lastResponse = eventResponse;
                 }
-                continue;
             }
-            if (!dataLine.startsWith("data:")) {
-                continue;
-            }
-            if (pendingEventData.length() > 0) {
-                pendingEventData.append('\n');
-            }
-            pendingEventData.append(dataLine.substring(5).trim());
         }
         return lastResponse;
+    }
+
+    /**
+     * 处理一条完整的SSE行：空行触发当前事件派发，data:行则追加到当前事件的data缓冲
+     */
+    private AIResponse handleSseLine(String rawLine) throws IOException {
+        String dataLine = rawLine.trim();
+        if (dataLine.isEmpty()) {
+            return handleSseEvent(pendingEventData);
+        }
+        if (!dataLine.startsWith("data:")) {
+            return null;
+        }
+        if (pendingEventData.length() > 0) {
+            pendingEventData.append('\n');
+        }
+        pendingEventData.append(dataLine.substring(5).trim());
+        return null;
     }
 
     private AIResponse handleSseEvent(StringBuilder eventData) throws IOException {

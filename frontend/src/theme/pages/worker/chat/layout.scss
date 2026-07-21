@@ -49,7 +49,7 @@
       }
     }
   }
-  .content {
+  .messages {
     flex: 1;
     overflow: auto;
     .wrapper {
@@ -141,13 +141,13 @@
             }
           }
         }
-        .actions {
+        .operation {
           gap: 4px;
           opacity: 0;
           display: flex;
           align-items: center;
           margin: 8px 0 0 12px;
-          .action {
+          .icon {
             width: 28px;
             height: 28px;
             display: flex;
@@ -165,7 +165,7 @@
         }
       }
       &:hover {
-        .actions {
+        .operation {
           opacity: 1;
         }
       }
@@ -213,6 +213,111 @@
           font-size: 14px;
         }
       }
+      .filesystem {
+        overflow: hidden;
+        border-radius: 8px;
+        margin: 12px 0 0 12px;
+        border: 1px solid var(--var-menu-border-color);
+        background-color: var(--var-card-background-color);
+        .head {
+          margin: 0;
+          height: 72px;
+          display: flex;
+          padding: 0 14px;
+          align-items: center;
+          border-bottom: 1px solid var(--var-menu-border-color);
+        }
+        .icon {
+          width: 48px;
+          height: 48px;
+          display: flex;
+          flex-shrink: 0;
+          font-size: 20px;
+          margin-right: 12px;
+          border-radius: 5px;
+          align-items: center;
+          justify-content: center;
+          color: var(--var-theme-primary-4);
+          background-color: var(--var-module-hover-color);
+        }
+        .summary {
+          flex: 1;
+          min-width: 0;
+        }
+        .title {
+          font-size: 15px;
+          line-height: 1.8;
+        }
+        .stat, .numbers {
+          gap: 6px;
+          display: flex;
+          font-size: 14px;
+          line-height: 1.8;
+          align-items: center;
+        }
+        .body {
+          max-height: 480px;
+        }
+        .row {
+          height: 52px;
+          display: flex;
+          margin: 8px 0;
+          padding: 0 22px;
+          font-size: 15px;
+          cursor: pointer;
+          border-radius: 3px;
+          border: 1px solid transparent;
+          align-items: center;
+          color: var(--var-default-font-color);
+          &:hover {
+            color: var(--var-theme-primary-4);
+            background-color: var(--var-module-hover-color);
+          }
+        }
+        .file-icon {
+          flex-shrink: 0;
+          margin-right: 4px;
+        }
+        .path {
+          flex: 1;
+          overflow: hidden;
+          margin-right: 14px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        .numbers {
+          font-size: 14px;
+        }
+        .foot {
+          gap: 6px;
+          height: 42px;
+          display: flex;
+          cursor: pointer;
+          padding: 0 14px;
+          font-size: 14px;
+          align-items: center;
+          color: var(--var-default-font-color);
+          &:hover {
+            background-color: var(--var-module-hover-color);
+          }
+          > i {
+            font-size: 14px;
+            margin-right: 4px;
+            transition: transform 0.25s ease;
+          }
+          &.is-opened {
+            > i {
+              transform: rotate(180deg);
+            }
+          }
+        }
+        .is-addition {
+          color: #00a152;
+        }
+        .is-deletion {
+          color: #d93025;
+        }
+      }
       &.is-user {
         flex-direction: row-reverse;
         .avatar {
@@ -225,7 +330,7 @@
           flex-direction: column;
           justify-content: flex-end;
         }
-        .actions {
+        .operation {
           margin: 8px 12px 0 0;
         }
         .inbox {
@@ -248,33 +353,33 @@
               border-color: var(--var-theme-primary-4);
             }
           }
-          .actions {
+          .operation {
             gap: 8px;
             display: flex;
             justify-content: flex-end;
             margin: 8px 0 0 0;
-          }
-          .action {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 4px;
-            align-items: center;
-            justify-content: center;
-            color: var(--var-default-font-color);
-            background-color: var(--var-module-hover-color);
-            transition: color 0.2s ease, background-color 0.2s ease;
-            &:hover {
-              color: var(--var-theme-primary-4);
-            }
-            &.is-primary {
-              color: #fff;
-              background-color: var(--var-theme-primary-4);
+            .icon {
+              width: 30px;
+              height: 30px;
+              display: flex;
+              cursor: pointer;
+              font-size: 16px;
+              border-radius: 4px;
+              align-items: center;
+              justify-content: center;
+              color: var(--var-default-font-color);
+              background-color: var(--var-module-hover-color);
+              transition: color 0.2s ease, background-color 0.2s ease;
               &:hover {
+                color: var(--var-theme-primary-4);
+              }
+              &.is-primary {
                 color: #fff;
-                background-color: var(--var-theme-primary-5);
+                background-color: var(--var-theme-primary-4);
+                &:hover {
+                  color: #fff;
+                  background-color: var(--var-theme-primary-5);
+                }
               }
             }
           }
@@ -283,7 +388,7 @@
           max-width: 72%;
           padding: 12px 24px;
           margin-right: 12px;
-          border-radius: 12px 0 12px 12px;
+          border-radius: 8px 0 8px 8px;
           background-color: var(--var-theme-primary-1);
         }
       }
@@ -341,18 +446,6 @@
           color: var(--var-default-font-color);
           background-color: var(--var-module-hover-color);
         }
-      }
-      .metadata-slide-enter-active,
-      .metadata-slide-leave-active {
-        overflow: hidden;
-        max-height: 200px;
-        transition: max-height 0.3s ease, opacity 0.25s ease;
-      }
-      .metadata-slide-enter-from,
-      .metadata-slide-leave-to {
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
       }
     }
     .indicator {

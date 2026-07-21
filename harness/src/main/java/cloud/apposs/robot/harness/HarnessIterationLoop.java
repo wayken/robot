@@ -92,14 +92,18 @@ public class HarnessIterationLoop implements IoFunction<AIResponse, React<AIResp
     }
 
     // 递归构建顺序工具调用链，每个工具执行完毕后将结果追加到消息上下文，再执行下一个工具
-    private React<Void> handleToolChainBuild(Table<AITool> toolList, int index, AIResponse response, Table<AITool> tools) {
+    private React<Void> handleToolChainBuild(Table<AITool> toolList, int index, AIResponse response, Table<AITool> tools) throws Exception {
         if (index >= toolList.size()) {
             return React.just(null);
         }
         AITool tool = toolList.get(index);
         Param arguments = JsonUtil.parseJsonParam(tool.getArguments());
+        if (arguments == null) {
+            return handleInvalidToolArguments(toolList, tool, index, response, tools);
+        }
         return handleFunctionRun(request.getWid(), request.getSid(), request.getRid(), tool.getName(), arguments)
                 .request(result -> {
+                    tool.setSuccess(result == null || !result.startsWith("Error:"));
                     AIMessages messages = request.getMessages();
                     // 第一个工具执行完毕后，先追加本轮响应消息，再追加工具结果
                     if (index == 0) {
@@ -119,6 +123,27 @@ public class HarnessIterationLoop implements IoFunction<AIResponse, React<AIResp
                     // 继续执行下一个工具
                     return handleToolChainBuild(toolList, index + 1, response, tools);
                 });
+    }
+
+    private React<Void> handleInvalidToolArguments(Table<AITool> toolList, AITool tool, int index, AIResponse response, Table<AITool> tools) throws Exception {
+        String result = "Error: Tool [" + tool.getName() + "] arguments must be a valid JSON object and must not be empty.";
+        tool.setSuccess(false);
+        AIMessages messages = request.getMessages();
+        if (index == 0) {
+            AIAssistantMessage assistantMessage = new AIAssistantMessage(response.getContent());
+            if (response.hasReasoningContent()) {
+                assistantMessage.setReasoning(response.getReasoningContent());
+            }
+            assistantMessage.setTools(tools);
+            messages.append(assistantMessage, true);
+        }
+        AIToolMessage toolMessage = new AIToolMessage(result);
+        toolMessage.setId(tool.getId());
+        toolMessage.setName(tool.getName());
+        messages.append(toolMessage, true);
+        String logContent = String.format("Tool Call: %s(%s) - %s", tool.getName(), tool.getArguments(), result);
+        worker.getFramework().getLogger().print(request.getWid(), request.getSid(), request.getRid(), logContent);
+        return handleToolChainBuild(toolList, index + 1, response, tools);
     }
 
     // 构建工具调用数据流链，执行工具调用

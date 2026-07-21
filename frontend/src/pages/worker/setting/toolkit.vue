@@ -147,6 +147,7 @@ const loadToolEmojiMap: Record<string, string> = {
   read_file: '📖',
   write_file: '✏️',
   edit_file: '📝',
+  remove_file: '🗑️',
   glob: '🔍',
   exec_shell: '💻',
   schedule: '⏰',

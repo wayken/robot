@@ -18,6 +18,8 @@ toolkit:
     enabled: true
   - name: edit_file
     enabled: true
+  - name: remove_file
+    enabled: true
   - name: glob
     enabled: true
     properties:

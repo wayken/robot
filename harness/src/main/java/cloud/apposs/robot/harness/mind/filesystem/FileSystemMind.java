@@ -250,13 +250,13 @@ public class FileSystemMind implements IMind {
     }
 
     @Override
-    public boolean updateSessionMission(String wid, String sid, int missionId) throws Exception {
-        return sessionDatabaseLoader.updateSessionMission(wid, sid, missionId);
+    public Param getSessionMission(String wid, String sid) throws Exception {
+        return sessionDatabaseLoader.getSessionMission(wid, sid);
     }
 
     @Override
-    public Param getSessionMission(String wid, String sid) throws Exception {
-        return sessionDatabaseLoader.getSessionMission(wid, sid);
+    public boolean updateSessionMission(String wid, String sid, int missionId) throws Exception {
+        return sessionDatabaseLoader.updateSessionMission(wid, sid, missionId);
     }
 
     @Override

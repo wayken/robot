@@ -85,6 +85,7 @@ public class DelegateWorkerIterationLoop implements IoFunction<AIResponse, React
         Param arguments = JsonUtil.parseJsonParam(tool.getArguments());
         return handleFunctionRun(request.getWid(), request.getSid(), tool.getName(), arguments)
             .request(result -> {
+                tool.setSuccess(result == null || !result.startsWith("Error:"));
                 AIMessages messages = request.getMessages();
                 if (index == 0) {
                     AIAssistantMessage assistantMessage = new AIAssistantMessage(response.getContent());

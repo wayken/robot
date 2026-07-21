@@ -17,7 +17,7 @@ public class WorkerMessageHook implements IMessageHook {
 
     @Override
     public void onProcessing(String sid, String rid, AIResponse response) throws Exception {
-        if (response.getContent().isEmpty() && !response.hasReasoningContent()) {
+        if (response.getContent().isEmpty() && !response.hasReasoningContent() && !response.hasToolCall()) {
             return;
         }
         Param infomation = handleResponseFormat(sid, rid, response);

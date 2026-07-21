@@ -1,24 +1,13 @@
 <template>
-  <div class="content" ref="loadContentRef">
+  <div class="messages" ref="loadMessagesRef">
     <div class="wrapper inline-flex-c-n-n" v-loading="loading">
-      <div class="welcome inline-flex-c-c-c" v-if="messages.length === 0 && !streaming">
-        <img class="logo" :src="logoSvg" />
-        <div class="domain">
-          Team<span class="highlight">Robot</span>
-        </div>
-        <div class="slogan">
-          {{ $t('chat.slogan') }}
-        </div>
-        <div class="suggestion">
-          <div class="card inline-flex-r-c-n" v-for="(data, index) in loadSuggestionList" :key="index">
-              <div class="name">{{ $t(`chat.${data.name}`) }}</div>
-              <el-icon class="icon"><Right /></el-icon>
-          </div>
-        </div>
-      </div>
+      <!-- 消息欢迎页 -->
+      <a-messages-welcome :messages="messages" :streaming="streaming" />
+      <!-- 消息列表页 -->
       <div class="sources" v-if="messages.length > 0 || isShowStandaloneStreamingIndicator">
+        <!-- 数据库消息详情 -->
         <div class="round" v-for="(round, ridx) in loadFormatMessages" :key="ridx">
-          <!-- 用户消息 -->
+          <!-- 用户发送消息 -->
           <div class="message is-user">
             <el-avatar class="avatar" :size="42" :icon="UserFilled" shape="square" />
             <div class="context">
@@ -27,14 +16,14 @@
                   <textarea class="input" :ref="handleEditInputRefSet" v-model="loadEditingMessageContent" rows="3"
                     @keydown="handleUserMessageEditKeydown($event, round.user)"
                   ></textarea>
-                  <div class="actions">
+                  <div class="operation" v-if="!streaming">
                     <el-tooltip effect="dark" placement="top" :content="$t('common.cancel')">
-                      <el-icon class="action" @click="handleUserMessageEditCancel">
+                      <el-icon class="icon" @click="handleUserMessageEditCancel">
                         <Close />
                       </el-icon>
                     </el-tooltip>
                     <el-tooltip effect="dark" placement="top" :content="$t('common.confirm')">
-                      <el-icon class="action is-primary" @click="handleUserMessageEditSubmit(round.user)">
+                      <el-icon class="icon is-primary" @click="handleUserMessageEditSubmit(round.user)">
                         <Select />
                       </el-icon>
                     </el-tooltip>
@@ -43,15 +32,15 @@
               </template>
               <template v-else>
                 <div class="markdown" v-html="markdownItIntance.render(round.user?.message?.content || '')"></div>
-                <div class="actions">
+                <div class="operation" v-if="!streaming">
                   <el-tooltip effect="dark" placement="top" :content="$t('common.copy')">
-                    <el-icon class="action" @click="handleMessageCopy(useMessageActionKey(round.user, 'user'), round.user?.message?.content || '')">
+                    <el-icon class="icon" @click="handleMessageCopy(useMessageActionKey(round.user, 'user'), round.user?.message?.content || '')">
                       <Check v-if="isMessageCopied(useMessageActionKey(round.user, 'user'))" />
                       <DocumentCopy v-else />
                     </el-icon>
                   </el-tooltip>
                   <el-tooltip v-if="isLastUserMessage(round.user)" effect="dark" placement="top" :content="$t('common.edit')">
-                    <el-icon class="action" @click="handleUserMessageEdit(round.user)">
+                    <el-icon class="icon" @click="handleUserMessageEdit(round.user)">
                       <Edit />
                     </el-icon>
                   </el-tooltip>
@@ -59,7 +48,7 @@
               </template>
             </div>
           </div>
-          <!-- AI 回复（含工具调用过程） -->
+          <!-- 智能体回复消息 -->
           <div class="message is-assistant" v-if="round.common.length > 0">
             <a-robot-head :kind="0" :size="42" :src="IconImage" />
             <div class="context">
@@ -97,8 +86,8 @@
                   ></div>
                 </template>
                 <!-- 工具调用消息 -->
-                <div class="tool" v-if="isRoleAssistant(msg.message.role) && msg.message.tools?.length">
-                  <div class="unit" v-for="(tool, tidx) in msg.message.tools" :key="tidx">
+                <div class="tool" v-if="isRoleAssistant(msg.message.role) && useVisibleTools(msg.message.tools).length">
+                  <div class="unit" v-for="(tool, tidx) in useVisibleTools(msg.message.tools)" :key="tidx">
                     <div class="step inline-flex-r-c-n"
                       :class="{
                         'is-success': tool.success,
@@ -118,16 +107,52 @@
                     </transition>
                   </div>
                 </div>
+                <!-- 文件修改统计 -->
+                <div class="filesystem" v-if="midx === round.common.length - 1 && useRoundFileUpdateSummary(round, ridx).items.length">
+                  <div class="head">
+                    <div class="icon">
+                      <el-icon size="24px"><Document /></el-icon>
+                    </div>
+                    <div class="summary">
+                      <div class="title">{{ useRoundFileUpdateTitle(round, ridx) }}</div>
+                      <div class="stat">
+                        <div class="is-addition">+{{ useRoundFileUpdateSummary(round, ridx).additions }}</div>
+                        <div class="is-deletion">-{{ useRoundFileUpdateSummary(round, ridx).deletions }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="body" v-show="isFileUpdateOpened(useRoundActionKey(round, ridx))">
+                      <div class="row" v-for="file in useRoundFileUpdateSummary(round, ridx).items" :key="file.path">
+                        <a-svg-icon class="file-icon" :icon-class="loadFileIconByName(file.path, false)" size="42px" />
+                        <div class="path">{{ file.path }}</div>
+                        <div class="numbers">
+                        <div class="is-addition">+{{ file.additions }}</div>
+                        <div class="is-deletion">-{{ file.deletions }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="foot"
+                    :class="{
+                      'is-opened': isFileUpdateOpened(useRoundActionKey(round, ridx))
+                    }"
+                    @click="handleFileUpdateSwitch(useRoundActionKey(round, ridx))"
+                  >
+                    <el-icon><ArrowDown /></el-icon>
+                    <div>
+                      {{ isFileUpdateOpened(useRoundActionKey(round, ridx)) ? $t('chat.open-update-file') : $t('chat.close-update-file') }}
+                    </div>
+                  </div>
+                </div>
               </template>
-              <div class="actions">
+              <div class="operation" v-if="!streaming">
                 <el-tooltip effect="dark" placement="top" :content="$t('common.copy')">
-                  <el-icon class="action" @click="handleMessageCopy(useRoundActionKey(round, ridx), useAssistantMessageText(round))">
+                  <el-icon class="icon" @click="handleMessageCopy(useRoundActionKey(round, ridx), useAssistantMessageText(round))">
                     <Check v-if="isMessageCopied(useRoundActionKey(round, ridx))" />
                     <DocumentCopy v-else />
                   </el-icon>
                 </el-tooltip>
                 <el-tooltip effect="dark" placement="top" :content="$t('chat.fork-session')">
-                  <el-icon class="action" @click="handleMessageFork(round, ridx)">
+                  <el-icon class="icon" @click="handleMessageFork(round, ridx)">
                     <KnifeFork />
                   </el-icon>
                 </el-tooltip>
@@ -135,38 +160,16 @@
             </div>
           </div>
           <!-- 流式消息指示器 -->
-          <div class="message is-assistant" v-if="isRoundStreamingIndicatorVisible(round, ridx)">
-            <a-robot-head :kind="0" :size="42" :src="IconImage" v-if="round.common.length === 0" />
-            <div class="indicator"
-              :class="{
-                'has-context': round.common.length > 0
-              }"
-            >
-              <a-loading size="small" />
-              <div class="progress">
-                <span class="label">{{ loadStreamingStatusText }}</span>
-                <span class="dots">
-                  <span class="dot"></span>
-                  <span class="dot"></span>
-                  <span class="dot"></span>
-                </span>
-              </div>
-            </div>
-          </div>
+          <a-messages-indicator v-if="isRoundStreamingIndicatorVisible(round, ridx)"
+            :status-text="loadStreamingStatusText"
+            :has-context="round.common.length > 0"
+            :show-avatar="round.common.length === 0"
+          />
         </div>
-        <div class="message is-assistant" v-if="isShowStandaloneStreamingIndicator">
-          <div class="indicator is-standalone">
-            <a-loading size="small" />
-            <div class="progress">
-              <span class="label">{{ loadStreamingStatusText }}</span>
-              <span class="dots">
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-              </span>
-            </div>
-          </div>
-        </div>
+        <!-- 流式消息指示器 -->
+        <a-messages-indicator v-if="isShowStandaloneStreamingIndicator" standalone
+          :status-text="loadStreamingStatusText"
+        />
       </div>
     </div>
   </div>
@@ -174,12 +177,16 @@
 
 <script setup lang="ts">
 import {
+  ElMessage
+} from 'element-plus'
+import {
   Edit,
   Check,
   Close,
-  Right,
   Select,
   Setting,
+  Document,
+  ArrowDown,
   ArrowRight,
   KnifeFork,
   UserFilled,
@@ -187,18 +194,35 @@ import {
   WarningFilled,
   DocumentCopy
 } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import MarkdownIt from 'markdown-it'
-import logoSvg from '@/assets/logo.svg'
 import { useTextClipboard } from '@/utils/dom'
+import { loadFileIconByName } from '@/utils/filetype'
 import useMarkdownIt from '@/marksuit/hook/useMarkdownIt'
+import AMessagesWelcome from './messages/welcome.vue'
+import AMessagesIndicator from './messages/indicator.vue'
 import ARobotHead from '@/components/common/robot/head.vue'
-import ALoading from '@/components/common/loading/index.vue'
 import IconImage from '@/assets/images/providers/deepseek.png'
 
 interface FormatRound {
   user: any
   common: any[]
+}
+
+interface FileUpdateItem {
+  path: string
+  operation: 'edit' | 'write' | 'delete'
+  additions: number
+  deletions: number
+  pending: boolean
+}
+
+interface FileUpdateSummary {
+  items: FileUpdateItem[]
+  editing: number
+  deleting: number
+  additions: number
+  deletions: number
+  pending: boolean
 }
 
 const props = defineProps<{
@@ -212,29 +236,15 @@ const handleEmit = defineEmits<{
   (e: 'fork', payload: { round: FormatRound, ridx: number }): void
 }>()
 
-const loadSuggestionList = [
-  {
-    name: 'suggestion-0'
-  },
-  {
-    name: 'suggestion-1'
-  },
-  {
-    name: 'suggestion-2'
-  },
-  {
-    name: 'suggestion-3'
-  }
-]
-
 const i18n = useI18n()
 let loadCopiedMessageTimer: number | undefined
 const loadOpenedSteps = ref(new Set<string>())
 const loadOpenedReasonings = ref<string[]>([])
+const loadClosedFileUpdate = ref(new Set<string>())
 const loadCopiedMessageKey = ref('')
 const loadEditingMessageKey = ref('')
 const loadEditingMessageContent = ref('')
-const loadContentRef = ref<HTMLDivElement | null>(null)
+const loadMessagesRef = ref<HTMLDivElement | null>(null)
 const loadEditInputRef = ref<HTMLTextAreaElement | null>(null)
 
 let markdownItIntance: MarkdownIt = useMarkdownIt({
@@ -291,6 +301,149 @@ const handleToolArgumentsFormat = (args: any): string => {
     return typeof args === 'string' ? args : JSON.stringify(args, null, 2)
   }
 }
+const handleToolArgumentsParse = (args: any): any => {
+  if (!args) return null
+  if (typeof args !== 'string') return args
+  try {
+    return JSON.parse(args)
+  } catch {
+    return null
+  }
+}
+const handleTextLines = (value: string = ''): string[] => {
+  if (!value) return []
+  const lines = value.split(/\r\n|\r|\n/)
+  if (lines[lines.length - 1] === '') {
+    lines.pop()
+  }
+  return lines
+}
+const handleLineDiffStats = (oldValue: string = '', newValue: string = '') => {
+  const oldLines = handleTextLines(oldValue)
+  const newLines = handleTextLines(newValue)
+  if (oldLines.length * newLines.length > 200000) {
+    return {
+      additions: newLines.length,
+      deletions: oldLines.length
+    }
+  }
+  const lcs = Array.from({ length: oldLines.length + 1 }, () => Array(newLines.length + 1).fill(0))
+  for (let i = oldLines.length - 1; i >= 0; i--) {
+    for (let j = newLines.length - 1; j >= 0; j--) {
+      lcs[i][j] = oldLines[i] === newLines[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1])
+    }
+  }
+  const common = lcs[0][0]
+  return {
+    additions: Math.max(newLines.length - common, 0),
+    deletions: Math.max(oldLines.length - common, 0)
+  }
+}
+const isFileUpdateTool = (tool: any): boolean => {
+  if (tool?.fileUpdate?.path) return true
+  const name = String(tool?.name || '').toLowerCase()
+  return name === 'edit_file' || name === 'write_file' || name.includes('delete_file') || name.includes('remove_file')
+}
+const useVisibleTools = (tools: any[] = []) => {
+  return tools.filter(tool => !isFileUpdateTool(tool))
+}
+const useToolFileUpdate = (tool: any): FileUpdateItem | null => {
+  if (!tool || !isFileUpdateTool(tool)) return null
+  const metadata = tool.fileUpdate || {}
+  const args = handleToolArgumentsParse(tool.arguments) || {}
+  const name = String(tool.name || '').toLowerCase()
+  const path = metadata.path || args.path || args.file_path || args.filename || args.target_path
+  if (!path) return null
+  const operation = metadata.operation || (name === 'write_file' ? 'write' : (name.includes('delete') || name.includes('remove') ? 'delete' : 'edit'))
+  const fallback = operation === 'write'
+    ? { additions: handleTextLines(args.content || '').length, deletions: 0 }
+    : operation === 'edit'
+      ? handleLineDiffStats(args.oldText || args.old_string || args.old || '', args.newText || args.new_string || args.new || '')
+      : { additions: 0, deletions: 0 }
+  return {
+    path,
+    operation,
+    additions: Number(metadata.additions ?? fallback.additions ?? 0),
+    deletions: Number(metadata.deletions ?? fallback.deletions ?? 0),
+    pending: tool.success !== true
+  }
+}
+const useRoundFileUpdateSummary = (round: FormatRound, ridx: number): FileUpdateSummary => {
+  const mapping = new Map<string, FileUpdateItem>()
+  for (const message of round.common) {
+    const tools = message.message?.tools || []
+    for (const tool of tools) {
+      const change = useToolFileUpdate(tool)
+      if (!change) continue
+      const matched = mapping.get(change.path)
+      if (matched) {
+        matched.additions += change.additions
+        matched.deletions += change.deletions
+        matched.pending = matched.pending || change.pending
+        if (change.operation === 'delete') {
+          matched.operation = 'delete'
+        }
+      } else {
+        mapping.set(change.path, { ...change })
+      }
+    }
+  }
+  const items = Array.from(mapping.values())
+  const isStreamingRound = isStreamMessageComplete(ridx)
+  return {
+    items,
+    editing: items.filter(item => item.operation !== 'delete').length,
+    deleting: items.filter(item => item.operation === 'delete').length,
+    additions: items.reduce((total, item) => total + item.additions, 0),
+    deletions: items.reduce((total, item) => total + item.deletions, 0),
+    pending: isStreamingRound && items.some(item => item.pending)
+  }
+}
+const useRoundFileUpdateTitle = (round: FormatRound, ridx: number): string => {
+  const summary = useRoundFileUpdateSummary(round, ridx)
+  if (summary.pending) {
+    if (summary.editing > 0 && summary.deleting > 0) {
+      return i18n.t('chat.file-update-pending-mixed', {
+        editing: summary.editing,
+        deleting: summary.deleting
+      })
+    }
+    if (summary.deleting > 0) {
+      return i18n.t('chat.file-update-pending-delete', {
+        count: summary.deleting
+      })
+    }
+    return i18n.t('chat.file-update-pending-edit', {
+      count: summary.editing
+    })
+  }
+  if (summary.editing > 0 && summary.deleting > 0) {
+    return i18n.t('chat.file-update-completed-mixed', {
+      editing: summary.editing,
+      deleting: summary.deleting
+    })
+  }
+  if (summary.deleting > 0) {
+    return i18n.t('chat.file-update-completed-delete', {
+      count: summary.deleting
+    })
+  }
+  return i18n.t('chat.file-update-completed-edit', {
+    count: summary.editing
+  })
+}
+const isFileUpdateOpened = (key: string): boolean => {
+  return !loadClosedFileUpdate.value.has(key)
+}
+const handleFileUpdateSwitch = (key: string) => {
+  const next = new Set(loadClosedFileUpdate.value)
+  if (next.has(key)) {
+    next.delete(key)
+  } else {
+    next.add(key)
+  }
+  loadClosedFileUpdate.value = next
+}
 const handleMaybeJsonParse = (value: string): any => {
   const text = (value || '').trim()
   if (!text) return null
@@ -313,8 +466,8 @@ const handleMaybeJsonParse = (value: string): any => {
   }
   return null
 }
-const useAssistantErrorInfo = (msg: any): { title: string, message: string, meta: string } | null => {
-  const message = msg?.message || {}
+const useAssistantErrorInfo = (data: any) => {
+  const message = data?.message || {}
   const status = Number(message.status)
   const hasHttpStatusError = Number.isFinite(status) && status > 0 && status !== 200
   const hasFailedStatus = message.status === 'failed'
@@ -338,13 +491,13 @@ const useAssistantErrorInfo = (msg: any): { title: string, message: string, meta
 }
 const useAssistantMessageText = (round: FormatRound): string => {
   return round.common
-    .filter(msg => isRoleAssistant(msg.message?.role))
-    .map(msg => {
-      const error = useAssistantErrorInfo(msg)
+    .filter(data => isRoleAssistant(data.message?.role))
+    .map(data => {
+      const error = useAssistantErrorInfo(data)
       if (error) {
         return [error.title, error.message, error.meta].filter(Boolean).join('\n')
       }
-      return [msg.message?.reasoning, msg.message?.content].filter(Boolean).join('\n\n')
+      return [data.message?.reasoning, data.message?.content].filter(Boolean).join('\n\n')
     })
     .filter(Boolean)
     .join('\n\n')
@@ -476,11 +629,11 @@ const isShowStandaloneStreamingIndicator = computed(() => {
 // 根据当前执行阶段动态切换
 const loadStreamingStatusText = computed(() => {
   if (!props.streaming) return ''
-  const msgs = props.messages
-  if (msgs.length === 0) {
+  const messages = props.messages
+  if (messages.length === 0) {
     return i18n.t('chat.streaming.thinking')
   }
-  const last = msgs[msgs.length - 1]
+  const last = messages[messages.length - 1]
   if (!last?.message) {
     return i18n.t('chat.streaming.thinking')
   }
@@ -501,8 +654,7 @@ const loadStreamingStatusText = computed(() => {
   return i18n.t('chat.streaming.thinking')
 })
 
-const useInstance = () => loadContentRef.value
-
+const useInstance = () => loadMessagesRef.value
 defineExpose({
   addOpenedReasoning,
   useInstance

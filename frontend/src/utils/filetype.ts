@@ -25,6 +25,12 @@ const FILE_TYPE_MAP: {
   ts: {
     icon: 'document-ts'
   },
+  js: {
+    icon: 'document-js'
+  },
+  go: {
+    icon: 'document-go'
+  },
   java: {
     icon: 'document-java'
   },

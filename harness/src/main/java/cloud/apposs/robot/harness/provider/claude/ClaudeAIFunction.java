@@ -55,6 +55,8 @@ public class ClaudeAIFunction implements IoFunction<OkResponse, AIResponse> {
     private AIResponse accumulated = null;
     // 流式模式下按 content block index 累积 tool_use 的 id/name/input_json
     private List<ToolUseBuffer> toolUseBuffers = null;
+    // 跨网络分片累积未以换行符结尾的半行原始数据
+    private final StringBuilder pendingLine = new StringBuilder();
     // 跨chunk累积当前未完成的SSE事件（event行 + data行）
     private final StringBuilder pendingEventData = new StringBuilder();
     // 当前SSE事件类型（event: xxx 行）
@@ -79,32 +81,68 @@ public class ClaudeAIFunction implements IoFunction<OkResponse, AIResponse> {
      */
     private AIResponse handleSseChunkParse(OkResponse response) throws IOException {
         String chunk = response.getContent();
-        if (chunk == null || chunk.isEmpty()) {
-            return accumulated != null ? accumulated : AIResponse.EMPTY;
-        }
         AIResponse lastResponse = accumulated != null ? accumulated : AIResponse.EMPTY;
-        for (String rawLine : chunk.split("\\r?\\n", -1)) {
-            String line = rawLine.trim();
-            if (line.isEmpty()) {
-                // 空行表示一个SSE事件结束，处理已累积的事件
-                AIResponse eventResponse = handleSseEvent(pendingEventType, pendingEventData);
+        // 先追加网络分片，只处理以换行符结尾的完整行，末尾未结束的半行保留到下个网络分片再拼接，避免续接字节因不以"data:"开头而被误丢弃导致JSON不完整。
+        if (chunk != null && !chunk.isEmpty()) {
+            pendingLine.append(chunk);
+            int start = 0;
+            int newlineIndex;
+            while ((newlineIndex = pendingLine.indexOf("\n", start)) >= 0) {
+                int lineEnd = newlineIndex;
+                if (lineEnd > start && pendingLine.charAt(lineEnd - 1) == '\r') {
+                    lineEnd--;
+                }
+                String rawLine = pendingLine.substring(start, lineEnd);
+                start = newlineIndex + 1;
+                AIResponse eventResponse = handleSseLine(rawLine);
                 if (eventResponse != null) {
                     lastResponse = eventResponse;
                 }
+            }
+            pendingLine.delete(0, start);
+        }
+        // 流结束时冲刷缓冲区中残留的最后一行（无换行符结尾）及尚未派发的事件数据
+        if (response.isCompleted()) {
+            if (pendingLine.length() > 0) {
+                AIResponse eventResponse = handleSseLine(pendingLine.toString());
+                pendingLine.setLength(0);
+                if (eventResponse != null) {
+                    lastResponse = eventResponse;
+                }
+            }
+            if (pendingEventData.length() > 0) {
+                AIResponse eventResponse = handleSseEvent(pendingEventType, pendingEventData);
                 pendingEventType = null;
                 pendingEventData.setLength(0);
-                continue;
-            }
-            if (line.startsWith("event:")) {
-                pendingEventType = line.substring(6).trim();
-            } else if (line.startsWith("data:")) {
-                if (pendingEventData.length() > 0) {
-                    pendingEventData.append('\n');
+                if (eventResponse != null) {
+                    lastResponse = eventResponse;
                 }
-                pendingEventData.append(line.substring(5).trim());
             }
         }
         return lastResponse;
+    }
+
+    /**
+     * 处理一条完整的SSE行：空行表示一个SSE事件结束并派发；event:/data: 行则累积到当前事件
+     */
+    private AIResponse handleSseLine(String rawLine) throws IOException {
+        String line = rawLine.trim();
+        if (line.isEmpty()) {
+            // 空行表示一个SSE事件结束，处理已累积的事件
+            AIResponse eventResponse = handleSseEvent(pendingEventType, pendingEventData);
+            pendingEventType = null;
+            pendingEventData.setLength(0);
+            return eventResponse;
+        }
+        if (line.startsWith("event:")) {
+            pendingEventType = line.substring(6).trim();
+        } else if (line.startsWith("data:")) {
+            if (pendingEventData.length() > 0) {
+                pendingEventData.append('\n');
+            }
+            pendingEventData.append(line.substring(5).trim());
+        }
+        return null;
     }
 
     private AIResponse handleSseEvent(String eventType, StringBuilder eventData) throws IOException {
@@ -145,6 +183,7 @@ public class ClaudeAIFunction implements IoFunction<OkResponse, AIResponse> {
                     ToolUseBuffer buffer = toolUseBuffers.get(index);
                     buffer.id = contentBlock.getString("id");
                     buffer.name = contentBlock.getString("name");
+                    handlePartialToolCallsUpdate();
                 }
                 break;
             case "content_block_delta":
@@ -165,6 +204,7 @@ public class ClaudeAIFunction implements IoFunction<OkResponse, AIResponse> {
                     String partialJson = delta.getString("partial_json");
                     if (partialJson != null && toolUseBuffers != null && index < toolUseBuffers.size()) {
                         toolUseBuffers.get(index).inputJson.append(partialJson);
+                        handlePartialToolCallsUpdate();
                     }
                 }
                 break;
@@ -187,6 +227,24 @@ public class ClaudeAIFunction implements IoFunction<OkResponse, AIResponse> {
                 break;
         }
         return accumulated;
+    }
+
+    private void handlePartialToolCallsUpdate() {
+        if (accumulated == null || toolUseBuffers == null || toolUseBuffers.isEmpty()) {
+            return;
+        }
+        Table<AITool> tools = Table.builder();
+        for (ToolUseBuffer buffer : toolUseBuffers) {
+            if (buffer.name == null || buffer.name.isEmpty()) {
+                continue;
+            }
+            AITool tool = AITool.of(buffer.id, buffer.name, buffer.inputJson.toString());
+            tool.setPartial(true);
+            tools.add(tool);
+        }
+        if (!tools.isEmpty()) {
+            accumulated.setTools(tools);
+        }
     }
 
     private void buildFinishedResponse() {
