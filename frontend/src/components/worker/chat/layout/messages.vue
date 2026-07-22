@@ -67,17 +67,50 @@
                     </el-collapse-item>
                   </el-collapse>
                 </div>
+                <!-- 文件修改统计 -->
+                <a-messages-filesystem v-if="midx === round.common.length - 1 && useRoundHasApproval(round)"
+                  :round="round"
+                  :action-key="useRoundActionKey(round, ridx)"
+                  :streaming="isStreamMessageComplete(ridx)"
+                />
                 <!-- 正常文本回复 -->
-                <template v-if="isRoleAssistant(msg.message.role) && useAssistantErrorInfo(msg)">
-                  <div class="error">
+                <template v-if="isRoleAssistant(msg.message.role) && useAssistantFailureInfo(msg)">
+                  <div class="failure">
                     <div class="name inline-flex-r-c-n">
                       <el-icon><WarningFilled /></el-icon>
-                      <div>{{ useAssistantErrorInfo(msg)?.title }}</div>
+                      <div>{{ useAssistantFailureInfo(msg)?.title }}</div>
                     </div>
-                    <div class="meta">{{ useAssistantErrorInfo(msg)?.message }}</div>
-                    <div class="code" v-if="useAssistantErrorInfo(msg)?.meta">{{ useAssistantErrorInfo(msg)?.meta }}</div>
+                    <div class="meta">{{ useAssistantFailureInfo(msg)?.message }}</div>
+                    <div class="code" v-if="useAssistantFailureInfo(msg)?.meta">{{ useAssistantFailureInfo(msg)?.meta }}</div>
                   </div>
                 </template>
+                <!-- 审批弹窗操作 -->
+                <template v-else-if="isRoleAssistant(msg.message.role) && msg.message.approval">
+                  <div class="approval">
+                    <div class="title inline-flex-r-c-n">
+                      <el-icon><WarningFilled /></el-icon>
+                      <div>{{ $t('chat.approval-required-title') }}</div>
+                    </div>
+                    <div class="meta">{{ msg.message.approval.reason }}</div>
+                    <pre class="command">{{ msg.message.approval.command }}</pre>
+                    <div class="operate" v-if="isApprovalPending(msg)">
+                      <a-button size="small" :icon="Close"
+                        @click="handleApprovalSubmit(msg, false)"
+                      >
+                        {{ $t('chat.approval-reject') }}
+                      </a-button>
+                      <a-button size="small" type="success" :icon="Check"
+                        @click="handleApprovalSubmit(msg, true)"
+                      >
+                        {{ $t('chat.approval-approve') }}
+                      </a-button>
+                    </div>
+                    <div class="result" v-else :class="{ 'is-approved': msg.message.approval.status === 'approved' }">
+                      {{ useApprovalStatusText(msg) }}
+                    </div>
+                  </div>
+                </template>
+                <!-- 错误页面展现 -->
                 <template v-else-if="isRoleAssistant(msg.message.role) && msg.message.content?.trim()">
                   <div class="markdown" v-html="markdownItIntance.render(msg.message.content)"
                     :class="{
@@ -107,13 +140,14 @@
                     </transition>
                   </div>
                 </div>
-                <!-- 文件修改统计 -->
-                <a-messages-filesystem v-if="midx === round.common.length - 1"
-                  :round="round"
-                  :action-key="useRoundActionKey(round, ridx)"
-                  :streaming="isStreamMessageComplete(ridx)"
-                />
               </template>
+              <!-- 文件修改统计汇总 -->
+              <a-messages-filesystem v-if="!useRoundHasApproval(round)"
+                :round="round"
+                :action-key="useRoundActionKey(round, ridx)"
+                :streaming="isStreamMessageComplete(ridx)"
+              />
+              <!-- 会话消息操作 -->
               <div class="operation" v-if="!streaming">
                 <el-tooltip effect="dark" placement="top" :content="$t('common.copy')">
                   <el-icon class="icon" @click="handleMessageCopy(useRoundActionKey(round, ridx), useAssistantMessageText(round))">
@@ -129,14 +163,14 @@
               </div>
             </div>
           </div>
-          <!-- 流式消息指示器 -->
+          <!-- 指令流式消息指示器 -->
           <a-messages-indicator v-if="isRoundStreamingIndicatorVisible(round, ridx)"
             :status-text="loadStreamingStatusText"
             :has-context="round.common.length > 0"
             :show-avatar="round.common.length === 0"
           />
         </div>
-        <!-- 流式消息指示器 -->
+        <!-- 通用流式消息指示器 -->
         <a-messages-indicator v-if="isShowStandaloneStreamingIndicator" standalone
           :status-text="loadStreamingStatusText"
         />
@@ -185,6 +219,7 @@ const props = defineProps<{
 const handleEmit = defineEmits<{
   (e: 'resend', payload: { message: any, content: string }): void
   (e: 'fork', payload: { round: FormatRound, ridx: number }): void
+  (e: 'approval', payload: { message: any, approved: boolean }): void
 }>()
 
 const i18n = useI18n()
@@ -226,6 +261,23 @@ const loadLastUserMessage = computed(() => {
 const isRoleAssistant = (role: string) => {
   return role === 'assistant'
 }
+const isApprovalPending = (message: any): boolean => {
+  return message?.message?.approval?.status === 'pending'
+}
+const useRoundHasApproval = (round: FormatRound): boolean => {
+  return round.common.some(data => data?.message?.approval)
+}
+const useApprovalStatusText = (message: any): string => {
+  const status = message?.message?.approval?.status
+  if (status === 'approved') return i18n.t('chat.approval-approved')
+  if (status === 'rejected') return i18n.t('chat.approval-rejected')
+  if (status === 'expired') return i18n.t('chat.approval-expired')
+  return i18n.t('chat.approval-processed')
+}
+const handleApprovalSubmit = (message: any, approved: boolean) => {
+  if (!isApprovalPending(message)) return
+  handleEmit('approval', { message, approved })
+}
 
 const handleStepSwitch = (key: string) => {
   const next = new Set(loadOpenedSteps.value)
@@ -264,18 +316,21 @@ const handleMaybeJsonParse = (value: string): any => {
     .filter(line => line && line !== '[DONE]')
   const candidates = ssePayloads.length > 0 ? ssePayloads : [text]
   for (const candidate of candidates) {
-    if (!candidate.startsWith('{') && !candidate.startsWith('[')) {
+    const jsonCandidate = candidate.startsWith('{') || candidate.startsWith('[')
+      ? candidate
+      : candidate.slice(candidate.indexOf('{'), candidate.lastIndexOf('}') + 1)
+    if (!jsonCandidate.startsWith('{') && !jsonCandidate.startsWith('[')) {
       continue
     }
     try {
-      return JSON.parse(candidate)
+      return JSON.parse(jsonCandidate)
     } catch {
       continue
     }
   }
   return null
 }
-const useAssistantErrorInfo = (data: any) => {
+const useAssistantFailureInfo = (data: any) => {
   const message = data?.message || {}
   const status = Number(message.status)
   const hasHttpStatusError = Number.isFinite(status) && status > 0 && status !== 200
@@ -284,13 +339,17 @@ const useAssistantErrorInfo = (data: any) => {
   const payload = typeof content === 'string' ? handleMaybeJsonParse(content) : null
   const code = Number(payload?.code)
   const hasBusinessError = payload && Number.isFinite(code) && code !== 0 && code !== 200
-  if (!hasHttpStatusError && !hasFailedStatus && !hasBusinessError) {
+  const hasStructuredError = Boolean(payload?.error)
+  if (!hasHttpStatusError && !hasFailedStatus && !hasBusinessError && !hasStructuredError) {
     return null
   }
   const detail = payload?.message || payload?.error?.message || payload?.error || content || i18n.t('error.network-error')
   const meta = [
     hasHttpStatusError ? `HTTP ${status}` : '',
-    hasBusinessError ? `Code ${code}` : ''
+    hasBusinessError ? `Code ${code}` : '',
+    hasStructuredError && payload?.error?.code ? `Code ${payload.error.code}` : '',
+    hasStructuredError && payload?.error?.type ? payload.error.type : '',
+    hasStructuredError && payload?.error?.trace_id ? `Trace ${payload.error.trace_id}` : ''
   ].filter(Boolean).join(' · ')
   return {
     title: i18n.t('common.error'),
@@ -302,9 +361,9 @@ const useAssistantMessageText = (round: FormatRound): string => {
   return round.common
     .filter(data => isRoleAssistant(data.message?.role))
     .map(data => {
-      const error = useAssistantErrorInfo(data)
-      if (error) {
-        return [error.title, error.message, error.meta].filter(Boolean).join('\n')
+      const failure = useAssistantFailureInfo(data)
+      if (failure) {
+        return [failure.title, failure.message, failure.meta].filter(Boolean).join('\n')
       }
       return [data.message?.reasoning, data.message?.content].filter(Boolean).join('\n\n')
     })

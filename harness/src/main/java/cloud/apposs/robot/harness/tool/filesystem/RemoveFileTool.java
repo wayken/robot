@@ -1,7 +1,9 @@
 package cloud.apposs.robot.harness.tool.filesystem;
 
+import cloud.apposs.react.IoSubscriber;
 import cloud.apposs.react.React;
 import cloud.apposs.robot.harness.bus.IMessageHook;
+import cloud.apposs.robot.harness.bus.ToolApprovalRequest;
 import cloud.apposs.robot.harness.tool.ITool;
 import cloud.apposs.robot.harness.util.PathUtil;
 import cloud.apposs.robot.harness.util.Strings;
@@ -70,12 +72,37 @@ public class RemoveFileTool implements ITool {
         }
         try {
             long bytes = Files.size(pathResolved);
-            Files.delete(pathResolved);
-            return React.just("File " + path + " removed successfully, bytes removed: " + bytes);
+            String operation = "remove_file " + pathResolved;
+            String reason = "dangerous file operation: deleting a regular file (" + bytes + " bytes)";
+            if (messageHook == null) {
+                return React.just("Error: File removal blocked by safety guard: " + reason);
+            }
+            return React.create(subscriber -> {
+                @SuppressWarnings("unchecked")
+                ToolApprovalRequest request = new ToolApprovalRequest(operation, reason,
+                        (IoSubscriber<String>) subscriber, () -> handleFileRemove(path, pathResolved, bytes));
+                try {
+                    messageHook.onApprovalRequired(sid, rid, request);
+                } catch (Exception e) {
+                    subscriber.onNext("Error: Failed to request approval: " + e.getMessage());
+                    subscriber.onCompleted();
+                }
+            });
         } catch (NoSuchFileException e) {
             return React.just("Error: file not found at path: " + path);
         } catch (Exception e) {
             return React.just("Error: failed to remove file at path: " + path + ". " + e.getMessage());
+        }
+    }
+
+    private String handleFileRemove(String path, Path pathResolved, long bytes) {
+        try {
+            Files.delete(pathResolved);
+            return "File " + path + " removed successfully, bytes removed: " + bytes;
+        } catch (NoSuchFileException e) {
+            return "Error: file not found at path: " + path;
+        } catch (Exception e) {
+            return "Error: failed to remove file at path: " + path + ". " + e.getMessage();
         }
     }
 }

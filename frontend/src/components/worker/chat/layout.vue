@@ -8,6 +8,7 @@
     <a-messages ref="loadMessagesRef" :loading="progression.loading"
       :messages="infomation"
       :streaming="isStreaming"
+      @approval="handleApprovalSubmit"
       @fork="handleMessageFork"
       @resend="handleMessageResend"
     />
@@ -113,7 +114,7 @@ const handleDataLoad = (sessionId: string) => {
         // 仅合并尚未落库的"进行中"增量（通常是最后一轮）
         const matched = infomation.value.find(info => info.id === message.id)
         if (matched) {
-          matched.message = { ...matched.message, ...message.message }
+          handleMessageMerge(matched, message)
         } else {
           infomation.value.push(message)
         }
@@ -192,7 +193,7 @@ const handleMessageListenOn = () => {
     }
     const matched = infomation.value.find(info => info.id === response.id)
     if (matched) {
-      matched.message = { ...matched.message, ...response.message }
+      handleMessageMerge(matched, response)
     } else {
       infomation.value.push(response)
     }
@@ -234,6 +235,16 @@ const handleMessageListenOn = () => {
       }, 120)
     }
   })
+}
+const handleMessageMerge = (target: any, source: any) => {
+  const nextMessage = { ...target.message, ...source.message }
+  if (target.message?.approval || source.message?.approval) {
+    nextMessage.approval = {
+      ...(target.message?.approval || {}),
+      ...(source.message?.approval || {})
+    }
+  }
+  Object.assign(target, source, { message: nextMessage })
 }
 const handlePromotionFocus = () => {
   nextTick(() => {
@@ -343,6 +354,24 @@ const handleMessageCancel = async () => {
       handleSessionMessagesRefresh(sessionId)
     }, 120)
   })
+}
+const handleApprovalSubmit = async (payload: { message: any, approved: boolean }) => {
+  const approval = payload.message?.message?.approval
+  if (!approval?.id || approval.status !== 'pending') return
+  const params = {
+    id: approval.id,
+    sid: payload.message.sid,
+    rid: payload.message.rid,
+    approved: payload.approved
+  }
+  const accepted = await ioRequest('message.approval', params)
+  if (!accepted[0]) {
+    approval.status = 'expired'
+    ElMessage.warning(i18n.t('chat.approval-expired'))
+    return
+  }
+  approval.status = payload.approved ? 'approved' : 'rejected'
+  approval.approved = payload.approved
 }
 const handleMessageTruncate = (payload: any) => {
   const sessionId = payload.sid

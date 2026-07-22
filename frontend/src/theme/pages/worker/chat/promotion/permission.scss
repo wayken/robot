@@ -1,0 +1,47 @@
+.permission {
+  height: 34px;
+  cursor: pointer;
+  padding: 0 14px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  color: var(--el-color-warning);
+  border: 1px solid var(--el-color-warning);
+  background: rgba(230, 162, 60, 0.08);
+  &:hover {
+    color: #ffffff;
+    background: var(--el-color-warning);
+  }
+  &.is-full-access {
+    color: var(--el-color-danger);
+    border-color: var(--el-color-danger);
+    background: rgba(245, 108, 108, 0.08);
+    &:hover {
+      color: #ffffff;
+      background: var(--el-color-danger);
+    }
+  }
+  .label {
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+}
+
+.permission-menu {
+  .permission-unit {
+    max-width: 260px;
+    padding: 4px 0;
+    .name {
+      gap: 6px;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 600;
+    }
+    .description {
+      margin-top: 2px;
+      font-size: 12px;
+      line-height: 18px;
+      white-space: normal;
+      color: var(--el-text-color-secondary);
+    }
+  }
+}

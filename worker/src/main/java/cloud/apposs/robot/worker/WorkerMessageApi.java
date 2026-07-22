@@ -25,6 +25,7 @@ import cloud.apposs.websocket.protocol.Metadata;
 public class WorkerMessageApi {
     public static final String COMMAND_MESSAGE_COMMIT = "message.commit";
     public static final String COMMAND_MESSAGE_RESPONSE = "message.response";
+    public static final String COMMAND_MESSAGE_APPROVAL = "message.approval";
     public static final String COMMAND_MESSAGE_INTERRUPT = "message.interrupt";
     public static final String COMMAND_MESSAGE_TRUNCATE = "message.truncate";
     public static final String COMMAND_BROADCAST_STATUS = "message.broadcast.status";
@@ -85,6 +86,18 @@ public class WorkerMessageApi {
         handleStatusBroadcast(message.getWid(), message.getSid(), false);
     }
 
+    @OnCommand(COMMAND_MESSAGE_APPROVAL)
+    public void approval(WSSession session, Metadata metadata, MessageModel.Approval message) throws Exception {
+        boolean approved = Boolean.TRUE.equals(message.getApproved());
+        boolean accepted = WorkerMessageHook.approve(message.getId(), approved);
+        if (metadata != null) {
+            session.sendResponse(metadata.getCommandId(), accepted);
+        }
+        if (accepted) {
+            handleApprovalBroadcast(message, approved);
+        }
+    }
+
     @OnConnect
     public void onConnect(WSSession session) {
         namespace = session.getNamespace();
@@ -121,6 +134,26 @@ public class WorkerMessageApi {
                 .setString("message", message.getMessage());
         for (WSSession session : namespace.getSessions()) {
             session.sendCommand(COMMAND_BROADCAST_TRUNCATE, infomation);
+        }
+    }
+
+    private void handleApprovalBroadcast(MessageModel.Approval message, boolean approved) throws Exception {
+        if (namespace == null) {
+            return;
+        }
+        Param approval = Param.builder("id", message.getId())
+                .setString("status", approved ? "approved" : "rejected")
+                .setBoolean("approved", approved);
+        Param infomation = Param.builder("id", message.getId())
+                .setString("sid", message.getSid())
+                .setString("rid", message.getRid())
+                .setBoolean("finished", false)
+                .setBoolean("approval", true)
+                .setParam("message", Param.builder("role", "assistant")
+                        .setString("content", "")
+                        .setParam("approval", approval));
+        for (WSSession wsSession : namespace.getSessions()) {
+            wsSession.sendCommand(COMMAND_MESSAGE_RESPONSE, infomation);
         }
     }
 }

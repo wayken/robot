@@ -31,6 +31,9 @@
             <a-svg-icon icon-class="skill" size="18px" />
             <div class="label">{{ $t('skill.use') }}</div>
           </div>
+          <!-- 权限选择弹窗 -->
+          <a-security-permission />
+          <!-- 分组列表弹窗 -->
           <a-mission :session-id="loadSessionId" @update="handleMissionUpdate" />
         </div>
         <div class="summation inline-flex-r-c-n">
@@ -65,6 +68,7 @@ import {
 } from '@element-plus/icons-vue'
 import ASkill from './promotion/skill.vue'
 import AMission from './promotion/mission.vue'
+import ASecurityPermission from './promotion/permission.vue'
 
 interface SkillItem {
   name: string

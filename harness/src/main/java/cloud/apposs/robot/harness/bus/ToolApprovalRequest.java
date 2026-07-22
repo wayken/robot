@@ -49,7 +49,7 @@ public class ToolApprovalRequest {
             if (approved) {
                 subscriber.onNext(function.call());
             } else {
-                subscriber.onNext("Command execution denied by user: " + command);
+                subscriber.onNext("Operation execution denied by user: " + command);
             }
             subscriber.onCompleted();
         } catch (Throwable t) {

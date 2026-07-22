@@ -1,8 +1,5 @@
 package cloud.apposs.robot.harness.provider;
 
-import cloud.apposs.robot.harness.tool.filesystem.EditFileTool;
-import cloud.apposs.robot.harness.tool.filesystem.RemoveFileTool;
-import cloud.apposs.robot.harness.tool.filesystem.WriteFileTool;
 import cloud.apposs.util.JsonUtil;
 import cloud.apposs.util.Param;
 
@@ -123,9 +120,9 @@ public class AITool {
             return null;
         }
         String normalized = toolName.trim().toLowerCase();
-        boolean isEdit = EditFileTool.NAME.equals(normalized);
-        boolean isWrite = WriteFileTool.NAME.equals(normalized);
-        boolean isDelete = RemoveFileTool.NAME.equals(normalized);
+        boolean isEdit = "edit_file".equals(normalized);
+        boolean isWrite = "write_file".equals(normalized);
+        boolean isDelete = normalized.contains("delete_file") || normalized.contains("remove_file");
         if (!isEdit && !isWrite && !isDelete) {
             return null;
         }

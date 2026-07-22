@@ -1,7 +1,9 @@
 package cloud.apposs.robot.harness.tool.filesystem;
 
+import cloud.apposs.react.IoSubscriber;
 import cloud.apposs.react.React;
 import cloud.apposs.robot.harness.bus.IMessageHook;
+import cloud.apposs.robot.harness.bus.ToolApprovalRequest;
 import cloud.apposs.robot.harness.tool.ITool;
 import cloud.apposs.robot.harness.util.PathUtil;
 import cloud.apposs.robot.harness.util.Strings;
@@ -94,17 +96,43 @@ public class EditFileTool implements ITool {
             if (!content.contains(oldText)) {
                 return React.just("Error: oldText not found in file: " + oldText);
             }
+            String nextContent;
             if (replaceAll) {
-                content = content.replace(oldText, newText);
+                nextContent = content.replace(oldText, newText);
             } else {
-                content = content.replaceFirst(Pattern.quote(oldText), Matcher.quoteReplacement(newText));
+                nextContent = content.replaceFirst(Pattern.quote(oldText), Matcher.quoteReplacement(newText));
             }
-            Files.write(pathResolved, content.getBytes(StandardCharsets.UTF_8));
-            return React.just("File edited successfully.");
+            String operation = "edit_file " + pathResolved;
+            String reason = "dangerous file operation: editing a regular file";
+            if (messageHook == null) {
+                return React.just("Error: File edit blocked by safety guard: " + reason);
+            }
+            return React.create(subscriber -> {
+                @SuppressWarnings("unchecked")
+                ToolApprovalRequest request = new ToolApprovalRequest(operation, reason,
+                        (IoSubscriber<String>) subscriber, () -> handleFileEdit(path, pathResolved, nextContent));
+                try {
+                    messageHook.onApprovalRequired(sid, rid, request);
+                } catch (Exception e) {
+                    subscriber.onNext("Error: Failed to request approval: " + e.getMessage());
+                    subscriber.onCompleted();
+                }
+            });
         } catch (NoSuchFileException e) {
             return React.just("Error: file not found at path: " + path);
         } catch (Exception e) {
             return React.just("Error: failed to edit file at path: " + path + ". " + e.getMessage());
+        }
+    }
+
+    private String handleFileEdit(String path, Path pathResolved, String content) {
+        try {
+            Files.write(pathResolved, content.getBytes(StandardCharsets.UTF_8));
+            return "File edited successfully.";
+        } catch (NoSuchFileException e) {
+            return "Error: file not found at path: " + path;
+        } catch (Exception e) {
+            return "Error: failed to edit file at path: " + path + ". " + e.getMessage();
         }
     }
 }

@@ -56,120 +56,6 @@
         border-top: 1px solid var(--var-theme-primary-4);
       }
     }
-    .filesystem {
-      overflow: hidden;
-      border-radius: 8px;
-      margin: 12px 0 0 12px;
-      border: 1px solid var(--var-menu-border-color);
-      background-color: var(--var-card-background-color);
-      .head {
-        margin: 0;
-        height: 72px;
-        display: flex;
-        padding: 0 14px;
-        align-items: center;
-        border-bottom: 1px solid var(--var-menu-border-color);
-      }
-      .icon {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        flex-shrink: 0;
-        font-size: 20px;
-        margin-right: 12px;
-        border-radius: 5px;
-        align-items: center;
-        justify-content: center;
-        color: var(--var-theme-primary-4);
-        background-color: var(--var-module-hover-color);
-      }
-      .summary {
-        flex: 1;
-        min-width: 0;
-      }
-      .title {
-        font-size: 15px;
-        line-height: 1.8;
-      }
-      .stat, .numbers {
-        gap: 6px;
-        display: flex;
-        font-size: 14px;
-        line-height: 1.8;
-        align-items: center;
-      }
-      .body {
-        overflow: auto;
-        max-height: 480px;
-      }
-      .unit {
-        height: 52px;
-        display: flex;
-        margin: 8px 0;
-        padding: 0 14px;
-        font-size: 15px;
-        cursor: pointer;
-        border-radius: 3px;
-        border: 1px solid transparent;
-        align-items: center;
-        color: var(--var-default-font-color);
-        &:hover {
-          color: var(--var-theme-primary-4);
-          background-color: var(--var-module-hover-color);
-        }
-        &.is-disabled {
-          cursor: not-allowed;
-          opacity: 0.65;
-          &:hover {
-            color: var(--var-default-font-color);
-            background-color: transparent;
-          }
-        }
-      }
-      .file-icon {
-        flex-shrink: 0;
-        margin-right: 4px;
-      }
-      .path {
-        flex: 1;
-        overflow: hidden;
-        margin-right: 14px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-      .numbers {
-        font-size: 14px;
-      }
-      .foot {
-        gap: 6px;
-        height: 42px;
-        display: flex;
-        cursor: pointer;
-        padding: 0 14px;
-        font-size: 14px;
-        align-items: center;
-        color: var(--var-default-font-color);
-        &:hover {
-          background-color: var(--var-module-hover-color);
-        }
-        > i {
-          font-size: 14px;
-          margin-right: 4px;
-          transition: transform 0.25s ease;
-        }
-        &.is-opened {
-          > i {
-            transform: rotate(180deg);
-          }
-        }
-      }
-      .is-addition {
-        color: #00a152;
-      }
-      .is-deletion {
-        color: #d93025;
-      }
-    }
     &.is-user {
       flex-direction: row-reverse;
       .avatar {
@@ -244,7 +130,7 @@
         background-color: var(--var-theme-primary-1);
       }
     }
-    .error {
+    .failure {
       width: 100%;
       color: #f56c6c;
       padding: 12px 14px;
@@ -267,6 +153,51 @@
       }
       .code {
         font-size: 14px;
+      }
+    }
+    .approval {
+      margin: 10px 0;
+      color: #3f3420;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 12px 0 12px 12px;
+      border: 1px solid #f0c36d;
+      background-color: #fff8e6;
+      .title {
+        font-size: 14px;
+        color: #9a5b00;
+        > i {
+          font-size: 18px;
+          margin-right: 4px;
+        }
+      }
+      .meta {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #6f5a37;
+      }
+      .command {
+        overflow: auto;
+        color: #fff7e0;
+        margin: 10px 0 0;
+        padding: 12px 22px;
+        border-radius: 6px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background-color: #2b251b;
+      }
+      .operate {
+        gap: 8px;
+        display: flex;
+        margin-top: 12px;
+      }
+      .result {
+        margin-top: 12px;
+        color: #a14141;
+        &.is-approved {
+          color: #3d7a45;
+        }
       }
     }
     &:hover {
@@ -410,6 +341,7 @@
       }
     }
   }
+  @import './filesystem.scss';
 }
 
 @keyframes indicator-dot-bounce {

@@ -41,7 +41,7 @@
       </div>
     </div>
   </div>
-  <a-monaco-view drawer close-on-click-modal close-on-press-escape width="860px"
+  <a-monaco-view drawer close-on-click-modal close-on-press-escape
     :visible="loadMonacoPreview.visible"
     :filename="loadMonacoPreview.filename"
     :content="loadMonacoPreview.content"

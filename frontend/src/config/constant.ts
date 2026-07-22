@@ -22,6 +22,10 @@ const X_Auth_Token = 'X-Auth-Token'
 const VCODE_BIZ_LOGIN = 1
 const VCODE_BIZ_SIGNUP = 2
 
+// 安全权限相关
+const SECURITY_PERMISSION_FULL_ACCESS = 'full_access'
+const SECURITY_PERMISSION_REQUEST_APPROVAL = 'request_approval'
+
 export default {
   LOCAL_LANG,
   LOCAL_APPERANCE,
@@ -49,5 +53,7 @@ export default {
     CONNECT_FAIL: 3
   },
   VCODE_BIZ_LOGIN,
-  VCODE_BIZ_SIGNUP
+  VCODE_BIZ_SIGNUP,
+  SECURITY_PERMISSION_FULL_ACCESS,
+  SECURITY_PERMISSION_REQUEST_APPROVAL
 }

@@ -3,6 +3,8 @@ package cloud.apposs.robot.worker;
 import cloud.apposs.ioc.annotation.Autowired;
 import cloud.apposs.robot.harness.HarnessWorker;
 import cloud.apposs.robot.harness.setting.AIProviderSetting;
+import cloud.apposs.robot.worker.message.WorkerMessageHook;
+import cloud.apposs.robot.worker.message.WorkerSecurityPolicy;
 import cloud.apposs.robot.worker.service.*;
 import cloud.apposs.robot.worker.service.model.*;
 import cloud.apposs.util.Param;
@@ -108,7 +110,28 @@ public class WorkerWSApi {
     @OnCommand("message.index")
     public void sessionMessageIndex(WSSession session, Metadata metadata, MessageModel.Index request) throws Exception {
         Table<Param> messageList = messagesService.getMessageList(request.getWid(), request.getSid());
+        for (Param approval : WorkerMessageHook.pending(request.getSid())) {
+            messageList.add(approval);
+        }
         session.sendResponse(metadata.getCommandId(), messageList);
+    }
+
+    @OnCommand("security.permission.index")
+    public void securityPermissionIndex(WSSession session, Metadata metadata) throws Exception {
+        session.sendResponse(metadata.getCommandId(), WorkerSecurityPolicy.toParam());
+    }
+
+    @OnCommand("security.permission.update")
+    public void securityPermissionUpdate(WSSession session, Metadata metadata, MessageModel.SecurityPermission request) throws Exception {
+        String permission = WorkerSecurityPolicy.setPermission(request.getPermission());
+        Param infomation = WorkerSecurityPolicy.toParam();
+        session.sendResponse(metadata.getCommandId(), infomation);
+        handleSecurityPermissionBroadcast(session, infomation);
+        if (WorkerSecurityPolicy.FULL_ACCESS.equals(permission)) {
+            for (Param approval : WorkerMessageHook.onApprovePending(true)) {
+                handleMessageResponseBroadcast(session, approval);
+            }
+        }
     }
 
     @OnCommand("message.remove")
@@ -474,6 +497,18 @@ public class WorkerWSApi {
         Table<Param> sessionList = sessionsService.getSessionList(request);
         for (WSSession remoteSession : session.getNamespace().getSessions()) {
             remoteSession.sendCommand("message.index.broadcast", wid, sessionList);
+        }
+    }
+
+    private void handleSecurityPermissionBroadcast(WSSession session, Param infomation) throws Exception {
+        for (WSSession remoteSession : session.getNamespace().getSessions()) {
+            remoteSession.sendCommand("security.permission.broadcast", infomation);
+        }
+    }
+
+    private void handleMessageResponseBroadcast(WSSession session, Param infomation) throws Exception {
+        for (WSSession remoteSession : session.getNamespace().getSessions()) {
+            remoteSession.sendCommand(WorkerMessageApi.COMMAND_MESSAGE_RESPONSE, infomation);
         }
     }
 }
