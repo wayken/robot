@@ -88,7 +88,7 @@
       </div>
     </transition>
     <!-- 图片预览弹窗 -->
-    <a-view-image :visible="loadImagePreview.visible"
+    <a-image-view :visible="loadImagePreview.visible"
       :image="loadImagePreview.current"
       :single="loadImageList.length <= 1"
       @prev="handleImagePreviewPrev"
@@ -96,7 +96,7 @@
       @close="handleImagePreviewClose"
     />
     <!-- 文本编辑弹窗 -->
-    <a-view-monaco :visible="loadMonacoPreview.visible"
+    <a-monaco-view :visible="loadMonacoPreview.visible"
       :content="loadMonacoPreview.content"
       :filename="loadMonacoPreview.filename"
       @save="handleMonacoSave"
@@ -148,9 +148,9 @@ import {
 } from '@/utils/filetype'
 import useSocketIO from '@/hooks/useSocketIO'
 import { useFileDialog } from '@/utils/dom'
-import AViewImage from '@/components/worker/view/image.vue'
+import AImageView from '@/components/worker/view/image.vue'
 import ACheckbox from '@/components/common/checkbox/index.vue'
-import AViewMonaco from '@/components/worker/view/monaco.vue'
+import AMonacoView from '@/components/worker/view/monaco.vue'
 import ADiskContextmenu from '@/components/worker/disk/mine/contextmenu.vue'
 import ADiskWindow from '@/components/worker/disk/mine/window.vue'
 

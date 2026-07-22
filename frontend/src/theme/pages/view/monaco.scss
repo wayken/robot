@@ -1,4 +1,4 @@
-.a-view-monaco {
+.a-monaco-view {
   position: fixed;
   top: 0;
   bottom: 0;
@@ -8,12 +8,37 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  &.is-drawer {
+    align-items: stretch;
+    justify-content: flex-end;
+    .main {
+      width: 880px;
+      height: 100%;
+      border-radius: 5px 0 0 5px;
+      animation: monaco-drawer-in 0.26s ease;
+      box-shadow: -8px 0 24px rgba(0, 0, 0, 0.16);
+      &.is-fullscreen {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+    &.is-closing {
+      .mask {
+        opacity: 0;
+      }
+      .main {
+        animation: monaco-drawer-out 0.26s ease forwards;
+      }
+    }
+  }
   .mask {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
+    opacity: 1;
+    transition: opacity 0.26s ease;
     background: rgba(0, 0, 0, 0.18);
   }
   .main {
@@ -82,5 +107,23 @@
   .monaco {
     flex: 1;
     overflow: hidden;
+  }
+}
+
+@keyframes monaco-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes monaco-drawer-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
   }
 }

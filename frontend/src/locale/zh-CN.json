@@ -358,6 +358,9 @@
     "file-update-completed-mixed": "已修改 {editing} 个、删除 {deleting} 个文件",
     "file-update-completed-delete": "已删除 {count} 个文件",
     "file-update-completed-edit": "已修改 {count} 个文件",
+    "file-update-preview-deleted": "文件已删除，无法打开",
+    "file-update-preview-forbidden": "仅支持打开 disk 目录下的文件",
+    "file-update-save-success": "文件保存成功",
     "tool": {
       "schedule": "定时任务",
       "edit_file": "编辑文件",

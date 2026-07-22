@@ -1,5 +1,5 @@
 <template>
-  <div class="a-view-image" v-if="visible">
+  <div class="a-image-view" v-if="visible">
     <div class="mask" @click="handleClose"></div>
     <div class="source" @mousewheel.prevent="handleImageZoom">
       <img :src="image.url"

@@ -108,41 +108,11 @@
                   </div>
                 </div>
                 <!-- 文件修改统计 -->
-                <div class="filesystem" v-if="midx === round.common.length - 1 && useRoundFileUpdateSummary(round, ridx).items.length">
-                  <div class="head">
-                    <div class="icon">
-                      <el-icon size="24px"><Document /></el-icon>
-                    </div>
-                    <div class="summary">
-                      <div class="title">{{ useRoundFileUpdateTitle(round, ridx) }}</div>
-                      <div class="stat">
-                        <div class="is-addition">+{{ useRoundFileUpdateSummary(round, ridx).additions }}</div>
-                        <div class="is-deletion">-{{ useRoundFileUpdateSummary(round, ridx).deletions }}</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="body" v-show="isFileUpdateOpened(useRoundActionKey(round, ridx))">
-                      <div class="row" v-for="file in useRoundFileUpdateSummary(round, ridx).items" :key="file.path">
-                        <a-svg-icon class="file-icon" :icon-class="loadFileIconByName(file.path, false)" size="42px" />
-                        <div class="path">{{ file.path }}</div>
-                        <div class="numbers">
-                        <div class="is-addition">+{{ file.additions }}</div>
-                        <div class="is-deletion">-{{ file.deletions }}</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="foot"
-                    :class="{
-                      'is-opened': isFileUpdateOpened(useRoundActionKey(round, ridx))
-                    }"
-                    @click="handleFileUpdateSwitch(useRoundActionKey(round, ridx))"
-                  >
-                    <el-icon><ArrowDown /></el-icon>
-                    <div>
-                      {{ isFileUpdateOpened(useRoundActionKey(round, ridx)) ? $t('chat.open-update-file') : $t('chat.close-update-file') }}
-                    </div>
-                  </div>
-                </div>
+                <a-messages-filesystem v-if="midx === round.common.length - 1"
+                  :round="round"
+                  :action-key="useRoundActionKey(round, ridx)"
+                  :streaming="isStreamMessageComplete(ridx)"
+                />
               </template>
               <div class="operation" v-if="!streaming">
                 <el-tooltip effect="dark" placement="top" :content="$t('common.copy')">
@@ -185,8 +155,6 @@ import {
   Close,
   Select,
   Setting,
-  Document,
-  ArrowDown,
   ArrowRight,
   KnifeFork,
   UserFilled,
@@ -196,33 +164,16 @@ import {
 } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
 import { useTextClipboard } from '@/utils/dom'
-import { loadFileIconByName } from '@/utils/filetype'
 import useMarkdownIt from '@/marksuit/hook/useMarkdownIt'
 import AMessagesWelcome from './messages/welcome.vue'
 import AMessagesIndicator from './messages/indicator.vue'
+import AMessagesFilesystem from './messages/filesystem.vue'
 import ARobotHead from '@/components/common/robot/head.vue'
 import IconImage from '@/assets/images/providers/deepseek.png'
 
 interface FormatRound {
   user: any
   common: any[]
-}
-
-interface FileUpdateItem {
-  path: string
-  operation: 'edit' | 'write' | 'delete'
-  additions: number
-  deletions: number
-  pending: boolean
-}
-
-interface FileUpdateSummary {
-  items: FileUpdateItem[]
-  editing: number
-  deleting: number
-  additions: number
-  deletions: number
-  pending: boolean
 }
 
 const props = defineProps<{
@@ -240,7 +191,6 @@ const i18n = useI18n()
 let loadCopiedMessageTimer: number | undefined
 const loadOpenedSteps = ref(new Set<string>())
 const loadOpenedReasonings = ref<string[]>([])
-const loadClosedFileUpdate = ref(new Set<string>())
 const loadCopiedMessageKey = ref('')
 const loadEditingMessageKey = ref('')
 const loadEditingMessageContent = ref('')
@@ -249,12 +199,6 @@ const loadEditInputRef = ref<HTMLTextAreaElement | null>(null)
 
 let markdownItIntance: MarkdownIt = useMarkdownIt({
   isCodeCopy: true
-})
-
-onUnmounted(() => {
-  if (loadCopiedMessageTimer) {
-    window.clearTimeout(loadCopiedMessageTimer)
-  }
 })
 
 // 按会话迭代ID分组，每组包含一条用户消息 + 若干迭代消息
@@ -301,44 +245,6 @@ const handleToolArgumentsFormat = (args: any): string => {
     return typeof args === 'string' ? args : JSON.stringify(args, null, 2)
   }
 }
-const handleToolArgumentsParse = (args: any): any => {
-  if (!args) return null
-  if (typeof args !== 'string') return args
-  try {
-    return JSON.parse(args)
-  } catch {
-    return null
-  }
-}
-const handleTextLines = (value: string = ''): string[] => {
-  if (!value) return []
-  const lines = value.split(/\r\n|\r|\n/)
-  if (lines[lines.length - 1] === '') {
-    lines.pop()
-  }
-  return lines
-}
-const handleLineDiffStats = (oldValue: string = '', newValue: string = '') => {
-  const oldLines = handleTextLines(oldValue)
-  const newLines = handleTextLines(newValue)
-  if (oldLines.length * newLines.length > 200000) {
-    return {
-      additions: newLines.length,
-      deletions: oldLines.length
-    }
-  }
-  const lcs = Array.from({ length: oldLines.length + 1 }, () => Array(newLines.length + 1).fill(0))
-  for (let i = oldLines.length - 1; i >= 0; i--) {
-    for (let j = newLines.length - 1; j >= 0; j--) {
-      lcs[i][j] = oldLines[i] === newLines[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1])
-    }
-  }
-  const common = lcs[0][0]
-  return {
-    additions: Math.max(newLines.length - common, 0),
-    deletions: Math.max(oldLines.length - common, 0)
-  }
-}
 const isFileUpdateTool = (tool: any): boolean => {
   if (tool?.fileUpdate?.path) return true
   const name = String(tool?.name || '').toLowerCase()
@@ -346,103 +252,6 @@ const isFileUpdateTool = (tool: any): boolean => {
 }
 const useVisibleTools = (tools: any[] = []) => {
   return tools.filter(tool => !isFileUpdateTool(tool))
-}
-const useToolFileUpdate = (tool: any): FileUpdateItem | null => {
-  if (!tool || !isFileUpdateTool(tool)) return null
-  const metadata = tool.fileUpdate || {}
-  const args = handleToolArgumentsParse(tool.arguments) || {}
-  const name = String(tool.name || '').toLowerCase()
-  const path = metadata.path || args.path || args.file_path || args.filename || args.target_path
-  if (!path) return null
-  const operation = metadata.operation || (name === 'write_file' ? 'write' : (name.includes('delete') || name.includes('remove') ? 'delete' : 'edit'))
-  const fallback = operation === 'write'
-    ? { additions: handleTextLines(args.content || '').length, deletions: 0 }
-    : operation === 'edit'
-      ? handleLineDiffStats(args.oldText || args.old_string || args.old || '', args.newText || args.new_string || args.new || '')
-      : { additions: 0, deletions: 0 }
-  return {
-    path,
-    operation,
-    additions: Number(metadata.additions ?? fallback.additions ?? 0),
-    deletions: Number(metadata.deletions ?? fallback.deletions ?? 0),
-    pending: tool.success !== true
-  }
-}
-const useRoundFileUpdateSummary = (round: FormatRound, ridx: number): FileUpdateSummary => {
-  const mapping = new Map<string, FileUpdateItem>()
-  for (const message of round.common) {
-    const tools = message.message?.tools || []
-    for (const tool of tools) {
-      const change = useToolFileUpdate(tool)
-      if (!change) continue
-      const matched = mapping.get(change.path)
-      if (matched) {
-        matched.additions += change.additions
-        matched.deletions += change.deletions
-        matched.pending = matched.pending || change.pending
-        if (change.operation === 'delete') {
-          matched.operation = 'delete'
-        }
-      } else {
-        mapping.set(change.path, { ...change })
-      }
-    }
-  }
-  const items = Array.from(mapping.values())
-  const isStreamingRound = isStreamMessageComplete(ridx)
-  return {
-    items,
-    editing: items.filter(item => item.operation !== 'delete').length,
-    deleting: items.filter(item => item.operation === 'delete').length,
-    additions: items.reduce((total, item) => total + item.additions, 0),
-    deletions: items.reduce((total, item) => total + item.deletions, 0),
-    pending: isStreamingRound && items.some(item => item.pending)
-  }
-}
-const useRoundFileUpdateTitle = (round: FormatRound, ridx: number): string => {
-  const summary = useRoundFileUpdateSummary(round, ridx)
-  if (summary.pending) {
-    if (summary.editing > 0 && summary.deleting > 0) {
-      return i18n.t('chat.file-update-pending-mixed', {
-        editing: summary.editing,
-        deleting: summary.deleting
-      })
-    }
-    if (summary.deleting > 0) {
-      return i18n.t('chat.file-update-pending-delete', {
-        count: summary.deleting
-      })
-    }
-    return i18n.t('chat.file-update-pending-edit', {
-      count: summary.editing
-    })
-  }
-  if (summary.editing > 0 && summary.deleting > 0) {
-    return i18n.t('chat.file-update-completed-mixed', {
-      editing: summary.editing,
-      deleting: summary.deleting
-    })
-  }
-  if (summary.deleting > 0) {
-    return i18n.t('chat.file-update-completed-delete', {
-      count: summary.deleting
-    })
-  }
-  return i18n.t('chat.file-update-completed-edit', {
-    count: summary.editing
-  })
-}
-const isFileUpdateOpened = (key: string): boolean => {
-  return !loadClosedFileUpdate.value.has(key)
-}
-const handleFileUpdateSwitch = (key: string) => {
-  const next = new Set(loadClosedFileUpdate.value)
-  if (next.has(key)) {
-    next.delete(key)
-  } else {
-    next.add(key)
-  }
-  loadClosedFileUpdate.value = next
 }
 const handleMaybeJsonParse = (value: string): any => {
   const text = (value || '').trim()
@@ -652,6 +461,12 @@ const loadStreamingStatusText = computed(() => {
   }
   // 默认思考中
   return i18n.t('chat.streaming.thinking')
+})
+
+onUnmounted(() => {
+  if (loadCopiedMessageTimer) {
+    window.clearTimeout(loadCopiedMessageTimer)
+  }
 })
 
 const useInstance = () => loadMessagesRef.value

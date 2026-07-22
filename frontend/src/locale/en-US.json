@@ -358,6 +358,9 @@
     "file-update-completed-mixed": "Modified {editing} and deleted {deleting} files",
     "file-update-completed-delete": "Deleted {count} files",
     "file-update-completed-edit": "Modified {count} files",
+    "file-update-preview-deleted": "The file has been deleted and cannot be opened",
+    "file-update-preview-forbidden": "Only files under the disk directory can be opened",
+    "file-update-save-success": "File saved",
     "tool": {
       "schedule": "Schedule",
       "edit_file": "Edit File",
